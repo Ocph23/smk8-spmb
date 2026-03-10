@@ -13,9 +13,7 @@ const showingNavigationDropdown = ref(false);
 <template>
     <div>
         <div class="min-h-screen bg-gray-100">
-            <nav
-                class="border-b border-gray-100 bg-white"
-            >
+            <nav class="border-b border-gray-100 bg-white">
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
@@ -38,6 +36,30 @@ const showingNavigationDropdown = ref(false);
                                     :active="route().current('dashboard')"
                                 >
                                     Dashboard
+                                </NavLink>
+                                <NavLink
+                                    :href="route('admin.students')"
+                                    :active="route().current('admin.students') || route().current('admin.students.show')"
+                                >
+                                    Pendaftar
+                                </NavLink>
+                                <NavLink
+                                    :href="route('admin.majors')"
+                                    :active="route().current('admin.majors')"
+                                >
+                                    Jurusan
+                                </NavLink>
+                                <NavLink
+                                    :href="route('admin.schedules')"
+                                    :active="route().current('admin.schedules')"
+                                >
+                                    Jadwal
+                                </NavLink>
+                                <NavLink
+                                    :href="route('home')"
+                                    target="_blank"
+                                >
+                                    Lihat Website
                                 </NavLink>
                             </div>
                         </div>
@@ -145,6 +167,18 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('dashboard')"
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('admin.students')"
+                            :active="route().current('admin.students') || route().current('admin.students.show')"
+                        >
+                            Pendaftar
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('admin.schedules')"
+                            :active="route().current('admin.schedules')"
+                        >
+                            Jadwal
                         </ResponsiveNavLink>
                     </div>
 
