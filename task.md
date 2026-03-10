@@ -1,0 +1,22 @@
+# PPDB SMKN 8 TIK Kota Jayapura - Task List
+
+- [/] Planning & Setup
+  - [x] Initialize Laravel project
+  - [/] Install Laravel Breeze (Inertia + Vue)
+  - [ ] Configure database
+- [ ] Database System Design
+  - [ ] Setup models and migrations (`majors`, `students`, `student_majors`, `schedules`)
+- [ ] User Roles & Authentication
+  - [ ] Admin & Student roles implementation
+  - [ ] Basic Admin Dashboard
+- [ ] Student Features
+  - [ ] Biodata and Document Upload Form
+  - [ ] Major Selection Form (Dynamic Options)
+  - [ ] Generate Registration Proof PDF
+  - [ ] Reactive Announcement Checking
+- [ ] Admin Features
+  - [ ] Verify Documents
+  - [ ] Manage Schedules
+  - [ ] Allocate Majors (Seleksi)
+- [ ] Final Verification
+  - [ ] End-to-end testing
