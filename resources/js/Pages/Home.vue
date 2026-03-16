@@ -71,15 +71,19 @@ const getStatusLabel = (status) => {
                             class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
                             Jadwal
                         </a>
+                        <Link :href="route('student.login')"
+                            class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                            Login Siswa
+                        </Link>
                         <Link v-if="auth.user" :href="route('dashboard')"
                             class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                             Dashboard
                         </Link>
                         <Link v-else :href="route('login')"
                             class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            Login
+                            Login Admin
                         </Link>
-                        <Link :href="route('student.register')"
+                        <Link :href="route('student.register.form')"
                             class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium">
                             Daftar Sekarang
                         </Link>

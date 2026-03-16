@@ -1,62 +1,52 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
+    student: {
+        type: Object,
+        required: true,
+    },
     majors: {
         type: Array,
         required: true,
-    },
-    errors: {
-        type: Object,
-        required: true,
-    },
-    student: {
-        type: Object,
-        default: null,
     },
 });
 
 const currentStep = ref(1);
 
-// Check if student has existing data
-const hasExistingData = computed(() => {
-    return props.student && props.student.full_name;
-});
-
-// Get major preference if exists
+// Get major preferences
 const getMajorPreference = (preference) => {
-    if (!props.student?.majors) return '';
     const major = props.student.majors.find(m => m.pivot.preference === preference);
     return major ? major.id : '';
 };
 
 const form = useForm({
-    full_name: props.student?.full_name || '',
-    nik: props.student?.nik || '',
-    nisn: props.student?.nisn || '',
-    place_of_birth: props.student?.place_of_birth || '',
-    date_of_birth: props.student?.date_of_birth || '',
-    gender: props.student?.gender || '',
-    religion: props.student?.religion || '',
-    // Address fields (separated)
-    street: props.student?.street || '',
-    rt: props.student?.rt || '',
-    rw: props.student?.rw || '',
-    dusun: props.student?.dusun || '',
-    district: props.student?.district || '',
-    postal_code: props.student?.postal_code || '',
-    phone: props.student?.phone || '',
-    email: props.student?.email || '',
+    full_name: props.student.full_name,
+    nik: props.student.nik,
+    nisn: props.student.nisn || '',
+    place_of_birth: props.student.place_of_birth,
+    date_of_birth: props.student.date_of_birth,
+    gender: props.student.gender,
+    religion: props.student.religion || '',
+    // Address fields
+    street: props.student.street || '',
+    rt: props.student.rt || '',
+    rw: props.student.rw || '',
+    dusun: props.student.dusun || '',
+    district: props.student.district || '',
+    postal_code: props.student.postal_code || '',
+    phone: props.student.phone,
+    email: props.student.email,
     // Parent fields
-    parent_name: props.student?.parent_name || '',
-    mother_name: props.student?.mother_name || '',
-    parent_phone: props.student?.parent_phone || '',
+    parent_name: props.student.parent_name,
+    mother_name: props.student.mother_name || '',
+    parent_phone: props.student.parent_phone,
     // Major preferences
     major_1: getMajorPreference(1),
     major_2: getMajorPreference(2),
     major_3: getMajorPreference(3),
-    // Files
+    // Files (will be populated on change)
     file_ijazah: null,
     file_kk: null,
     file_akta: null,
@@ -64,10 +54,10 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('student.register.store'), {
+    form.put(route('student.update', props.student.registration_number), {
         forceFormData: true,
         onSuccess: () => {
-            // Form submitted successfully - redirect handled by controller
+            // Stay on edit page or redirect to preview
         },
     });
 };
@@ -87,7 +77,7 @@ const prevStep = () => {
 };
 
 const validateStep1 = () => {
-    const required = ['full_name', 'nik', 'place_of_birth', 'date_of_birth', 'gender', 'street', 'district', 'phone', 'email', 'parent_name', 'mother_name', 'parent_phone'];
+    const required = ['full_name', 'nik', 'place_of_birth', 'date_of_birth', 'gender', 'street', 'district', 'phone', 'email', 'parent_name', 'parent_phone'];
     for (const field of required) {
         if (!form[field]) {
             return false;
@@ -135,23 +125,26 @@ const handleFileChange = (field, event) => {
     }
 };
 
-const formatDateForInput = (date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    return d.toISOString().split('T')[0];
-};
-
-const getFileName = (field) => {
+const getFileName = (field, existingPath) => {
+    // If new file selected, show its name
     if (form[field] && typeof form[field] === 'object') {
         return form[field].name;
     }
+    // Otherwise show existing file indicator
+    if (existingPath) {
+        return '(File sudah ada)';
+    }
     return null;
+};
+
+const hasExistingFile = (field) => {
+    return props.student[field] && !form[field];
 };
 </script>
 
 <template>
 
-    <Head title="Pendaftaran - SPMB SMKN 8" />
+    <Head :title="`Edit Pendaftaran - ${student.registration_number}`" />
 
     <div class="min-h-screen bg-gray-50">
         <!-- Navigation -->
@@ -168,10 +161,6 @@ const getFileName = (field) => {
                             class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
                             Beranda
                         </Link>
-                        <Link v-if="$page.props.auth.user" :href="route('student.dashboard')"
-                            class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            Dashboard
-                        </Link>
                     </div>
                 </div>
             </div>
@@ -180,53 +169,23 @@ const getFileName = (field) => {
         <!-- Main Content -->
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="bg-white rounded-lg shadow-lg p-8">
-                <!-- Update Notice -->
-                <div v-if="hasExistingData"
-                    class="mb-6 bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg">
-                    <div class="flex items-start">
-                        <svg class="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div>
-                            <p class="font-semibold mb-1">Edit Data Pendaftaran</p>
-                            <p class="text-sm">Anda sedang memperbarui data pendaftaran. Pastikan semua informasi sudah
-                                benar sebelum menyimpan.</p>
-                        </div>
-                    </div>
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                        Edit Data Pendaftaran
+                    </h1>
+                    <p class="text-gray-600">
+                        No. Pendaftaran: <span class="font-bold text-blue-600">{{ student.registration_number }}</span>
+                    </p>
                 </div>
 
-                <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">
-                    Formulir Pendaftaran SPMB
-                </h1>
-                <p class="text-center text-gray-600 mb-8">
-                    Tahun Ajaran 2026/2027
-                </p>
-
-                <!-- Progress Steps -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-center">
-                        <div :class="currentStep >= 1 ? 'bg-blue-600' : 'bg-gray-300'"
-                            class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold">
-                            1
-                        </div>
-                        <div :class="currentStep >= 1 ? 'bg-blue-600' : 'bg-gray-300'" class="flex-1 h-1 mx-2" />
-                        <div :class="currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'"
-                            class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold">
-                            2
-                        </div>
-                        <div :class="currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'" class="flex-1 h-1 mx-2" />
-                        <div :class="currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-300'"
-                            class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold">
-                            3
-                        </div>
-                    </div>
-                    <div class="flex justify-between mt-2 text-sm text-gray-600">
-                        <span>Biodata</span>
-                        <span>Pilihan Jurusan</span>
-                        <span>Upload Berkas</span>
-                    </div>
+                <!-- Warning if verified -->
+                <div v-if="student.verification_status !== 'pending'"
+                    class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    <p class="font-semibold mb-1">⚠️ Data Sudah Diverifikasi</p>
+                    <p class="text-sm">
+                        Data pendaftaran Anda sudah diverifikasi. Perubahan data memerlukan persetujuan dari panitia.
+                        Hubungi admin jika perlu mengubah data.
+                    </p>
                 </div>
 
                 <!-- Error Messages -->
@@ -236,6 +195,31 @@ const getFileName = (field) => {
                 </div>
 
                 <form @submit.prevent="submit">
+                    <!-- Progress Steps -->
+                    <div class="mb-8">
+                        <div class="flex items-center justify-center">
+                            <div :class="currentStep >= 1 ? 'bg-blue-600' : 'bg-gray-300'"
+                                class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold">
+                                1
+                            </div>
+                            <div :class="currentStep >= 1 ? 'bg-blue-600' : 'bg-gray-300'" class="flex-1 h-1 mx-2" />
+                            <div :class="currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'"
+                                class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold">
+                                2
+                            </div>
+                            <div :class="currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'" class="flex-1 h-1 mx-2" />
+                            <div :class="currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-300'"
+                                class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold">
+                                3
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-sm text-gray-600">
+                            <span>Biodata</span>
+                            <span>Pilihan Jurusan</span>
+                            <span>Upload Berkas</span>
+                        </div>
+                    </div>
+
                     <!-- Step 1: Biodata -->
                     <div v-show="currentStep === 1" class="space-y-6">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Data Pribadi</h2>
@@ -347,7 +331,7 @@ const getFileName = (field) => {
                         <!-- Address Section -->
                         <div class="border-t pt-4">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">Alamat Lengkap</h3>
-                            
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
                                     Jalan/Gang <span class="text-red-500">*</span>
@@ -462,7 +446,7 @@ const getFileName = (field) => {
                         <!-- Parent Section -->
                         <div class="border-t pt-4">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">Data Orang Tua/Wali</h3>
-                            
+
                             <div class="grid md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -571,8 +555,8 @@ const getFileName = (field) => {
                     <div v-show="currentStep === 3" class="space-y-6">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Upload Berkas</h2>
                         <p class="text-gray-600">
-                            Upload dokumen-dokumen berikut dalam format PDF atau gambar (JPG/PNG).
-                            Maksimal ukuran file: 2MB (Foto: 1MB).
+                            Upload ulang dokumen jika ingin mengganti file yang sudah ada.
+                            Kosongkan jika tidak ingin mengubah.
                         </p>
 
                         <div>
@@ -582,8 +566,10 @@ const getFileName = (field) => {
                             <input type="file" @change="handleFileChange('file_ijazah', $event)"
                                 accept=".pdf,.jpg,.jpeg,.png"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            <p v-if="getFileName('file_ijazah')" class="text-green-600 text-sm mt-1">
-                                File terpilih: {{ getFileName('file_ijazah') }}
+                            <p v-if="getFileName('file_ijazah', student.file_ijazah)" 
+                                :class="hasExistingFile('file_ijazah') ? 'text-blue-600' : 'text-green-600'" 
+                                class="text-sm mt-1">
+                                {{ getFileName('file_ijazah', student.file_ijazah) }}
                             </p>
                             <p v-if="$page.props.errors.file_ijazah" class="text-red-500 text-sm mt-1">
                                 {{ $page.props.errors.file_ijazah }}
@@ -597,8 +583,10 @@ const getFileName = (field) => {
                             <input type="file" @change="handleFileChange('file_kk', $event)"
                                 accept=".pdf,.jpg,.jpeg,.png"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            <p v-if="getFileName('file_kk')" class="text-green-600 text-sm mt-1">
-                                File terpilih: {{ getFileName('file_kk') }}
+                            <p v-if="getFileName('file_kk', student.file_kk)" 
+                                :class="hasExistingFile('file_kk') ? 'text-blue-600' : 'text-green-600'" 
+                                class="text-sm mt-1">
+                                {{ getFileName('file_kk', student.file_kk) }}
                             </p>
                             <p v-if="$page.props.errors.file_kk" class="text-red-500 text-sm mt-1">
                                 {{ $page.props.errors.file_kk }}
@@ -612,8 +600,10 @@ const getFileName = (field) => {
                             <input type="file" @change="handleFileChange('file_akta', $event)"
                                 accept=".pdf,.jpg,.jpeg,.png"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            <p v-if="getFileName('file_akta')" class="text-green-600 text-sm mt-1">
-                                File terpilih: {{ getFileName('file_akta') }}
+                            <p v-if="getFileName('file_akta', student.file_akta)" 
+                                :class="hasExistingFile('file_akta') ? 'text-blue-600' : 'text-green-600'" 
+                                class="text-sm mt-1">
+                                {{ getFileName('file_akta', student.file_akta) }}
                             </p>
                             <p v-if="$page.props.errors.file_akta" class="text-red-500 text-sm mt-1">
                                 {{ $page.props.errors.file_akta }}
@@ -627,8 +617,10 @@ const getFileName = (field) => {
                             <input type="file" @change="handleFileChange('file_pas_photo', $event)"
                                 accept=".jpg,.jpeg,.png"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            <p v-if="getFileName('file_pas_photo')" class="text-green-600 text-sm mt-1">
-                                File terpilih: {{ getFileName('file_pas_photo') }}
+                            <p v-if="getFileName('file_pas_photo', student.file_pas_photo)" 
+                                :class="hasExistingFile('file_pas_photo') ? 'text-blue-600' : 'text-green-600'" 
+                                class="text-sm mt-1">
+                                {{ getFileName('file_pas_photo', student.file_pas_photo) }}
                             </p>
                             <p v-if="$page.props.errors.file_pas_photo" class="text-red-500 text-sm mt-1">
                                 {{ $page.props.errors.file_pas_photo }}
@@ -638,23 +630,29 @@ const getFileName = (field) => {
 
                     <!-- Navigation Buttons -->
                     <div class="flex justify-between mt-8">
-                        <button v-if="currentStep > 1" type="button" @click="prevStep"
+                        <Link :href="route('student.preview', student.registration_number)"
                             class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                            Kembali
-                        </button>
-                        <div v-else></div>
+                            Batal
+                        </Link>
 
-                        <button v-if="currentStep < 3" type="button" @click="nextStep"
-                            :disabled="!validateStep1() || (currentStep === 2 && !validateStep2())"
-                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                            Lanjut
-                        </button>
+                        <div class="flex gap-2">
+                            <button v-if="currentStep > 1" type="button" @click="prevStep"
+                                class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                                Kembali
+                            </button>
 
-                        <button v-if="currentStep === 3" type="submit" :disabled="form.processing"
-                            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                            <span v-if="form.processing">Menyimpan...</span>
-                            <span v-else>Daftar Sekarang</span>
-                        </button>
+                            <button v-if="currentStep < 3" type="button" @click="nextStep"
+                                :disabled="!validateStep1() || (currentStep === 2 && !validateStep2())"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                Lanjut
+                            </button>
+
+                            <button v-if="currentStep === 3" type="submit" :disabled="form.processing"
+                                class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                <span v-if="form.processing">Menyimpan...</span>
+                                <span v-else>Simpan Perubahan</span>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>

@@ -6,11 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Student extends Model
+class Student extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'user_id',
@@ -23,9 +26,17 @@ class Student extends Model
         'gender',
         'religion',
         'address',
+        'street',
+        'rt',
+        'rw',
+        'dusun',
+        'district',
+        'postal_code',
         'phone',
         'email',
+        'password',
         'parent_name',
+        'mother_name',
         'parent_phone',
         'file_ijazah',
         'file_kk',
@@ -37,9 +48,15 @@ class Student extends Model
         'accepted_major_id',
     ];
 
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     protected $casts = [
         'date_of_birth' => 'date',
         'is_accepted' => 'boolean',
+        'password' => 'hashed',
     ];
 
     public function user(): BelongsTo
@@ -58,5 +75,10 @@ class Student extends Model
     public function acceptedMajor(): BelongsTo
     {
         return $this->belongsTo(Major::class, 'accepted_major_id');
+    }
+
+    public function inbox(): HasMany
+    {
+        return $this->hasMany(Inbox::class);
     }
 }

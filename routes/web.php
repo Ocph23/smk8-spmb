@@ -5,7 +5,9 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\StudentAuthController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentInboxController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -13,11 +15,44 @@ use Inertia\Inertia;
 // Public Routes
 Route::get('/', [ScheduleController::class, 'index'])->name('home');
 
-// Student Registration
-Route::get('/daftar', [StudentController::class, 'create'])->name('student.register');
-Route::post('/daftar', [StudentController::class, 'store'])->name('student.register.store');
-Route::get('/pendaftaran/{registrationNumber}', [StudentController::class, 'certificate'])->name('student.certificate');
-Route::get('/pendaftaran/{registrationNumber}/cetak', [StudentController::class, 'printCertificate'])->name('student.certificate.print');
+// Student Authentication (Public)
+Route::middleware('guest.student')->group(function () {
+    Route::get('/siswa/login', [StudentAuthController::class, 'showLogin'])->name('student.login');
+    Route::post('/siswa/login', [StudentAuthController::class, 'login']);
+    Route::get('/siswa/register', [StudentAuthController::class, 'showRegister'])->name('student.register');
+    Route::post('/siswa/register', [StudentAuthController::class, 'register']);
+});
+
+// Student Registration & Management (students/pendaftaran prefix)
+Route::prefix('students/pendaftaran')->group(function () {
+    // Public registration form
+    Route::get('/daftar', [StudentController::class, 'create'])->name('student.register.form');
+    Route::post('/daftar', [StudentController::class, 'store'])->name('student.register.store');
+    
+    // Certificate & Preview (public access with registration number)
+    Route::get('/{registrationNumber}', [StudentController::class, 'certificate'])->name('student.certificate');
+    Route::get('/{registrationNumber}/cetak', [StudentController::class, 'printCertificate'])->name('student.certificate.print');
+    Route::get('/{registrationNumber}/preview', [StudentController::class, 'preview'])->name('student.preview');
+    Route::get('/{registrationNumber}/edit', [StudentController::class, 'edit'])->name('student.edit');
+    Route::put('/{registrationNumber}', [StudentController::class, 'update'])->name('student.update');
+});
+
+// Student Authenticated Routes
+Route::middleware('auth:student')->group(function () {
+    Route::get('/student/dashboard', [StudentAuthController::class, 'dashboard'])->name('student.dashboard');
+    Route::post('/student/logout', [StudentAuthController::class, 'logout'])->name('student.logout');
+
+    // Student Inbox
+    Route::get('/student/inbox', [StudentInboxController::class, 'index'])->name('student.inbox');
+    Route::get('/student/inbox/{message}', [StudentInboxController::class, 'show'])->name('student.inbox.show');
+    Route::put('/student/inbox/{message}/read', [StudentInboxController::class, 'markAsRead'])->name('student.inbox.mark-as-read');
+    Route::post('/student/inbox/mark-all-read', [StudentInboxController::class, 'markAllAsRead'])->name('student.inbox.mark-all-read');
+    Route::delete('/student/inbox/{message}', [StudentInboxController::class, 'destroy'])->name('student.inbox.destroy');
+
+    // Student Profile
+    Route::get('/student/profile', [ProfileController::class, 'edit'])->name('student.profile.edit');
+    Route::patch('/student/profile', [ProfileController::class, 'update'])->name('student.profile.update');
+});
 
 // Announcement
 Route::get('/pengumuman', [AnnouncementController::class, 'index'])->name('announcement.index');
