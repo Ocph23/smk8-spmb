@@ -117,7 +117,7 @@ const formatDateForInput = (date) => {
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="bg-white rounded-lg shadow-lg p-8">
                 <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">
-                    Formulir Pendaftaran PPDB
+                    Formulir Pendaftaran SPMB
                 </h1>
                 <p class="text-center text-gray-600 mb-8">
                     Tahun Ajaran 2026/2027

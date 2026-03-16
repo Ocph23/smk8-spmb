@@ -148,11 +148,11 @@
 </head>
 
 <body>
-    <div class="watermark">PPDB</div>
+    <div class="watermark">SPMB</div>
 
     <div class="container">
         <div class="header">
-            <h1>BUKTI PENDAFTARAN PPDB</h1>
+            <h1>BUKTI PENDAFTARAN SPMB</h1>
             <h2>Tahun Ajaran {{ date('Y') }}/2027</h2>
             <div class="school-name">SMK NEGERI 8 TIK KOTA JAYAPURA</div>
         </div>

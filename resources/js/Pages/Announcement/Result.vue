@@ -42,7 +42,7 @@ const formatDate = (dateString) => {
             <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
                 <div class="text-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 mb-2">
-                        Hasil Seleksi PPDB
+                        Hasil Seleksi SPMB
                     </h1>
                     <p class="text-gray-600">
                         Tahun Ajaran 2026/2027

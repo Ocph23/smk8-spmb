@@ -53,7 +53,7 @@ class StudentController extends Controller
                 ->orderBy('id', 'desc')
                 ->first();
             $number = $lastStudent ? intval(substr($lastStudent->registration_number, -4)) + 1 : 1;
-            $registrationNumber = sprintf('PPDB-%d-%04d', $year, $number);
+            $registrationNumber = sprintf('SPMB-%d-%04d', $year, $number);
 
             // Upload files
             $filePaths = [];
@@ -99,7 +99,6 @@ class StudentController extends Controller
 
             return redirect()->route('student.certificate', $student->registration_number)
                 ->with('success', 'Pendaftaran berhasil!');
-
         } catch (\Exception $e) {
             DB::rollBack();
 

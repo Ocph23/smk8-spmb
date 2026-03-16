@@ -116,7 +116,7 @@ const getStatusLabel = (status) => {
         <!-- Jadwal Section -->
         <div id="jadwal" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <h3 class="text-3xl font-bold text-center text-gray-800 mb-2">
-                Jadwal PPDB
+                Jadwal SPMB
             </h3>
             <p class="text-center text-gray-600 mb-12">
                 Timeline kegiatan penerimaan peserta didik baru
@@ -154,7 +154,7 @@ const getStatusLabel = (status) => {
                     Cek Hasil Seleksi
                 </h3>
                 <p class="text-gray-600 mb-8">
-                    Masukkan nomor pendaftaran dan NIK untuk melihat hasil seleksi PPDB
+                    Masukkan nomor pendaftaran dan NIK untuk melihat hasil seleksi SPMB
                 </p>
                 <Link :href="route('announcement.index')"
                     class="inline-flex items-center bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition text-lg">

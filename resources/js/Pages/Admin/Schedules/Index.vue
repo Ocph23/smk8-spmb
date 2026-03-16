@@ -86,25 +86,20 @@ const getStatusColor = (status) => {
 </script>
 
 <template>
+
     <Head title="Kelola Jadwal - Admin" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                    Kelola Jadwal PPDB
+                    Kelola Jadwal SPMB
                 </h2>
                 <div class="flex gap-2">
-                    <Link
-                        :href="route('dashboard')"
-                        class="text-blue-600 hover:text-blue-800"
-                    >
+                    <Link :href="route('dashboard')" class="text-blue-600 hover:text-blue-800">
                         ← Kembali ke Dashboard
                     </Link>
-                    <button
-                        @click="openCreate"
-                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                    >
+                    <button @click="openCreate" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                         + Tambah Jadwal
                     </button>
                 </div>
@@ -117,29 +112,20 @@ const getStatusColor = (status) => {
                 <div class="bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div
-                                v-for="schedule in schedules"
-                                :key="schedule.id"
-                                class="border rounded-lg p-4 hover:shadow-md transition"
-                            >
+                            <div v-for="schedule in schedules" :key="schedule.id"
+                                class="border rounded-lg p-4 hover:shadow-md transition">
                                 <div class="flex justify-between items-start mb-2">
-                                    <span
-                                        :class="getStatusColor(schedule.status)"
-                                        class="px-2 py-1 text-xs font-semibold rounded-full"
-                                    >
+                                    <span :class="getStatusColor(schedule.status)"
+                                        class="px-2 py-1 text-xs font-semibold rounded-full">
                                         {{ schedule.status }}
                                     </span>
                                     <div class="flex gap-2">
-                                        <button
-                                            @click="openEdit(schedule)"
-                                            class="text-blue-600 hover:text-blue-800 text-sm"
-                                        >
+                                        <button @click="openEdit(schedule)"
+                                            class="text-blue-600 hover:text-blue-800 text-sm">
                                             Edit
                                         </button>
-                                        <button
-                                            @click="destroy(schedule)"
-                                            class="text-red-600 hover:text-red-800 text-sm"
-                                        >
+                                        <button @click="destroy(schedule)"
+                                            class="text-red-600 hover:text-red-800 text-sm">
                                             Hapus
                                         </button>
                                     </div>
@@ -162,7 +148,7 @@ const getStatusColor = (status) => {
                         </div>
 
                         <div v-if="schedules.length === 0" class="text-center py-12 text-gray-500">
-                            Belum ada jadwal PPDB.
+                            Belum ada jadwal SPMB.
                         </div>
                     </div>
                 </div>
@@ -170,10 +156,7 @@ const getStatusColor = (status) => {
         </div>
 
         <!-- Modal Form -->
-        <div
-            v-if="showForm"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        >
+        <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded-lg p-6 w-full max-w-md">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">
                     {{ editingSchedule ? 'Edit Jadwal' : 'Tambah Jadwal Baru' }}
@@ -184,23 +167,17 @@ const getStatusColor = (status) => {
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             Judul Jadwal
                         </label>
-                        <input
-                            v-model="form.title"
-                            type="text"
+                        <input v-model="form.title" type="text"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
+                            required />
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             Deskripsi
                         </label>
-                        <textarea
-                            v-model="form.description"
-                            rows="3"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        ></textarea>
+                        <textarea v-model="form.description" rows="3"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -208,24 +185,18 @@ const getStatusColor = (status) => {
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Tanggal Mulai
                             </label>
-                            <input
-                                v-model="form.start_date"
-                                type="date"
+                            <input v-model="form.start_date" type="date"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                required
-                            />
+                                required />
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Tanggal Selesai
                             </label>
-                            <input
-                                v-model="form.end_date"
-                                type="date"
+                            <input v-model="form.end_date" type="date"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                required
-                            />
+                                required />
                         </div>
                     </div>
 
@@ -233,10 +204,8 @@ const getStatusColor = (status) => {
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             Status
                         </label>
-                        <select
-                            v-model="form.status"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        >
+                        <select v-model="form.status"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                             <option value="inactive">Inactive</option>
                             <option value="active">Active</option>
                             <option value="completed">Completed</option>
@@ -244,18 +213,12 @@ const getStatusColor = (status) => {
                     </div>
 
                     <div class="flex justify-end gap-2 mt-6">
-                        <button
-                            type="button"
-                            @click="showForm = false"
-                            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-                        >
+                        <button type="button" @click="showForm = false"
+                            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
                             Batal
                         </button>
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-                        >
+                        <button type="submit" :disabled="form.processing"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400">
                             Simpan
                         </button>
                     </div>

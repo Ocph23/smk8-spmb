@@ -40,7 +40,7 @@ const submit = () => {
             <div class="bg-white rounded-lg shadow-lg p-8">
                 <div class="text-center mb-8">
                     <h1 class="text-3xl font-bold text-gray-800 mb-2">
-                        Cek Hasil Seleksi PPDB
+                        Cek Hasil Seleksi SPMB
                     </h1>
                     <p class="text-gray-600">
                         Masukkan Nomor Pendaftaran dan NIK untuk melihat hasil seleksi
@@ -61,7 +61,7 @@ const submit = () => {
                         <input v-model="form.registration_number" type="text"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
                             :class="{ 'border-red-500': $page.props.errors.registration_number }"
-                            placeholder="Contoh: PPDB-2026-0001" />
+                            placeholder="Contoh: SPMB-2026-0001" />
                         <p v-if="$page.props.errors.registration_number" class="text-red-500 text-sm mt-1">
                             {{ $page.props.errors.registration_number }}
                         </p>
