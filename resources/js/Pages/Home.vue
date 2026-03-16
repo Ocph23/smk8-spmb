@@ -167,6 +167,297 @@ const getStatusLabel = (status) => {
             </div>
         </div>
 
+        <!-- Persyaratan Section -->
+        <div class="bg-white py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h3 class="text-3xl font-bold text-center text-gray-800 mb-4">
+                    Persyaratan Pendaftaran
+                </h3>
+                <p class="text-center text-gray-600 mb-12">
+                    Pastikan Anda memenuhi persyaratan berikut sebelum mendaftar
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg shadow-lg p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-800">Persyaratan Umum</h4>
+                        </div>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Lulusan SMP/MTs atau paket B tahun 2026</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Memiliki NIK dan NISN yang valid</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Sehat jasmani dan rohani</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Tidak sedang terdaftar di sekolah lain</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Berkelakuan baik dan tidak terlibat narkoba</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg shadow-lg p-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-800">Berkas yang Harus Dipersiapkan</h4>
+                        </div>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Scan Ijazah/SKL (PDF/JPG/PNG, max 2MB)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Scan Kartu Keluarga - KK (PDF/JPG/PNG, max 2MB)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Scan Akta Kelahiran (PDF/JPG/PNG, max 2MB)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor"
+                                    viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">Pas Foto 3x4 (JPG/PNG, background merah/biru, max 2MB)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alur Pendaftaran Section -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <h3 class="text-3xl font-bold text-center text-gray-800 mb-4">
+                Alur Pendaftaran
+            </h3>
+            <p class="text-center text-gray-600 mb-12">
+                Ikuti langkah-langkah berikut untuk melakukan pendaftaran
+            </p>
+
+            <div class="relative">
+                <!-- Timeline Line -->
+                <div class="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-blue-500 via-green-500 to-indigo-500"></div>
+
+                <div class="space-y-12">
+                    <!-- Step 1 -->
+                    <div class="relative flex flex-col md:flex-row items-center">
+                        <div class="md:w-1/2 md:pr-12 md:text-right">
+                            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
+                                <div class="flex items-center md:justify-end mb-3">
+                                    <span
+                                        class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                                        1
+                                    </span>
+                                </div>
+                                <h4 class="text-lg font-bold text-gray-800 mb-2">Isi Formulir Pendaftaran</h4>
+                                <p class="text-gray-600 text-sm">
+                                    Lengkapi biodata diri, pilih jurusan yang diminati (3 pilihan sesuai urutan prioritas),
+                                    dan upload berkas persyaratan dalam format PDF atau gambar.
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 bg-blue-500 rounded-full border-4 border-white shadow-lg hidden md:flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="md:w-1/2 md:pl-12 mt-4 md:mt-0">
+                            <div class="bg-blue-50 rounded-lg p-4 text-center md:text-left">
+                                <p class="text-sm text-gray-600">
+                                    <strong>Hasil:</strong> Anda akan mendapatkan nomor pendaftaran dan bukti pendaftaran
+                                    yang dapat dicetak.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative flex flex-col md:flex-row items-center">
+                        <div class="md:w-1/2 md:pr-12 md:text-right mt-4 md:mt-0 order-2 md:order-1">
+                            <div class="bg-green-50 rounded-lg p-4 text-center md:text-right">
+                                <p class="text-sm text-gray-600">
+                                    <strong>Proses:</strong> Panitia akan memverifikasi berkas Anda dalam waktu 1-3 hari
+                                    kerja.
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg hidden md:flex items-center justify-center order-2 md:order-2">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="md:w-1/2 md:pl-12 mt-4 md:mt-0 order-1 md:order-2">
+                            <div class="bg-white rounded-lg shadow-lg p-6 border-r-4 border-green-500">
+                                <div class="flex items-center md:justify-start mb-3">
+                                    <span
+                                        class="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                                        2
+                                    </span>
+                                </div>
+                                <h4 class="text-lg font-bold text-gray-800 mb-2">Verifikasi Berkas</h4>
+                                <p class="text-gray-600 text-sm">
+                                    Setelah mendaftar, tunggu proses verifikasi berkas oleh panitia.
+                                    Anda dapat memantau status verifikasi melalui halaman pengumuman.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative flex flex-col md:flex-row items-center">
+                        <div class="md:w-1/2 md:pr-12 md:text-right">
+                            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-indigo-500">
+                                <div class="flex items-center md:justify-end mb-3">
+                                    <span
+                                        class="bg-indigo-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                                        3
+                                    </span>
+                                </div>
+                                <h4 class="text-lg font-bold text-gray-800 mb-2">Cek Hasil Seleksi</h4>
+                                <p class="text-gray-600 text-sm">
+                                    Setelah proses verifikasi dan seleksi selesai, cek hasil seleksi menggunakan
+                                    nomor pendaftaran dan NIK Anda. Pengumuman akan ditampilkan secara online.
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 bg-indigo-500 rounded-full border-4 border-white shadow-lg hidden md:flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="md:w-1/2 md:pl-12 mt-4 md:mt-0">
+                            <div class="bg-indigo-50 rounded-lg p-4 text-center md:text-left">
+                                <p class="text-sm text-gray-600">
+                                    <strong>Hasil:</strong> Jika dinyatakan lulus, Anda akan melihat jurusan yang
+                                    dialokasikan.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="relative flex flex-col md:flex-row items-center">
+                        <div class="md:w-1/2 md:pr-12 md:text-right mt-4 md:mt-0 order-2 md:order-1">
+                            <div class="bg-purple-50 rounded-lg p-4 text-center md:text-right">
+                                <p class="text-sm text-gray-600">
+                                    <strong>Penting:</strong> Lakukan daftar ulang sesuai jadwal yang ditentukan.
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 bg-purple-500 rounded-full border-4 border-white shadow-lg hidden md:flex items-center justify-center order-2 md:order-2">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="md:w-1/2 md:pl-12 mt-4 md:mt-0 order-1 md:order-2">
+                            <div class="bg-white rounded-lg shadow-lg p-6 border-r-4 border-purple-500">
+                                <div class="flex items-center md:justify-start mb-3">
+                                    <span
+                                        class="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
+                                        4
+                                    </span>
+                                </div>
+                                <h4 class="text-lg font-bold text-gray-800 mb-2">Daftar Ulang</h4>
+                                <p class="text-gray-600 text-sm">
+                                    Bagi yang dinyatakan lulus seleksi, lakukan daftar ulang dengan membawa
+                                    berkas asli dan melengkapi administrasi sesuai jadwal yang ditentukan.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <div class="text-center mt-12">
+                <Link :href="route('student.register')"
+                    class="inline-flex items-center bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition text-lg shadow-lg">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Daftar Sekarang
+                </Link>
+            </div>
+        </div>
+
         <!-- Jurusan Section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <h3 class="text-3xl font-bold text-center text-gray-800 mb-4">
