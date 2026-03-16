@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bukti Pendaftaran PPDB - {{ $student->registration_number }}</title>
+    <title>Bukti Pendaftaran SPMB - {{ $student->registration_number }}</title>
     <style>
         * {
             margin: 0;
@@ -277,8 +277,8 @@
             <h4>Catatan Penting:</h4>
             <p>1. Simpan bukti pendaftaran ini dengan baik sebagai tanda bukti Anda telah mendaftar.</p>
             <p>2. Proses verifikasi akan dilakukan dalam waktu 1-3 hari kerja.</p>
-            <p>3. Hasil seleksi akan diumumkan melalui website PPDB SMKN 8 TIK Kota Jayapura.</p>
-            <p>4. Untuk informasi lebih lanjut, hubungi panitia PPDB di nomor yang tersedia.</p>
+            <p>3. Hasil seleksi akan diumumkan melalui website SPMB SMKN 8 TIK Kota Jayapura.</p>
+            <p>4. Untuk informasi lebih lanjut, hubungi panitia SPMB di nomor yang tersedia.</p>
         </div>
 
         <div class="footer">

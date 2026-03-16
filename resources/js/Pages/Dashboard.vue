@@ -16,7 +16,7 @@ defineProps({
 
 <template>
 
-    <Head title="Dashboard Admin - PPDB SMKN 8" />
+    <Head title="Dashboard Admin - SPMB SMKN 8" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -207,8 +207,7 @@ defineProps({
                                                 'bg-yellow-100 text-yellow-800': student.verification_status === 'pending',
                                                 'bg-green-100 text-green-800': student.verification_status === 'verified',
                                                 'bg-red-100 text-red-800': student.verification_status === 'rejected',
-                                            }"
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                            }" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
                                                 {{ student.verification_status }}
                                             </span>
                                         </td>

@@ -91,7 +91,7 @@ const formatDateForInput = (date) => {
 
 <template>
 
-    <Head title="Pendaftaran - PPDB SMKN 8" />
+    <Head title="Pendaftaran - SPMB SMKN 8" />
 
     <div class="min-h-screen bg-gray-50">
         <!-- Navigation -->
@@ -100,7 +100,7 @@ const formatDateForInput = (date) => {
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
                         <Link :href="route('home')" class="text-2xl font-bold text-blue-600">
-                            PPDB SMKN 8 TIK KOTA JAYAPURA
+                            SPMB SMKN 8 TIK KOTA JAYAPURA
                         </Link>
                     </div>
                     <div class="flex items-center space-x-4">

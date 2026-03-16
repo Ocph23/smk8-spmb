@@ -29,7 +29,7 @@ class ScheduleSeeder extends Seeder
             ],
             [
                 'title' => 'Pengumuman Hasil Seleksi',
-                'description' => 'Pengumuman hasil seleksi PPDB berdasarkan nilai dan kuota jurusan.',
+                'description' => 'Pengumuman hasil seleksi SPMB berdasarkan nilai dan kuota jurusan.',
                 'start_date' => '2026-07-20',
                 'end_date' => '2026-07-25',
                 'status' => 'inactive',
