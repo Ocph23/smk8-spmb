@@ -71,19 +71,20 @@ const getStatusLabel = (status) => {
                             class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
                             Jadwal
                         </a>
-                        <Link :href="route('student.login')"
+                        <Link v-if="!auth.user" :href="route('student.login')"
                             class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            Login Siswa
+                            Login
                         </Link>
-                        <Link v-if="auth.user" :href="route('dashboard')"
+
+                        <Link v-if="auth.user?.registration_number" :href="route('student.dashboard')"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Dashboard Siswa
+                        </Link>
+                        <Link v-if="auth.user && !auth.user?.registration_number" :href="route('dashboard')"
                             class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                             Dashboard
                         </Link>
-                        <Link v-else :href="route('login')"
-                            class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            Login Admin
-                        </Link>
-                        <Link :href="route('student.register.form')"
+                        <Link v-if="!auth.user" :href="route('student.register')"
                             class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 font-medium">
                             Daftar Sekarang
                         </Link>
@@ -286,7 +287,8 @@ const getStatusLabel = (status) => {
                                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                         clip-rule="evenodd" />
                                 </svg>
-                                <span class="text-gray-700">Pas Foto 3x4 (JPG/PNG, background merah/biru, max 2MB)</span>
+                                <span class="text-gray-700">Pas Foto 3x4 (JPG/PNG, background merah/biru, max
+                                    2MB)</span>
                             </li>
                         </ul>
                     </div>
@@ -305,7 +307,9 @@ const getStatusLabel = (status) => {
 
             <div class="relative">
                 <!-- Timeline Line -->
-                <div class="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-blue-500 via-green-500 to-indigo-500"></div>
+                <div
+                    class="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-blue-500 via-green-500 to-indigo-500">
+                </div>
 
                 <div class="space-y-12">
                     <!-- Step 1 -->
@@ -320,7 +324,8 @@ const getStatusLabel = (status) => {
                                 </div>
                                 <h4 class="text-lg font-bold text-gray-800 mb-2">Isi Formulir Pendaftaran</h4>
                                 <p class="text-gray-600 text-sm">
-                                    Lengkapi biodata diri, pilih jurusan yang diminati (3 pilihan sesuai urutan prioritas),
+                                    Lengkapi biodata diri, pilih jurusan yang diminati (3 pilihan sesuai urutan
+                                    prioritas),
                                     dan upload berkas persyaratan dalam format PDF atau gambar.
                                 </p>
                             </div>
@@ -336,7 +341,8 @@ const getStatusLabel = (status) => {
                         <div class="md:w-1/2 md:pl-12 mt-4 md:mt-0">
                             <div class="bg-blue-50 rounded-lg p-4 text-center md:text-left">
                                 <p class="text-sm text-gray-600">
-                                    <strong>Hasil:</strong> Anda akan mendapatkan nomor pendaftaran dan bukti pendaftaran
+                                    <strong>Hasil:</strong> Anda akan mendapatkan nomor pendaftaran dan bukti
+                                    pendaftaran
                                     yang dapat dicetak.
                                 </p>
                             </div>

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminInboxController;
+use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\ProfileController;
@@ -61,6 +63,20 @@ Route::post('/pengumuman', [AnnouncementController::class, 'check'])->name('anno
 // Authenticated Routes (Admin)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+    // Admin - Inbox Management
+    Route::get('/admin/inbox', [AdminInboxController::class, 'index'])->name('admin.inbox');
+    Route::get('/admin/inbox/compose', [AdminInboxController::class, 'create'])->name('admin.inbox.compose');
+    Route::post('/admin/inbox/send', [AdminInboxController::class, 'send'])->name('admin.inbox.send');
+    Route::get('/admin/inbox/{message}', [AdminInboxController::class, 'show'])->name('admin.inbox.show');
+    Route::delete('/admin/inbox/{message}', [AdminInboxController::class, 'destroy'])->name('admin.inbox.destroy');
+    Route::get('/admin/inbox/api/students', [AdminInboxController::class, 'getStudents'])->name('admin.inbox.api.students');
+
+    // Admin - Reports
+    Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports');
+    Route::get('/admin/reports/pdf', [AdminReportController::class, 'generatePdf'])->name('admin.reports.pdf');
+    Route::get('/admin/reports/csv', [AdminReportController::class, 'exportCsv'])->name('admin.reports.csv');
+    Route::get('/admin/reports/data', [AdminReportController::class, 'getData'])->name('admin.reports.data');
 
     // Admin - Students Management
     Route::get('/admin/students', [AdminController::class, 'students'])->name('admin.students');

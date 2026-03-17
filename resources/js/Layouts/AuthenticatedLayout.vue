@@ -56,6 +56,18 @@ const showingNavigationDropdown = ref(false);
                                     Jadwal
                                 </NavLink>
                                 <NavLink
+                                    :href="route('admin.inbox')"
+                                    :active="route().current('admin.inbox') || route().current('admin.inbox.compose') || route().current('admin.inbox.show')"
+                                >
+                                    Kelola Pesan
+                                </NavLink>
+                                <NavLink
+                                    :href="route('admin.reports')"
+                                    :active="route().current('admin.reports')"
+                                >
+                                    Laporan
+                                </NavLink>
+                                <NavLink
                                     :href="route('home')"
                                     target="_blank"
                                 >
@@ -179,6 +191,18 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('admin.schedules')"
                         >
                             Jadwal
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('admin.inbox')"
+                            :active="route().current('admin.inbox') || route().current('admin.inbox.compose') || route().current('admin.inbox.show')"
+                        >
+                            Kelola Pesan
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('admin.reports')"
+                            :active="route().current('admin.reports')"
+                        >
+                            Laporan
                         </ResponsiveNavLink>
                     </div>
 

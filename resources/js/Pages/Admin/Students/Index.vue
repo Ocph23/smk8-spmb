@@ -1,5 +1,5 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -57,20 +57,7 @@ const verifyStudent = (studentId, status) => {
 <template>
     <Head title="Kelola Pendaftar - Admin" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                    Kelola Pendaftar
-                </h2>
-                <Link
-                    :href="route('dashboard')"
-                    class="text-blue-600 hover:text-blue-800"
-                >
-                    ← Kembali ke Dashboard
-                </Link>
-            </div>
-        </template>
+    <AdminLayout>
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -263,5 +250,5 @@ const verifyStudent = (studentId, status) => {
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>

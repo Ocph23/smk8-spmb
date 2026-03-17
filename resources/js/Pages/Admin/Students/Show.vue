@@ -1,5 +1,5 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -17,16 +17,16 @@ const previewTitle = ref('');
 
 const openPreview = (file, title) => {
     if (!file) return;
-    
+
     previewTitle.value = title;
     const filePath = `/storage/${file}`;
-    
+
     if (file.endsWith('.pdf')) {
         previewType.value = 'pdf';
     } else if (file.match(/\.(jpg|jpeg|png)$/i)) {
         previewType.value = 'image';
     }
-    
+
     previewFile.value = filePath;
     showPreview.value = true;
 };
@@ -73,29 +73,23 @@ const formatDate = (dateString) => {
 <template>
     <Head :title="`Detail ${student.registration_number}`" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                    Detail Pendaftar
-                </h2>
-                <Link
-                    :href="route('admin.students')"
-                    class="text-blue-600 hover:text-blue-800"
-                >
-                    ← Kembali
-                </Link>
-            </div>
-        </template>
-
+    <AdminLayout>
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
                 <!-- Student Info -->
                 <div class="bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                            Informasi Pribadi
-                        </h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                Informasi Pribadi
+                            </h3>
+                            <Link
+                                :href="route('admin.students')"
+                                class="text-blue-600 hover:text-blue-800"
+                            >
+                                ← Kembali
+                            </Link>
+                        </div>
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
                                 <p class="text-sm text-gray-500">Nomor Pendaftaran</p>
@@ -500,5 +494,5 @@ const formatDate = (dateString) => {
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>
