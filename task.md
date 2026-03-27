@@ -34,6 +34,8 @@ Aplikasi SPMB untuk SMKN 8 TIK Kota Jayapura telah selesai dibuat dengan fitur:
 
 ### Admin Pages (requires login)
 
+
+
 - **Dashboard** (`/dashboard`) - Statistik dan overview pendaftar
 - **Kelola Pendaftar** (`/admin/students`) - Verifikasi dokumen dan alokasi jurusan
 - **Kelola Jadwal** (`/admin/schedules`) - CRUD jadwal SPMB
@@ -54,3 +56,4 @@ npm run dev
 ```
 
 Akses aplikasi di: http://localhost:8000
+
