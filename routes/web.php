@@ -30,13 +30,17 @@ Route::prefix('students/pendaftaran')->group(function () {
     // Public registration form
     Route::get('/daftar', [StudentController::class, 'create'])->name('student.register.form');
     Route::post('/daftar', [StudentController::class, 'store'])->name('student.register.store');
-    
+
     // Certificate & Preview (public access with registration number)
     Route::get('/{registrationNumber}', [StudentController::class, 'certificate'])->name('student.certificate');
     Route::get('/{registrationNumber}/cetak', [StudentController::class, 'printCertificate'])->name('student.certificate.print');
     Route::get('/{registrationNumber}/preview', [StudentController::class, 'preview'])->name('student.preview');
-    Route::get('/{registrationNumber}/edit', [StudentController::class, 'edit'])->name('student.edit');
-    Route::put('/{registrationNumber}', [StudentController::class, 'update'])->name('student.update');
+
+    // Edit & Update — requires student auth + ownership
+    Route::middleware('auth:student')->group(function () {
+        Route::get('/{registrationNumber}/edit', [StudentController::class, 'edit'])->name('student.edit');
+        Route::put('/{registrationNumber}', [StudentController::class, 'update'])->name('student.update');
+    });
 });
 
 // Student Authenticated Routes
@@ -61,7 +65,7 @@ Route::get('/pengumuman', [AnnouncementController::class, 'index'])->name('annou
 Route::post('/pengumuman', [AnnouncementController::class, 'check'])->name('announcement.check');
 
 // Authenticated Routes (Admin)
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
     // Admin - Inbox Management

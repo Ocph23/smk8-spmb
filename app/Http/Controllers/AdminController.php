@@ -106,6 +106,7 @@ class AdminController extends Controller
             $major = Major::find($validated['major_id']);
             $currentAccepted = Student::where('accepted_major_id', $major->id)
                 ->where('is_accepted', true)
+                ->where('id', '!=', $student->id) // exclude current student (re-allocation)
                 ->count();
 
             if ($validated['is_accepted'] && $currentAccepted >= $major->quota) {

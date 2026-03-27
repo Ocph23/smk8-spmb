@@ -17,6 +17,7 @@ class StudentInboxController extends Controller
         $student = Auth::guard('student')->user();
 
         $messages = Inbox::where('student_id', $student->id)
+            ->with('sender')
             ->orderBy('is_read', 'asc')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -47,6 +48,8 @@ class StudentInboxController extends Controller
         if (!$message->is_read) {
             $message->update(['is_read' => true]);
         }
+
+        $message->load('sender');
 
         return Inertia::render('Student/InboxShow', [
             'message' => $message,

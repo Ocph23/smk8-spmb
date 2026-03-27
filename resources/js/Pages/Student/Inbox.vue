@@ -129,12 +129,16 @@ const markAllAsRead = () => {
                     <!-- Pagination -->
                     <div v-if="messages.last_page > 1" class="p-4 border-t">
                         <div class="flex justify-center gap-2">
-                            <Link v-for="page in messages.last_page" :key="page"
-                                :href="messages.path + '?page=' + page"
-                                :class="page === messages.current_page ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
-                                class="px-3 py-1 rounded text-sm font-medium">
-                                {{ page }}
-                            </Link>
+                            <template v-for="link in messages.links" :key="link.label">
+                                <Link v-if="link.url"
+                                    :href="link.url"
+                                    v-html="link.label"
+                                    :class="link.active ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+                                    class="px-3 py-1 rounded text-sm font-medium" />
+                                <span v-else
+                                    v-html="link.label"
+                                    class="px-3 py-1 rounded text-sm font-medium text-gray-400 cursor-not-allowed" />
+                            </template>
                         </div>
                     </div>
                 </div>

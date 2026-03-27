@@ -96,7 +96,7 @@ class StudentController extends Controller
 
 
                 $lastStudent = Student::whereYear('created_at', $year)
-                    ->where('registration_number', 'LIKE', 'SPMB-%')
+                    ->where('registration_number', 'LIKE', "SPMB-{$year}-%")
                     ->orderBy('id', 'desc')
                     ->first();
                 $number = $lastStudent ? intval(substr($lastStudent->registration_number, -4)) + 1 : 1;
@@ -202,6 +202,7 @@ class StudentController extends Controller
                 // No authenticated student - create new account (for backward compatibility)
                 $year = date('Y');
                 $lastStudent = Student::whereYear('created_at', $year)
+                    ->where('registration_number', 'LIKE', "SPMB-{$year}-%")
                     ->orderBy('id', 'desc')
                     ->first();
                 $number = $lastStudent ? intval(substr($lastStudent->registration_number, -4)) + 1 : 1;
@@ -322,6 +323,13 @@ class StudentController extends Controller
     public function edit($registrationNumber)
     {
         $student = Student::with('majors')->where('registration_number', $registrationNumber)->firstOrFail();
+
+        // Ownership check
+        $authStudent = Auth::guard('student')->user();
+        if (!$authStudent || $authStudent->id !== $student->id) {
+            abort(403, 'Anda tidak memiliki akses ke data ini.');
+        }
+
         $majors = Major::all();
 
         return Inertia::render('Student/Edit', [
@@ -336,6 +344,12 @@ class StudentController extends Controller
     public function update(Request $request, $registrationNumber)
     {
         $student = Student::with('majors')->where('registration_number', $registrationNumber)->firstOrFail();
+
+        // Ownership check
+        $authStudent = Auth::guard('student')->user();
+        if (!$authStudent || $authStudent->id !== $student->id) {
+            abort(403, 'Anda tidak memiliki akses ke data ini.');
+        }
 
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',

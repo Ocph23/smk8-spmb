@@ -9,7 +9,7 @@ const props = defineProps({
     },
     errors: {
         type: Object,
-        required: true,
+        default: () => ({}),
     },
     student: {
         type: Object,
