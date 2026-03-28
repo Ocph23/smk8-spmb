@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminInboxController;
 use App\Http\Controllers\AdminReportController;
@@ -23,6 +24,10 @@ Route::middleware('guest.student')->group(function () {
     Route::post('/siswa/login', [StudentAuthController::class, 'login']);
     Route::get('/siswa/register', [StudentAuthController::class, 'showRegister'])->name('student.register');
     Route::post('/siswa/register', [StudentAuthController::class, 'register']);
+    Route::get('/siswa/lupa-password', [StudentAuthController::class, 'showForgotPassword'])->name('student.forgot-password');
+    Route::post('/siswa/lupa-password', [StudentAuthController::class, 'sendResetLink'])->name('student.forgot-password.send');
+    Route::get('/siswa/reset-password/{token}', [StudentAuthController::class, 'showResetPassword'])->name('student.reset-password');
+    Route::post('/siswa/reset-password', [StudentAuthController::class, 'resetPassword'])->name('student.reset-password.update');
 });
 
 // Student Registration & Management (students/pendaftaran prefix)
@@ -88,6 +93,17 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::post('/admin/students/{student}/verify', [AdminController::class, 'verifyStudent'])->name('admin.students.verify');
     Route::post('/admin/students/{student}/allocate', [AdminController::class, 'allocateMajor'])->name('admin.students.allocate');
     Route::delete('/admin/students/{student}', [AdminController::class, 'destroyStudent'])->name('admin.students.destroy');
+
+    // Admin - Academic Years Management
+    Route::get('/admin/academic-years', [AcademicYearController::class, 'index'])->name('admin.academic-years');
+    Route::post('/admin/academic-years', [AcademicYearController::class, 'store'])->name('admin.academic-years.store');
+    Route::post('/admin/academic-years/set-context', [AcademicYearController::class, 'setContext'])->name('admin.academic-years.set-context');
+    Route::put('/admin/academic-years/{academicYear}', [AcademicYearController::class, 'update'])->name('admin.academic-years.update');
+    Route::post('/admin/academic-years/{academicYear}/activate', [AcademicYearController::class, 'activate'])->name('admin.academic-years.activate');
+    Route::post('/admin/academic-years/{academicYear}/close', [AcademicYearController::class, 'close'])->name('admin.academic-years.close');
+    Route::delete('/admin/academic-years/{academicYear}', [AcademicYearController::class, 'destroy'])->name('admin.academic-years.destroy');
+    Route::get('/admin/academic-years/{academicYear}/majors', [AcademicYearController::class, 'majorConfig'])->name('admin.academic-years.major-config');
+    Route::put('/admin/academic-years/{academicYear}/majors', [AcademicYearController::class, 'updateMajorConfig'])->name('admin.academic-years.update-major-config');
 
     // Admin - Majors Management
     Route::get('/admin/majors', [MajorController::class, 'index'])->name('admin.majors');

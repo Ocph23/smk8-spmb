@@ -4,22 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Models\Major;
 use App\Models\Student;
+use App\Services\AcademicYearService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AdminController extends Controller
 {
+    public function __construct(
+        protected AcademicYearService $service
+    ) {}
+
     public function dashboard()
     {
+        $context = $this->service->resolveContext(request());
+
+        $query = Student::query();
+        if ($context) {
+            $query->where('academic_year_id', $context->id);
+        }
+
         $stats = [
-            'total_students' => Student::count(),
-            'pending_verification' => Student::where('verification_status', 'pending')->count(),
-            'verified' => Student::where('verification_status', 'verified')->count(),
-            'accepted' => Student::where('is_accepted', true)->count(),
+            'total_students' => (clone $query)->count(),
+            'pending_verification' => (clone $query)->where('verification_status', 'pending')->count(),
+            'verified' => (clone $query)->where('verification_status', 'verified')->count(),
+            'accepted' => (clone $query)->where('is_accepted', true)->count(),
         ];
 
-        $recentStudents = Student::with(['majors', 'acceptedMajor'])
+        $recentStudents = (clone $query)->with(['majors', 'acceptedMajor'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
@@ -27,12 +39,19 @@ class AdminController extends Controller
         return Inertia::render('Dashboard', [
             'stats' => $stats,
             'recentStudents' => $recentStudents,
+            'currentAcademicYear' => $context,
         ]);
     }
 
     public function students(Request $request)
     {
+        $context = $this->service->resolveContext($request);
+
         $query = Student::with(['majors', 'acceptedMajor', 'user']);
+
+        if ($context) {
+            $query->where('academic_year_id', $context->id);
+        }
 
         // Filters
         if ($request->filled('search')) {
@@ -65,6 +84,7 @@ class AdminController extends Controller
                 'status' => $request->status,
                 'major' => $request->major,
             ],
+            'currentAcademicYear' => $context,
         ]);
     }
 
@@ -86,7 +106,7 @@ class AdminController extends Controller
 
         $student->update([
             'verification_status' => $validated['status'],
-            'verification_note' => $validated['note'],
+            'verification_note' => $validated['note'] ?? null,
         ]);
 
         return back()->with('success', 'Verifikasi berhasil diperbarui.');
@@ -102,15 +122,30 @@ class AdminController extends Controller
         DB::beginTransaction();
 
         try {
-            // Check quota
             $major = Major::find($validated['major_id']);
-            $currentAccepted = Student::where('accepted_major_id', $major->id)
-                ->where('is_accepted', true)
-                ->where('id', '!=', $student->id) // exclude current student (re-allocation)
-                ->count();
 
-            if ($validated['is_accepted'] && $currentAccepted >= $major->quota) {
-                return back()->withErrors(['error' => "Kuota jurusan {$major->name} sudah penuh ({$major->quota})."]);
+            // Load relasi academicYear pada student
+            $student->load('academicYear');
+            $academicYear = $student->academicYear;
+
+            // Gunakan service untuk mendapatkan kuota dan jumlah diterima
+            $quota = $academicYear
+                ? $this->service->getQuotaForMajor($academicYear, $major->id)
+                : ($major->quota ?? 30);
+
+            $currentAccepted = $academicYear
+                ? Student::where('academic_year_id', $academicYear->id)
+                    ->where('accepted_major_id', $major->id)
+                    ->where('is_accepted', true)
+                    ->where('id', '!=', $student->id)
+                    ->count()
+                : Student::where('accepted_major_id', $major->id)
+                    ->where('is_accepted', true)
+                    ->where('id', '!=', $student->id)
+                    ->count();
+
+            if ($validated['is_accepted'] && $currentAccepted >= $quota) {
+                return back()->withErrors(['error' => "Kuota jurusan {$major->name} sudah penuh ({$quota})."]);
             }
 
             $student->update([

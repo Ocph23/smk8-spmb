@@ -2,30 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
+use App\Mail\StudentPasswordResetMail;
+use App\Mail\StudentWelcomeMail;
 use App\Models\Inbox;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class StudentAuthController extends Controller
 {
-    /**
-     * Show login form
-     */
     public function showLogin()
     {
         return Inertia::render('Auth/StudentLogin');
     }
 
-    /**
-     * Handle student login
-     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required',
         ]);
 
@@ -37,94 +36,163 @@ class StudentAuthController extends Controller
             ])->onlyInput('email');
         }
 
-        // Login using student guard
         Auth::guard('student')->login($student, $request->boolean('remember'));
-
         $request->session()->regenerate();
-
-        // Debug: Check if auth worked
-        // dd(Auth::guard('student')->check(), Auth::guard('student')->user());
 
         return redirect()->route('student.dashboard');
     }
 
-    /**
-     * Show registration form (create account)
-     */
     public function showRegister()
     {
         return Inertia::render('Auth/StudentRegister');
     }
 
-    /**
-     * Handle student registration (create account with password)
-     */
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'email' => 'required|email|unique:students,email',
+            'email'    => 'required|email|unique:students,email',
             'password' => 'required|min:6|confirmed',
         ]);
 
+        $plainPassword = $validated['password'];
+
         $student = Student::create([
             'registration_number' => 'DRAFT-' . strtoupper(uniqid()),
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'email'               => $validated['email'],
+            'password'            => Hash::make($plainPassword),
             'verification_status' => 'pending',
         ]);
 
         Auth::guard('student')->login($student);
-
         $request->session()->regenerate();
 
-        // Create welcome inbox message
         Inbox::create([
             'student_id' => $student->id,
-            'subject' => 'Selamat Datang di SPMB SMKN 8',
-            'message' => "Terima kasih telah membuat akun.\n\n" .
+            'subject'    => 'Selamat Datang — Segera Lengkapi Pendaftaran',
+            'message'    => "Akun Anda berhasil dibuat.\n\n" .
                 "Silakan lengkapi data pendaftaran Anda dengan mengisi formulir pendaftaran.\n\n" .
-                "Klik menu 'Daftar Sekarang' atau kunjungi halaman pendaftaran untuk memulai.",
-            'is_system' => true,
+                "Klik menu 'Lengkapi Pendaftaran' di dashboard untuk memulai.",
+            'is_system'  => true,
         ]);
+
+        try {
+            Mail::to($student->email)->send(new StudentWelcomeMail($student, $plainPassword));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send welcome email: ' . $e->getMessage());
+        }
 
         return redirect()->route('student.dashboard');
     }
 
-    /**
-     * Student Dashboard
-     */
+    // -------------------------------------------------------------------------
+    // Forgot / Reset Password
+    // -------------------------------------------------------------------------
+
+    public function showForgotPassword()
+    {
+        return Inertia::render('Auth/StudentForgotPassword');
+    }
+
+    public function sendResetLink(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $student = Student::where('email', $request->email)->first();
+
+        if (!$student) {
+            return back()->with('status', 'Jika email terdaftar, link reset password telah dikirim.');
+        }
+
+        DB::table('student_password_resets')->where('email', $request->email)->delete();
+
+        $token = Str::random(64);
+
+        DB::table('student_password_resets')->insert([
+            'email'      => $request->email,
+            'token'      => Hash::make($token),
+            'created_at' => now(),
+        ]);
+
+        try {
+            Mail::to($request->email)->send(new StudentPasswordResetMail($request->email, $token));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+        }
+
+        return back()->with('status', 'Link reset password telah dikirim ke email Anda.');
+    }
+
+    public function showResetPassword(Request $request, string $token)
+    {
+        return Inertia::render('Auth/StudentResetPassword', [
+            'token' => $token,
+            'email' => $request->query('email', ''),
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token'    => 'required',
+            'email'    => 'required|email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $record = DB::table('student_password_resets')
+            ->where('email', $request->email)
+            ->first();
+
+        if (!$record || !Hash::check($request->token, $record->token)) {
+            return back()->withErrors(['email' => 'Token tidak valid atau sudah kadaluarsa.']);
+        }
+
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            DB::table('student_password_resets')->where('email', $request->email)->delete();
+            return back()->withErrors(['email' => 'Link reset password sudah kadaluarsa. Silakan minta ulang.']);
+        }
+
+        $student = Student::where('email', $request->email)->first();
+
+        if (!$student) {
+            return back()->withErrors(['email' => 'Email tidak ditemukan.']);
+        }
+
+        $student->update(['password' => Hash::make($request->password)]);
+        DB::table('student_password_resets')->where('email', $request->email)->delete();
+
+        return redirect()->route('student.login')
+            ->with('status', 'Password berhasil diubah. Silakan login.');
+    }
+
+    // -------------------------------------------------------------------------
+    // Dashboard & Logout
+    // -------------------------------------------------------------------------
+
     public function dashboard()
     {
         $student = Auth::guard('student')->user();
 
-        // Get unread inbox count
         $unreadCount = Inbox::where('student_id', $student->id)
             ->where('is_read', false)
             ->count();
 
-        // Get recent inbox messages
         $inboxMessages = Inbox::where('student_id', $student->id)
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
-        // Load student majors if exists
         $student->load('majors');
 
         return Inertia::render('Student/Dashboard', [
-            'student' => $student,
+            'student'     => $student,
             'unreadCount' => $unreadCount,
             'recentInbox' => $inboxMessages,
         ]);
     }
 
-    /**
-     * Logout
-     */
     public function logout(Request $request)
     {
         Auth::guard('student')->logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

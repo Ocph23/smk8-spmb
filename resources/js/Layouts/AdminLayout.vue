@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+import AcademicYearSelector from '@/Components/AcademicYearSelector.vue';
 import { Link } from '@inertiajs/vue3';
 
 const sidebarOpen = ref(false);
@@ -39,6 +40,11 @@ const menuItems = [
         icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
     },
     {
+        name: 'Tahun Ajaran',
+        href: 'admin.academic-years',
+        icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+    },
+    {
         name: 'Lihat Website',
         href: 'home',
         icon: 'M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14',
@@ -72,6 +78,11 @@ const isActive = (routeName) => {
                 <Link :href="route('dashboard')">
                     <ApplicationLogo class="h-10 w-auto fill-current text-white" />
                 </Link>
+            </div>
+
+            <!-- Academic Year Selector -->
+            <div class="border-b border-gray-700 px-3 py-3">
+                <AcademicYearSelector />
             </div>
 
             <!-- Sidebar Menu -->

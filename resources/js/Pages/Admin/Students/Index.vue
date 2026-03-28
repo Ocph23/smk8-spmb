@@ -16,6 +16,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    currentAcademicYear: {
+        type: Object,
+        default: null,
+    },
 });
 
 const searchForm = ref({
@@ -52,6 +56,13 @@ const verifyStudent = (studentId, status) => {
         status,
     });
 };
+
+const deleteStudent = (studentId) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus data pendaftar ini? Tindakan ini tidak dapat dibatalkan.')) {
+        return;
+    }
+    router.delete(route('admin.students.destroy', studentId));
+};
 </script>
 
 <template>
@@ -61,6 +72,25 @@ const verifyStudent = (studentId, status) => {
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <!-- Read-only banner -->
+                <div v-if="currentAcademicYear?.status === 'closed'"
+                    class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
+                    <svg class="h-5 w-5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    </svg>
+                    <span class="text-sm font-medium text-amber-800">Mode Hanya-Baca — Tahun ajaran ini sudah ditutup.</span>
+                </div>
+
+                <!-- Page header -->
+                <div class="mb-6 flex items-center gap-3">
+                    <h2 class="text-2xl font-bold text-gray-800">Kelola Pendaftar</h2>
+                    <span v-if="currentAcademicYear"
+                        class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                        {{ currentAcademicYear.name }}
+                    </span>
+                </div>
+
                 <!-- Filters -->
                 <div class="bg-white shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6">
@@ -196,7 +226,7 @@ const verifyStudent = (studentId, status) => {
                                             {{ formatDate(student.created_at) }}
                                         </td>
                                         <td class="px-4 py-4 text-sm">
-                                            <div class="flex gap-2">
+                                            <div class="flex gap-2 items-center">
                                                 <Link
                                                     :href="route('admin.students.show', student.id)"
                                                     class="text-blue-600 hover:text-blue-800"
@@ -204,18 +234,30 @@ const verifyStudent = (studentId, status) => {
                                                     Detail
                                                 </Link>
                                                 <button
-                                                    v-if="student.verification_status === 'pending'"
+                                                    v-if="student.verification_status !== 'verified'"
                                                     @click="verifyStudent(student.id, 'verified')"
-                                                    class="text-green-600 hover:text-green-800"
+                                                    :disabled="currentAcademicYear?.status === 'closed'"
+                                                    title="Verifikasi"
+                                                    class="text-green-600 hover:text-green-800 disabled:opacity-40 disabled:cursor-not-allowed"
                                                 >
                                                     ✓
                                                 </button>
                                                 <button
-                                                    v-if="student.verification_status === 'pending'"
+                                                    v-if="student.verification_status !== 'rejected'"
                                                     @click="verifyStudent(student.id, 'rejected')"
-                                                    class="text-red-600 hover:text-red-800"
+                                                    :disabled="currentAcademicYear?.status === 'closed'"
+                                                    title="Tolak"
+                                                    class="text-red-600 hover:text-red-800 disabled:opacity-40 disabled:cursor-not-allowed"
                                                 >
                                                     ✗
+                                                </button>
+                                                <button
+                                                    @click="deleteStudent(student.id)"
+                                                    :disabled="currentAcademicYear?.status === 'closed'"
+                                                    title="Hapus"
+                                                    class="text-gray-400 hover:text-red-600 disabled:opacity-40 disabled:cursor-not-allowed"
+                                                >
+                                                    🗑
                                                 </button>
                                             </div>
                                         </td>

@@ -8,6 +8,10 @@ defineProps({
         type: Array,
         required: true,
     },
+    currentAcademicYear: {
+        type: Object,
+        default: null,
+    },
 });
 
 const showForm = ref(false);
@@ -90,24 +94,34 @@ const getStatusColor = (status) => {
     <Head title="Kelola Jadwal - Admin" />
 
     <AdminLayout>
-        <template #header>
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                    Kelola Jadwal SPMB
-                </h2>
-                <div class="flex gap-2">
-                    <Link :href="route('dashboard')" class="text-blue-600 hover:text-blue-800">
-                        ← Kembali ke Dashboard
-                    </Link>
-                    <button @click="openCreate" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+        <div class="py-12">
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <!-- Read-only banner -->
+                <div v-if="currentAcademicYear?.status === 'closed'"
+                    class="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-center gap-2">
+                    <svg class="h-5 w-5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    </svg>
+                    <span class="text-sm font-medium text-amber-800">Mode Hanya-Baca — Tahun ajaran ini sudah ditutup.</span>
+                </div>
+
+                <!-- Page header -->
+                <div class="mb-6 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-2xl font-bold text-gray-800">Kelola Jadwal SPMB</h2>
+                        <span v-if="currentAcademicYear"
+                            class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                            {{ currentAcademicYear.name }}
+                        </span>
+                    </div>
+                    <button @click="openCreate"
+                        :disabled="currentAcademicYear?.status === 'closed'"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed">
                         + Tambah Jadwal
                     </button>
                 </div>
-            </div>
-        </template>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <!-- Schedule List -->
                 <div class="bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6">
@@ -121,11 +135,13 @@ const getStatusColor = (status) => {
                                     </span>
                                     <div class="flex gap-2">
                                         <button @click="openEdit(schedule)"
-                                            class="text-blue-600 hover:text-blue-800 text-sm">
+                                            :disabled="currentAcademicYear?.status === 'closed'"
+                                            class="text-blue-600 hover:text-blue-800 text-sm disabled:opacity-40 disabled:cursor-not-allowed">
                                             Edit
                                         </button>
                                         <button @click="destroy(schedule)"
-                                            class="text-red-600 hover:text-red-800 text-sm">
+                                            :disabled="currentAcademicYear?.status === 'closed'"
+                                            class="text-red-600 hover:text-red-800 text-sm disabled:opacity-40 disabled:cursor-not-allowed">
                                             Hapus
                                         </button>
                                     </div>

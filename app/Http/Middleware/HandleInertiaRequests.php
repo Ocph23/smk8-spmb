@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\AcademicYearService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -14,6 +15,10 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    public function __construct(protected AcademicYearService $service)
+    {
+    }
 
     /**
      * Determine the current asset version.
@@ -41,6 +46,11 @@ class HandleInertiaRequests extends Middleware
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
+            ],
+            'academicYear' => [
+                'current' => fn () => $this->service->resolveContext($request),
+                'active'  => fn () => $this->service->getActive(),
+                'all'     => fn () => $this->service->getAll(),
             ],
         ];
     }

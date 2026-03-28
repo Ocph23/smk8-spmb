@@ -54,9 +54,14 @@ const submit = () => {
                     </div>
 
                     <div class="mb-6">
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                            Password
-                        </label>
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="password" class="block text-sm font-medium text-gray-700">
+                                Password
+                            </label>
+                            <Link :href="route('student.forgot-password')" class="text-sm text-blue-600 hover:text-blue-700">
+                                Lupa Password?
+                            </Link>
+                        </div>
                         <input
                             id="password"
                             v-model="form.password"

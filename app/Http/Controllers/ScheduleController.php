@@ -4,14 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Major;
 use App\Models\Schedule;
+use App\Services\AcademicYearService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ScheduleController extends Controller
 {
+    public function __construct(
+        protected AcademicYearService $service
+    ) {}
+
     public function index()
     {
-        $schedules = Schedule::orderBy('start_date')->get();
+        $activeYear = $this->service->getActive();
+
+        if (!$activeYear) {
+            $schedules = collect();
+        } else {
+            $schedules = Schedule::where('academic_year_id', $activeYear->id)
+                ->orderBy('start_date')
+                ->get();
+        }
 
         return Inertia::render('Home', [
             'schedules' => $schedules,
@@ -21,15 +34,29 @@ class ScheduleController extends Controller
 
     public function adminIndex()
     {
-        $schedules = Schedule::orderBy('start_date', 'desc')->get();
+        $context = $this->service->resolveContext(request());
+
+        $query = Schedule::orderBy('start_date', 'desc');
+        if ($context) {
+            $query->where('academic_year_id', $context->id);
+        }
+
+        $schedules = $query->get();
 
         return Inertia::render('Admin/Schedules/Index', [
             'schedules' => $schedules,
+            'currentAcademicYear' => $context,
         ]);
     }
 
     public function store(Request $request)
     {
+        $context = $this->service->resolveContext($request);
+
+        if (!$context) {
+            return back()->withErrors(['error' => 'Tidak ada konteks tahun ajaran aktif. Pilih atau aktifkan tahun ajaran terlebih dahulu.']);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -37,6 +64,8 @@ class ScheduleController extends Controller
             'end_date' => 'required|date|after_or_equal:start_date',
             'status' => 'required|in:active,inactive,completed',
         ]);
+
+        $validated['academic_year_id'] = $context->id;
 
         Schedule::create($validated);
 

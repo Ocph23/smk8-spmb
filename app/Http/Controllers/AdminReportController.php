@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Major;
 use App\Models\Student;
+use App\Services\AcademicYearService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -11,28 +12,38 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminReportController extends Controller
 {
+    public function __construct(
+        protected AcademicYearService $service
+    ) {}
+
     /**
      * Display report page
      */
     public function index(Request $request)
     {
+        $context = $this->service->resolveContext($request);
+
         // Build query with filters
         $query = Student::query();
-        
+
+        if ($context) {
+            $query->where('academic_year_id', $context->id);
+        }
+
         if ($request->filled('major')) {
             $query->whereHas('majors', function ($q) use ($request) {
                 $q->where('majors.id', $request->major);
             });
         }
-        
+
         if ($request->filled('verification_status')) {
             $query->where('verification_status', $request->verification_status);
         }
-        
+
         if ($request->filled('is_accepted')) {
             $query->where('is_accepted', $request->is_accepted === 'true');
         }
-        
+
         if ($request->filled('gender')) {
             $query->where('gender', $request->gender);
         }
@@ -48,13 +59,19 @@ class AdminReportController extends Controller
             'not_accepted' => (clone $query)->where('is_accepted', false)->count(),
         ];
 
-        // Major statistics
+        // Major statistics - filter students per major by academic_year_id context
         $majorStats = Major::with([
-            'students' => function ($query) {
-                $query->select('students.id');
+            'students' => function ($q) use ($context) {
+                $q->select('students.id', 'students.academic_year_id');
+                if ($context) {
+                    $q->where('students.academic_year_id', $context->id);
+                }
             },
-            'acceptedStudents' => function ($query) {
-                $query->select('students.id', 'accepted_major_id');
+            'acceptedStudents' => function ($q) use ($context) {
+                $q->select('students.id', 'students.accepted_major_id', 'students.academic_year_id');
+                if ($context) {
+                    $q->where('students.academic_year_id', $context->id);
+                }
             }
         ])->get()->map(function ($major) {
             $major->total_pendaftar = $major->students->count();
@@ -78,6 +95,7 @@ class AdminReportController extends Controller
             'stats' => $stats,
             'majors' => $majors,
             'filters' => $filters,
+            'currentAcademicYear' => $context,
         ]);
     }
 
@@ -86,7 +104,13 @@ class AdminReportController extends Controller
      */
     public function generatePdf(Request $request)
     {
+        $context = $this->service->resolveContext($request);
+
         $query = Student::with(['majors', 'acceptedMajor', 'user']);
+
+        if ($context) {
+            $query->where('academic_year_id', $context->id);
+        }
 
         // Apply filters
         if ($request->filled('major')) {
@@ -116,10 +140,18 @@ class AdminReportController extends Controller
             'diterima' => $students->where('is_accepted', true)->count(),
         ];
 
-        // Major breakdown
+        // Major breakdown - filter by academic_year_id context
         $majorStats = Major::with([
-            'students',
-            'acceptedStudents'
+            'students' => function ($q) use ($context) {
+                if ($context) {
+                    $q->where('students.academic_year_id', $context->id);
+                }
+            },
+            'acceptedStudents' => function ($q) use ($context) {
+                if ($context) {
+                    $q->where('students.academic_year_id', $context->id);
+                }
+            }
         ])->get()->map(function ($major) {
             $major->total_pendaftar = $major->students->count();
             $major->diterima = $major->acceptedStudents->count();
@@ -137,7 +169,7 @@ class AdminReportController extends Controller
         $pdf = Pdf::loadView('reports.registration', $data);
         $pdf->setPaper('A4', 'portrait');
 
-        $filename = 'laporan-pendaftaran-' . now()->format('Y-m-d') . '.pdf';
+        $filename = 'laporan-' . ($context?->name ?? 'semua') . '-' . now()->format('Y-m-d') . '.pdf';
 
         return $pdf->download($filename);
     }
@@ -147,7 +179,13 @@ class AdminReportController extends Controller
      */
     public function exportCsv(Request $request)
     {
+        $context = $this->service->resolveContext($request);
+
         $query = Student::with(['majors', 'acceptedMajor']);
+
+        if ($context) {
+            $query->where('academic_year_id', $context->id);
+        }
 
         // Apply filters
         if ($request->filled('major')) {
@@ -197,7 +235,7 @@ class AdminReportController extends Controller
             );
         }
 
-        $filename = 'laporan-pendaftaran-' . now()->format('Y-m-d') . '.csv';
+        $filename = 'laporan-' . ($context?->name ?? 'semua') . '-' . now()->format('Y-m-d') . '.csv';
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv; charset=utf-8',
@@ -222,7 +260,13 @@ class AdminReportController extends Controller
      */
     public function getData(Request $request)
     {
+        $context = $this->service->resolveContext($request);
+
         $query = Student::with(['majors', 'acceptedMajor']);
+
+        if ($context) {
+            $query->where('academic_year_id', $context->id);
+        }
 
         if ($request->filled('major')) {
             $query->whereHas('majors', function ($q) use ($request) {

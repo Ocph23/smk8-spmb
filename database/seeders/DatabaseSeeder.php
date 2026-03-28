@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             MajorSeeder::class,
             ScheduleSeeder::class,
             AdminUserSeeder::class,
+            HistoricalDataMigrationSeeder::class,
         ]);
     }
 }

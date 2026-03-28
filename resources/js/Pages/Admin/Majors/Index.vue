@@ -76,18 +76,11 @@ const destroy = (major) => {
     <Head title="Kelola Jurusan - Admin" />
 
     <AdminLayout>
-        <template #header>
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                    Kelola Kompetensi Keahlian
-                </h2>
-                <div class="flex gap-2">
-                    <Link
-                        :href="route('dashboard')"
-                        class="text-blue-600 hover:text-blue-800"
-                    >
-                        ← Kembali ke Dashboard
-                    </Link>
+        <div class="py-12">
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <!-- Page header -->
+                <div class="mb-6 flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-800">Kelola Kompetensi Keahlian</h2>
                     <button
                         @click="openCreate"
                         class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -95,11 +88,6 @@ const destroy = (major) => {
                         + Tambah Jurusan
                     </button>
                 </div>
-            </div>
-        </template>
-
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <!-- Majors Grid -->
                 <div class="bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6">

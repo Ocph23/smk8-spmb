@@ -34,4 +34,17 @@ class Major extends Model
     {
         return $this->hasMany(Student::class, 'accepted_major_id');
     }
+
+    public function academicYears(): BelongsToMany
+    {
+        return $this->belongsToMany(AcademicYear::class, 'academic_year_major')
+            ->withPivot(['quota', 'is_active'])
+            ->withTimestamps();
+    }
+
+    public function quotaForYear(int $academicYearId): int
+    {
+        $pivot = $this->academicYears()->wherePivot('academic_year_id', $academicYearId)->first();
+        return $pivot?->pivot->quota ?? $this->quota;
+    }
 }

@@ -1,11 +1,15 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 defineProps({
     schedules: { type: Array, required: true },
     majors: { type: Array, required: true },
     auth: { type: Object, required: true },
 });
+
+const page = usePage();
+const activeAcademicYear = computed(() => page.props.academicYear?.active ?? null);
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -73,7 +77,9 @@ const stepColors = {
             <div class="absolute -top-24 -right-24 w-96 h-96 bg-white/5 rounded-full"></div>
             <div class="absolute bottom-0 -left-16 w-72 h-72 bg-white/5 rounded-full"></div>
             <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 text-center text-white">
-                <span class="inline-block bg-white/20 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-wide uppercase">Tahun Ajaran 2026/2027</span>
+                <span class="inline-block bg-white/20 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-wide uppercase">
+                    {{ activeAcademicYear ? activeAcademicYear.name : 'Tahun Ajaran' }}
+                </span>
                 <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight">
                     Penerimaan Peserta<br class="hidden md:block" /> Didik Baru
                 </h1>
@@ -81,9 +87,16 @@ const stepColors = {
                     SMK Negeri 8 TIK Kota Jayapura — Wujudkan masa depanmu bersama kami.
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <Link :href="route('student.register')" class="bg-white text-blue-700 px-8 py-3.5 rounded-xl font-bold hover:bg-blue-50 transition shadow-lg text-base">
-                        Daftar Sekarang
-                    </Link>
+                    <template v-if="activeAcademicYear">
+                        <Link :href="route('student.register')" class="bg-white text-blue-700 px-8 py-3.5 rounded-xl font-bold hover:bg-blue-50 transition shadow-lg text-base">
+                            Daftar Sekarang
+                        </Link>
+                    </template>
+                    <template v-else>
+                        <span class="inline-block bg-white/20 text-white px-8 py-3.5 rounded-xl font-semibold text-base">
+                            Pendaftaran belum dibuka saat ini
+                        </span>
+                    </template>
                     <a href="#jadwal" class="border-2 border-white/70 text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-white/10 transition text-base">
                         Lihat Jadwal
                     </a>
@@ -109,7 +122,7 @@ const stepColors = {
                     <p class="text-sm text-slate-500 mt-1">Online & Gratis</p>
                 </div>
                 <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
-                    <p class="text-3xl font-extrabold text-violet-600">2026</p>
+                    <p class="text-3xl font-extrabold text-violet-600">{{ activeAcademicYear?.end_year ?? new Date().getFullYear() }}</p>
                     <p class="text-sm text-slate-500 mt-1">Tahun Ajaran Baru</p>
                 </div>
             </div>

@@ -3,16 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\Major;
+use App\Services\AcademicYearService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class MajorController extends Controller
 {
+    public function __construct(
+        protected AcademicYearService $service
+    ) {}
+
     public function index()
     {
+        $activeYear = $this->service->getActive();
+
         $majors = Major::withCount(['acceptedStudents as accepted_count' => function ($query) {
             $query->where('is_accepted', true);
         }])->withCount(['students as students_count'])->orderBy('code')->get();
+
+        // Tambahkan active_quota dari pivot tahun ajaran aktif
+        if ($activeYear) {
+            $activeYear->load(['majors' => function ($q) {
+                $q->withPivot(['quota', 'is_active']);
+            }]);
+
+            $pivotMap = $activeYear->majors->keyBy('id');
+
+            $majors->each(function ($major) use ($pivotMap) {
+                $pivot = $pivotMap->get($major->id);
+                $major->active_quota = $pivot?->pivot->quota ?? null;
+            });
+        }
 
         return Inertia::render('Admin/Majors/Index', [
             'majors' => $majors,

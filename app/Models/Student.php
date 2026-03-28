@@ -16,6 +16,7 @@ class Student extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
+        'academic_year_id',
         'user_id',
         'registration_number',
         'full_name',
@@ -62,6 +63,11 @@ class Student extends Authenticatable
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function academicYear(): BelongsTo
+    {
+        return $this->belongsTo(AcademicYear::class);
     }
 
     public function majors(): BelongsToMany
