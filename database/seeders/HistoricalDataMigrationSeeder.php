@@ -26,12 +26,10 @@ class HistoricalDataMigrationSeeder extends Seeder
             ->orderBy('registration_number')
             ->first();
 
-        $year = $firstStudent
-            ? (int) explode('-', $firstStudent->registration_number)[1]
-            : now()->year;
+        $year = now()->year;
 
-        $startYear = $year - 1;
-        $endYear   = $year;
+        $startYear = $year;
+        $endYear   = $year+1;
 
         // Buat tahun ajaran historis dengan status closed
         $academicYear = AcademicYear::create([

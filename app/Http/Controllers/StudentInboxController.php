@@ -9,12 +9,20 @@ use Inertia\Inertia;
 
 class StudentInboxController extends Controller
 {
-    /**
-     * Display inbox
-     */
-    public function index()
+    private function authStudent()
     {
         $student = Auth::guard('student')->user();
+
+        if (!$student) {
+            abort(redirect()->route('student.login'));
+        }
+
+        return $student;
+    }
+
+    public function index()
+    {
+        $student = $this->authStudent();
 
         $messages = Inbox::where('student_id', $student->id)
             ->with('sender')
@@ -27,24 +35,19 @@ class StudentInboxController extends Controller
             ->count();
 
         return Inertia::render('Student/Inbox', [
-            'messages' => $messages,
+            'messages'   => $messages,
             'unreadCount' => $unreadCount,
         ]);
     }
 
-    /**
-     * Display single message
-     */
     public function show(Inbox $message)
     {
-        $student = Auth::guard('student')->user();
+        $student = $this->authStudent();
 
-        // Only allow viewing own messages
-        if ($message->student_id !== $student->id) {
+        if ((int) $message->student_id !== (int) $student->id) {
             abort(403);
         }
 
-        // Mark as read
         if (!$message->is_read) {
             $message->update(['is_read' => true]);
         }
@@ -56,14 +59,11 @@ class StudentInboxController extends Controller
         ]);
     }
 
-    /**
-     * Mark message as read
-     */
     public function markAsRead(Inbox $message)
     {
-        $student = Auth::guard('student')->user();
+        $student = $this->authStudent();
 
-        if ($message->student_id !== $student->id) {
+        if ((int) $message->student_id !== (int) $student->id) {
             abort(403);
         }
 
@@ -72,12 +72,9 @@ class StudentInboxController extends Controller
         return back();
     }
 
-    /**
-     * Mark all messages as read
-     */
     public function markAllAsRead()
     {
-        $student = Auth::guard('student')->user();
+        $student = $this->authStudent();
 
         Inbox::where('student_id', $student->id)
             ->where('is_read', false)
@@ -86,14 +83,11 @@ class StudentInboxController extends Controller
         return back();
     }
 
-    /**
-     * Delete message
-     */
     public function destroy(Inbox $message)
     {
-        $student = Auth::guard('student')->user();
+        $student = $this->authStudent();
 
-        if ($message->student_id !== $student->id) {
+        if ((int) $message->student_id !== (int) $student->id) {
             abort(403);
         }
 
