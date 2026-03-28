@@ -14,6 +14,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    documents: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const formatDate = (dateString) => {
@@ -281,6 +285,30 @@ const getStatusBadge = (status) => {
                         <div class="space-y-2 text-sm text-yellow-800">
                             <p>📞 +62 853-2004-3617</p>
                             <p>📧 info@smkn8jayapura.sch.id</p>
+                        </div>
+                    </div>
+
+                    <!-- Dokumen Template -->
+                    <div v-if="documents.length > 0" class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                            <span>📂</span> Dokumen Template Persyaratan
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-3">Download dan isi dokumen berikut sebagai kelengkapan berkas pendaftaran.</p>
+                        <div class="space-y-2">
+                            <a v-for="doc in documents" :key="doc.id"
+                                :href="route('documents.download', doc.id)"
+                                class="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition group">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="text-lg flex-shrink-0">📄</span>
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-medium text-gray-800 truncate">{{ doc.name }}</p>
+                                        <p v-if="doc.description" class="text-xs text-gray-400 truncate">{{ doc.description }}</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-blue-600 group-hover:text-blue-700 flex-shrink-0 ml-2 font-medium">
+                                    ↓ {{ doc.file_size }}
+                                </span>
+                            </a>
                         </div>
                     </div>
                 </div>

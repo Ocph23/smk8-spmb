@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\StudentPasswordResetMail;
 use App\Mail\StudentWelcomeMail;
+use App\Models\DocumentTemplate;
 use App\Models\Inbox;
 use App\Models\Student;
 use Illuminate\Http\Request;
@@ -183,10 +184,15 @@ class StudentAuthController extends Controller
 
         $student->load('majors');
 
+        $documents = DocumentTemplate::where('is_active', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return Inertia::render('Student/Dashboard', [
             'student'     => $student,
             'unreadCount' => $unreadCount,
             'recentInbox' => $inboxMessages,
+            'documents'   => $documents,
         ]);
     }
 

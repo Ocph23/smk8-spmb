@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\DocumentTemplateController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminInboxController;
 use App\Http\Controllers\AdminReportController;
@@ -65,6 +66,10 @@ Route::middleware('auth:student')->group(function () {
     Route::patch('/student/profile', [ProfileController::class, 'update'])->name('student.profile.update');
 });
 
+// Public document template download
+Route::get('/dokumen', [DocumentTemplateController::class, 'publicIndex'])->name('documents.index');
+Route::get('/dokumen/{document}/download', [DocumentTemplateController::class, 'download'])->name('documents.download');
+
 // Announcement
 Route::get('/pengumuman', [AnnouncementController::class, 'index'])->name('announcement.index');
 Route::post('/pengumuman', [AnnouncementController::class, 'check'])->name('announcement.check');
@@ -116,6 +121,13 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::post('/admin/schedules', [ScheduleController::class, 'store'])->name('admin.schedules.store');
     Route::put('/admin/schedules/{schedule}', [ScheduleController::class, 'update'])->name('admin.schedules.update');
     Route::delete('/admin/schedules/{schedule}', [ScheduleController::class, 'destroy'])->name('admin.schedules.destroy');
+
+    // Admin - Document Templates
+    Route::get('/admin/documents', [DocumentTemplateController::class, 'index'])->name('admin.documents');
+    Route::post('/admin/documents', [DocumentTemplateController::class, 'store'])->name('admin.documents.store');
+    Route::post('/admin/documents/{document}', [DocumentTemplateController::class, 'update'])->name('admin.documents.update');
+    Route::delete('/admin/documents/{document}', [DocumentTemplateController::class, 'destroy'])->name('admin.documents.destroy');
+    Route::patch('/admin/documents/{document}/toggle', [DocumentTemplateController::class, 'toggleActive'])->name('admin.documents.toggle');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
