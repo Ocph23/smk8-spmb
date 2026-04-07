@@ -1,0 +1,276 @@
+<script setup>
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
+
+const props = defineProps({
+    documents: { type: Array, required: true },
+});
+
+const showForm = ref(false);
+const editingDoc = ref(null);
+
+const form = useForm({
+    name: '',
+    label: '',
+    description: '',
+    field_name: '',
+    accepted_types: 'pdf,jpg,jpeg,png',
+    max_size: 2048,
+    is_required: true,
+    order: 0,
+    is_active: true,
+});
+
+const resetForm = () => {
+    form.reset();
+    form.accepted_types = 'pdf,jpg,jpeg,png';
+    form.max_size = 2048;
+    form.is_required = true;
+    form.order = 0;
+    form.is_active = true;
+};
+
+const openCreate = () => {
+    editingDoc.value = null;
+    resetForm();
+    form.order = props.documents.length;
+    showForm.value = true;
+};
+
+const openEdit = (doc) => {
+    editingDoc.value = doc;
+    form.name = doc.name;
+    form.label = doc.label;
+    form.description = doc.description || '';
+    form.field_name = doc.field_name;
+    form.accepted_types = doc.accepted_types;
+    form.max_size = doc.max_size;
+    form.is_required = doc.is_required;
+    form.order = doc.order;
+    form.is_active = doc.is_active;
+    showForm.value = true;
+};
+
+const submit = () => {
+    if (editingDoc.value) {
+        form.put(route('admin.registration-documents.update', editingDoc.value.id), {
+            onSuccess: () => { showForm.value = false; },
+        });
+    } else {
+        form.post(route('admin.registration-documents.store'), {
+            onSuccess: () => { showForm.value = false; },
+        });
+    }
+};
+
+const toggleActive = (doc) => {
+    router.patch(route('admin.registration-documents.toggle', doc.id));
+};
+
+const destroy = (doc) => {
+    if (!confirm(`Hapus item upload "${doc.label}"?`)) return;
+    router.delete(route('admin.registration-documents.destroy', doc.id));
+};
+
+const getTypeLabel = (types) => {
+    const arr = types.split(',').map(t => t.trim().toUpperCase());
+    return arr.join(', ');
+};
+
+const getFileIcon = (types) => {
+    if (types.includes('pdf')) return '📄';
+    if (types.includes('jpg') || types.includes('png')) return '🖼️';
+    return '📎';
+};
+</script>
+
+<template>
+
+    <Head title="Konfigurasi Berkas Pendaftaran - Admin" />
+
+    <AdminLayout>
+        <div class="py-12">
+            <div class="mx-auto max-w-5xl sm:px-6 lg:px-8">
+                <!-- Header -->
+                <div class="mb-6 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Konfigurasi Berkas Pendaftaran</h2>
+                        <p class="text-sm text-gray-500 mt-1">
+                            Atur item upload yang wajib diupload oleh calon siswa saat pendaftaran
+                        </p>
+                    </div>
+                    <button @click="openCreate" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        + Tambah Item
+                    </button>
+                </div>
+
+                <!-- Flash -->
+                <div v-if="$page.props.flash?.success"
+                    class="mb-4 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-green-700 text-sm">
+                    {{ $page.props.flash.success }}
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <div v-if="documents.length === 0" class="text-center py-12 text-gray-500">
+                            Belum ada konfigurasi berkas. Klik "Tambah Item" untuk menambahkan.
+                        </div>
+
+                        <table v-else class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Format
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ukuran
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Wajib
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr v-for="(doc, index) in documents" :key="doc.id">
+                                    <td class="px-4 py-4 text-sm text-gray-500">{{ index + 1 }}</td>
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-2xl">{{ getFileIcon(doc.accepted_types) }}</span>
+                                            <div>
+                                                <p class="font-medium text-gray-900">{{ doc.label }}</p>
+                                                <p class="text-xs text-gray-500">field: {{ doc.field_name }}</p>
+                                                <p v-if="doc.description" class="text-xs text-gray-400 mt-0.5">{{
+                                                    doc.description }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500">{{ getTypeLabel(doc.accepted_types) }}
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500">{{ doc.max_size }} KB</td>
+                                    <td class="px-4 py-4">
+                                        <span :class="doc.is_required
+                                            ? 'bg-red-100 text-red-800'
+                                            : 'bg-gray-100 text-gray-600'"
+                                            class="px-2 py-1 text-xs font-semibold rounded-full">
+                                            {{ doc.is_required ? 'Wajib' : 'Opsional' }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <button @click="toggleActive(doc)" :class="doc.is_active
+                                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                                            class="px-2 py-1 text-xs font-semibold rounded-full transition">
+                                            {{ doc.is_active ? 'Aktif' : 'Nonaktif' }}
+                                        </button>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <div class="flex gap-3 text-sm">
+                                            <button @click="openEdit(doc)"
+                                                class="text-yellow-600 hover:text-yellow-800">
+                                                Edit
+                                            </button>
+                                            <button @click="destroy(doc)" class="text-red-600 hover:text-red-800">
+                                                Hapus
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    {{ editingDoc ? 'Edit Item Upload' : 'Tambah Item Upload Baru' }}
+                </h3>
+
+                <form @submit.prevent="submit" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Dokumen</label>
+                        <input v-model="form.name" type="text" required placeholder="Contoh: Ijazah"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                        <p class="text-xs text-gray-400 mt-1">Nama Dokumen</p>
+                        <p v-if="form.errors.name" class="text-red-500 text-xs mt-1">{{ form.errors.name }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Label (Tampilan)</label>
+                        <input v-model="form.label" type="text" required placeholder="Contoh: Ijazah/SKL"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                        <p class="text-xs text-gray-400 mt-1">Nama yang ditampilkan ke siswa</p>
+                        <p v-if="form.errors.label" class="text-red-500 text-xs mt-1">{{ form.errors.label }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Field (Kode)</label>
+                        <input v-model="form.field_name" type="text" required placeholder="Contoh: file_ijazah"
+                            :disabled="!!editingDoc"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100" />
+                        <p class="text-xs text-gray-400 mt-1">Nama field untuk sistem (huruf kecil & underscore)</p>
+                        <p v-if="form.errors.field_name" class="text-red-500 text-xs mt-1">{{ form.errors.field_name }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi (opsional)</label>
+                        <input v-model="form.description" type="text" placeholder="Keterangan tambahan untuk siswa"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Format File</label>
+                            <input v-model="form.accepted_types" type="text" required placeholder="pdf,jpg,jpeg,png"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                            <p class="text-xs text-gray-400 mt-1">Pisahkan dengan koma</p>
+                            <p v-if="form.errors.accepted_types" class="text-red-500 text-xs mt-1">{{
+                                form.errors.accepted_types }}</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ukuran Max (KB)</label>
+                            <input v-model="form.max_size" type="number" required min="100" max="10240"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+                            <p v-if="form.errors.max_size" class="text-red-500 text-xs mt-1">{{ form.errors.max_size }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <input v-model="form.is_required" type="checkbox" id="is_required"
+                            class="rounded border-gray-300 text-blue-600" />
+                        <label for="is_required" class="text-sm text-gray-700">Wajib diupload</label>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <input v-model="form.is_active" type="checkbox" id="is_active"
+                            class="rounded border-gray-300 text-blue-600" />
+                        <label for="is_active" class="text-sm text-gray-700">Aktif (ditampilkan saat
+                            pendaftaran)</label>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button type="button" @click="showForm = false"
+                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                            Batal
+                        </button>
+                        <button type="submit" :disabled="form.processing"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400">
+                            {{ form.processing ? 'Menyimpan...' : 'Simpan' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </AdminLayout>
+</template>

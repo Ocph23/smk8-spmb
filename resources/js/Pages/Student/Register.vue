@@ -1,11 +1,15 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const props = defineProps({
     majors: {
         type: Array,
         required: true,
+    },
+    registrationDocuments: {
+        type: Array,
+        default: () => [],
     },
     errors: {
         type: Object,
@@ -19,56 +23,56 @@ const props = defineProps({
 
 const currentStep = ref(1);
 
-// Check if student has existing data
 const hasExistingData = computed(() => {
     return props.student && props.student.full_name;
 });
 
-// Get major preference if exists
 const getMajorPreference = (preference) => {
     if (!props.student?.majors) return '';
     const major = props.student.majors.find(m => m.pivot.preference === preference);
     return major ? major.id : '';
 };
 
-const form = useForm({
-    full_name: props.student?.full_name || '',
-    nik: props.student?.nik || '',
-    nisn: props.student?.nisn || '',
-    place_of_birth: props.student?.place_of_birth || '',
-    date_of_birth: props.student?.date_of_birth || '',
-    gender: props.student?.gender || '',
-    religion: props.student?.religion || '',
-    // Address fields (separated)
-    street: props.student?.street || '',
-    rt: props.student?.rt || '',
-    rw: props.student?.rw || '',
-    dusun: props.student?.dusun || '',
-    district: props.student?.district || '',
-    postal_code: props.student?.postal_code || '',
-    phone: props.student?.phone || '',
-    email: props.student?.email || '',
-    // Parent fields
-    parent_name: props.student?.parent_name || '',
-    mother_name: props.student?.mother_name || '',
-    parent_phone: props.student?.parent_phone || '',
-    // Major preferences
-    major_1: getMajorPreference(1),
-    major_2: getMajorPreference(2),
-    major_3: getMajorPreference(3),
-    // Files
-    file_ijazah: null,
-    file_kk: null,
-    file_akta: null,
-    file_pas_photo: null,
-});
+const createForm = () => {
+    const formData = {
+        full_name: props.student?.full_name || '',
+        nik: props.student?.nik || '',
+        nisn: props.student?.nisn || '',
+        place_of_birth: props.student?.place_of_birth || '',
+        date_of_birth: props.student?.date_of_birth || '',
+        gender: props.student?.gender || '',
+        religion: props.student?.religion || '',
+        street: props.student?.street || '',
+        rt: props.student?.rt || '',
+        rw: props.student?.rw || '',
+        dusun: props.student?.dusun || '',
+        district: props.student?.district || '',
+        postal_code: props.student?.postal_code || '',
+        phone: props.student?.phone || '',
+        email: props.student?.email || '',
+        parent_name: props.student?.parent_name || '',
+        mother_name: props.student?.mother_name || '',
+        parent_phone: props.student?.parent_phone || '',
+        school_name: props.student?.school_name || '',
+        school_city: props.student?.school_city || '',
+        school_province: props.student?.school_province || '',
+        major_1: getMajorPreference(1),
+        major_2: getMajorPreference(2),
+        major_3: getMajorPreference(3),
+    };
+    
+    props.registrationDocuments.forEach(doc => {
+        formData[doc.field_name] = null;
+    });
+    
+    return formData;
+};
+
+const form = useForm(createForm());
 
 const submit = () => {
     form.post(route('student.register.store'), {
         forceFormData: true,
-        onSuccess: () => {
-            // Form submitted successfully - redirect handled by controller
-        },
     });
 };
 
@@ -87,17 +91,15 @@ const prevStep = () => {
 };
 
 const validateStep1 = () => {
-    const required = ['full_name', 'nik', 'place_of_birth', 'date_of_birth', 'gender', 'street', 'district', 'phone', 'email', 'parent_name', 'mother_name', 'parent_phone'];
+    const required = ['full_name', 'nik', 'place_of_birth', 'date_of_birth', 'gender', 'street', 'district', 'phone', 'email', 'parent_name', 'mother_name', 'parent_phone', 'school_name', 'school_city', 'school_province'];
     for (const field of required) {
         if (!form[field]) {
             return false;
         }
     }
-    // NIK must be 16 digits
     if (form.nik && form.nik.length !== 16) {
         return false;
     }
-    // Phone validation
     if (form.phone && !/^08[0-9]{8,}$/.test(form.phone)) {
         return false;
     }
@@ -114,25 +116,37 @@ const validateStep2 = () => {
             return false;
         }
     }
-    // Ensure major_1 and major_2 are different
     if (form.major_1 && form.major_2 && form.major_1 === form.major_2) {
         return false;
     }
     return true;
 };
 
-const handleFileChange = (field, event) => {
+const handleFileChange = (fieldName, maxSize, event) => {
     const file = event.target.files[0];
     if (file) {
-        // Validate file size (max 2MB for documents, 1MB for photo)
-        const maxSize = field === 'file_pas_photo' ? 1024 * 1024 : 2048 * 1024;
-        if (file.size > maxSize) {
-            alert('Ukuran file terlalu besar. Maksimal ' + (field === 'file_pas_photo' ? '1MB' : '2MB'));
+        if (file.size > maxSize * 1024) {
+            alert('Ukuran file terlalu besar. Maksimal ' + maxSize + 'KB');
             event.target.value = '';
             return;
         }
-        form[field] = file;
+        form[fieldName] = file;
     }
+};
+
+const getFileName = (fieldName) => {
+    if (form[fieldName] && typeof form[fieldName] === 'object') {
+        return form[fieldName].name;
+    }
+    return null;
+};
+
+const getExistingFileName = (fieldName) => {
+    const doc = props.registrationDocuments.find(d => d.field_name === fieldName);
+    if (doc && doc.existing_file) {
+        return doc.existing_file.file_name;
+    }
+    return null;
 };
 
 const formatDateForInput = (date) => {
@@ -141,11 +155,18 @@ const formatDateForInput = (date) => {
     return d.toISOString().split('T')[0];
 };
 
-const getFileName = (field) => {
-    if (form[field] && typeof form[field] === 'object') {
-        return form[field].name;
-    }
-    return null;
+const getAcceptTypes = (acceptedTypes) => {
+    const types = acceptedTypes.split(',');
+    return types.map(t => '.' + t.trim()).join(',');
+};
+
+const getMaxSizeKB = (maxSize) => {
+    return maxSize;
+};
+
+const hasExistingFile = (fieldName) => {
+    const doc = props.registrationDocuments.find(d => d.field_name === fieldName);
+    return doc && doc.existing_file;
 };
 </script>
 
@@ -504,6 +525,51 @@ const getFileName = (field) => {
                                 </p>
                             </div>
                         </div>
+
+                        <!-- Asal Sekolah -->
+                        <div class="border-t pt-4">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Asal Sekolah</h3>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Nama Sekolah <span class="text-red-500">*</span>
+                                </label>
+                                <input v-model="form.school_name" type="text"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    :class="{ 'border-red-500': $page.props.errors.school_name }"
+                                    placeholder="Contoh: SMP Negeri 1 Jayapura" />
+                                <p v-if="$page.props.errors.school_name" class="text-red-500 text-sm mt-1">
+                                    {{ $page.props.errors.school_name }}
+                                </p>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Kota/Kabupaten <span class="text-red-500">*</span>
+                                    </label>
+                                    <input v-model="form.school_city" type="text"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        :class="{ 'border-red-500': $page.props.errors.school_city }"
+                                        placeholder="Contoh: Kota Jayapura" />
+                                    <p v-if="$page.props.errors.school_city" class="text-red-500 text-sm mt-1">
+                                        {{ $page.props.errors.school_city }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Provinsi <span class="text-red-500">*</span>
+                                    </label>
+                                    <input v-model="form.school_province" type="text"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        :class="{ 'border-red-500': $page.props.errors.school_province }"
+                                        placeholder="Contoh: Papua" />
+                                    <p v-if="$page.props.errors.school_province" class="text-red-500 text-sm mt-1">
+                                        {{ $page.props.errors.school_province }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Step 2: Pilihan Jurusan -->
@@ -571,67 +637,29 @@ const getFileName = (field) => {
                     <div v-show="currentStep === 3" class="space-y-6">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Upload Berkas</h2>
                         <p class="text-gray-600">
-                            Upload dokumen-dokumen berikut dalam format PDF atau gambar (JPG/PNG).
-                            Maksimal ukuran file: 2MB (Foto: 1MB).
+                            Upload dokumen-dokumen berikut dalam format yang diperbolehkan.
                         </p>
 
-                        <div>
+                        <div v-for="doc in registrationDocuments" :key="doc.id">
                             <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Ijazah/SKL
+                                {{ doc.label }} <span v-if="doc.is_required" class="text-red-500">*</span>
                             </label>
-                            <input type="file" @change="handleFileChange('file_ijazah', $event)"
-                                accept=".pdf,.jpg,.jpeg,.png"
+                            <p v-if="doc.description" class="text-xs text-gray-500 mb-1">{{ doc.description }}</p>
+                            <input type="file" 
+                                @change="handleFileChange(doc.field_name, doc.max_size, $event)"
+                                :accept="getAcceptTypes(doc.accepted_types)"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            <p v-if="getFileName('file_ijazah')" class="text-green-600 text-sm mt-1">
-                                File terpilih: {{ getFileName('file_ijazah') }}
+                            <p v-if="getFileName(doc.field_name)" class="text-green-600 text-sm mt-1">
+                                File terpilih: {{ getFileName(doc.field_name) }}
                             </p>
-                            <p v-if="$page.props.errors.file_ijazah" class="text-red-500 text-sm mt-1">
-                                {{ $page.props.errors.file_ijazah }}
+                            <p v-else-if="getExistingFileName(doc.field_name)" class="text-blue-600 text-sm mt-1">
+                                File tersimpan: {{ getExistingFileName(doc.field_name) }}
                             </p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Kartu Keluarga (KK)
-                            </label>
-                            <input type="file" @change="handleFileChange('file_kk', $event)"
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            <p v-if="getFileName('file_kk')" class="text-green-600 text-sm mt-1">
-                                File terpilih: {{ getFileName('file_kk') }}
+                            <p v-if="$page.props.errors[doc.field_name]" class="text-red-500 text-sm mt-1">
+                                {{ $page.props.errors[doc.field_name] }}
                             </p>
-                            <p v-if="$page.props.errors.file_kk" class="text-red-500 text-sm mt-1">
-                                {{ $page.props.errors.file_kk }}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Akta Kelahiran
-                            </label>
-                            <input type="file" @change="handleFileChange('file_akta', $event)"
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            <p v-if="getFileName('file_akta')" class="text-green-600 text-sm mt-1">
-                                File terpilih: {{ getFileName('file_akta') }}
-                            </p>
-                            <p v-if="$page.props.errors.file_akta" class="text-red-500 text-sm mt-1">
-                                {{ $page.props.errors.file_akta }}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Pas Foto (3x4)
-                            </label>
-                            <input type="file" @change="handleFileChange('file_pas_photo', $event)"
-                                accept=".jpg,.jpeg,.png"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                            <p v-if="getFileName('file_pas_photo')" class="text-green-600 text-sm mt-1">
-                                File terpilih: {{ getFileName('file_pas_photo') }}
-                            </p>
-                            <p v-if="$page.props.errors.file_pas_photo" class="text-red-500 text-sm mt-1">
-                                {{ $page.props.errors.file_pas_photo }}
+                            <p class="text-xs text-gray-400 mt-1">
+                                Format: {{ doc.accepted_types.replace(',', ', ') }} | Max: {{ doc.max_size }}KB
                             </p>
                         </div>
                     </div>

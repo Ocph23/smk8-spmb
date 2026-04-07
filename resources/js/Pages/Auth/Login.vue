@@ -31,7 +31,15 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Log in" />
+        <Head title="Login Admin" />
+
+        <div class="mb-6 text-center">
+            <h2 class="text-xl font-bold text-gray-800">Login Admin</h2>
+            <p class="text-sm text-gray-500 mt-1">
+                Siswa?
+                <Link :href="route('student.login')" class="text-blue-600 hover:underline">Login di sini</Link>
+            </p>
+        </div>
 
         <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
             {{ status }}
@@ -72,9 +80,7 @@ const submit = () => {
             <div class="mt-4 block">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
-                    >
+                    <span class="ms-2 text-sm text-gray-600">Ingat saya</span>
                 </label>
             </div>
 
@@ -84,7 +90,7 @@ const submit = () => {
                     :href="route('password.request')"
                     class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
-                    Forgot your password?
+                    Lupa password?
                 </Link>
 
                 <PrimaryButton
@@ -92,7 +98,7 @@ const submit = () => {
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Log in
+                    Login
                 </PrimaryButton>
             </div>
         </form>

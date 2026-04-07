@@ -34,6 +34,11 @@ const downloadFile = (path, filename) => {
     link.target = '_blank';
     link.click();
 };
+
+// Helper: cari dokumen berdasarkan field_name dari relasi documents
+const getDoc = (fieldName) => {
+    return props.student.documents?.find(d => d.registration_document?.field_name === fieldName) ?? null;
+};
 </script>
 
 <template>
@@ -95,8 +100,8 @@ const downloadFile = (path, filename) => {
 
                 <!-- Student Photo -->
                 <div class="flex justify-center mb-6">
-                    <div v-if="student.file_pas_photo" class="text-center">
-                        <img :src="getStorageUrl(student.file_pas_photo)" alt="Pas Foto"
+                    <div v-if="getDoc('file_pas_photo')" class="text-center">
+                        <img :src="getStorageUrl(getDoc('file_pas_photo').file_path)" alt="Pas Foto"
                             class="w-32 h-40 object-cover border-4 border-gray-200 rounded-lg" />
                         <p class="text-sm text-gray-500 mt-2">Pas Foto</p>
                     </div>
@@ -238,55 +243,19 @@ const downloadFile = (path, filename) => {
                     <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
                         Berkas Upload
                     </h2>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div class="p-4 border rounded-lg">
-                            <p class="text-sm text-gray-500 mb-2">Ijazah/SKL</p>
-                            <div v-if="student.file_ijazah" class="flex items-center justify-between">
+                    <div v-if="student.documents && student.documents.length > 0" class="grid md:grid-cols-2 gap-4">
+                        <div v-for="doc in student.documents" :key="doc.id" class="p-4 border rounded-lg">
+                            <p class="text-sm text-gray-500 mb-2">{{ doc.registration_document?.label ?? doc.file_name }}</p>
+                            <div class="flex items-center justify-between">
                                 <span class="text-green-600 text-sm">✓ File terupload</span>
-                                <button @click="downloadFile(student.file_ijazah, 'ijazah.pdf')"
+                                <button @click="downloadFile(doc.file_path, doc.file_name)"
                                     class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                     Download
                                 </button>
                             </div>
-                            <p v-else class="text-gray-400 text-sm">Belum diupload</p>
-                        </div>
-
-                        <div class="p-4 border rounded-lg">
-                            <p class="text-sm text-gray-500 mb-2">Kartu Keluarga (KK)</p>
-                            <div v-if="student.file_kk" class="flex items-center justify-between">
-                                <span class="text-green-600 text-sm">✓ File terupload</span>
-                                <button @click="downloadFile(student.file_kk, 'kk.pdf')"
-                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                    Download
-                                </button>
-                            </div>
-                            <p v-else class="text-gray-400 text-sm">Belum diupload</p>
-                        </div>
-
-                        <div class="p-4 border rounded-lg">
-                            <p class="text-sm text-gray-500 mb-2">Akta Kelahiran</p>
-                            <div v-if="student.file_akta" class="flex items-center justify-between">
-                                <span class="text-green-600 text-sm">✓ File terupload</span>
-                                <button @click="downloadFile(student.file_akta, 'akta.pdf')"
-                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                    Download
-                                </button>
-                            </div>
-                            <p v-else class="text-gray-400 text-sm">Belum diupload</p>
-                        </div>
-
-                        <div class="p-4 border rounded-lg">
-                            <p class="text-sm text-gray-500 mb-2">Pas Foto (3x4)</p>
-                            <div v-if="student.file_pas_photo" class="flex items-center justify-between">
-                                <span class="text-green-600 text-sm">✓ File terupload</span>
-                                <button @click="downloadFile(student.file_pas_photo, 'foto.jpg')"
-                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                    Download
-                                </button>
-                            </div>
-                            <p v-else class="text-gray-400 text-sm">Belum diupload</p>
                         </div>
                     </div>
+                    <p v-else class="text-gray-400 text-sm">Belum ada berkas yang diupload.</p>
                 </div>
 
                 <!-- Action Buttons -->

@@ -99,6 +99,11 @@ const submit = () => {
                         ← Kembali ke Beranda
                     </Link>
                 </div>
+                <div class="mt-2 text-center">
+                    <Link :href="route('login')" class="text-gray-400 hover:text-gray-600 text-xs">
+                        Login sebagai Admin
+                    </Link>
+                </div>
             </div>
 
             <!-- Info Card -->

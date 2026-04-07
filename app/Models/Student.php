@@ -39,10 +39,9 @@ class Student extends Authenticatable
         'parent_name',
         'mother_name',
         'parent_phone',
-        'file_ijazah',
-        'file_kk',
-        'file_akta',
-        'file_pas_photo',
+        'school_name',
+        'school_city',
+        'school_province',
         'verification_status',
         'verification_note',
         'is_accepted',
@@ -86,5 +85,10 @@ class Student extends Authenticatable
     public function inbox(): HasMany
     {
         return $this->hasMany(Inbox::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(StudentDocument::class);
     }
 }

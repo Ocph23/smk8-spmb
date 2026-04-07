@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Mail\StudentCredentialsMail;
 use App\Models\Inbox;
 use App\Models\Major;
+use App\Models\RegistrationDocument;
 use App\Models\Student;
+use App\Models\StudentDocument;
 use App\Services\AcademicYearService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,11 +30,40 @@ class StudentController extends Controller
         $student = Auth::guard('student')->user();
         $activeYear = $this->academicYearService->getActive();
 
+        $registrationDocuments = RegistrationDocument::active()
+            ->orderBy('order')
+            ->get()
+            ->map(function ($doc) use ($student) {
+                $studentDoc = null;
+                if ($student && $student->id) {
+                    $studentDoc = StudentDocument::where('student_id', $student->id)
+                        ->where('registration_document_id', $doc->id)
+                        ->first();
+                }
+                
+                return [
+                    'id'            => $doc->id,
+                    'name'          => $doc->name,
+                    'label'         => $doc->label,
+                    'description'   => $doc->description,
+                    'field_name'    => $doc->field_name,
+                    'accepted_types' => $doc->accepted_types,
+                    'max_size'      => $doc->max_size,
+                    'is_required'   => $doc->is_required,
+                    'order'         => $doc->order,
+                    'existing_file' => $studentDoc ? [
+                        'file_path' => $studentDoc->file_path,
+                        'file_name' => $studentDoc->file_name,
+                    ] : null,
+                ];
+            });
+
         return Inertia::render('Student/Register', [
             'majors'             => $majors,
             'student'            => $student,
             'registrationClosed' => $activeYear === null,
             'activeYear'         => $activeYear,
+            'registrationDocuments' => $registrationDocuments,
         ]);
     }
 
@@ -54,6 +85,15 @@ class StudentController extends Controller
 
         $nikRule = 'required|string|size:16|unique:students,nik,' . ($student?->id ?? 'NULL') . ',id,academic_year_id,' . $activeYear->id;
 
+        $documents = RegistrationDocument::active()->orderBy('order')->get();
+        $fileValidationRules = [];
+        foreach ($documents as $doc) {
+            $mimes = str_replace(',', ',', $doc->accepted_types);
+            $rule = $doc->is_required ? 'required' : 'nullable';
+            $rule .= '|file|mimes:' . $mimes . '|max:' . $doc->max_size;
+            $fileValidationRules[$doc->field_name] = $rule;
+        }
+
         $validated = $request->validate([
             'full_name'      => 'required|string|max:255',
             'nik'            => $nikRule,
@@ -73,14 +113,13 @@ class StudentController extends Controller
             'parent_name'    => 'required|string|max:255',
             'mother_name'    => 'required|string|max:255',
             'parent_phone'   => 'required|string|max:20',
+            'school_name'    => 'required|string|max:255',
+            'school_city'    => 'required|string|max:100',
+            'school_province' => 'required|string|max:100',
             'major_1'        => 'required|exists:majors,id',
             'major_2'        => 'required|exists:majors,id|different:major_1',
             'major_3'        => 'nullable|exists:majors,id|different:major_1,major_2',
-            'file_ijazah'    => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'file_kk'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'file_akta'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'file_pas_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:1024',
-        ]);
+        ] + $fileValidationRules);
 
         DB::beginTransaction();
 
@@ -150,14 +189,16 @@ class StudentController extends Controller
 
     public function certificate($registrationNumber)
     {
-        $student = Student::with('majors')->where('registration_number', $registrationNumber)->firstOrFail();
+        $student = Student::with(['majors', 'documents.registrationDocument'])
+            ->where('registration_number', $registrationNumber)->firstOrFail();
 
         return Inertia::render('Student/Certificate', ['student' => $student]);
     }
 
     public function printCertificate($registrationNumber)
     {
-        $student = Student::with('majors')->where('registration_number', $registrationNumber)->firstOrFail();
+        $student = Student::with(['majors', 'documents.registrationDocument'])
+            ->where('registration_number', $registrationNumber)->firstOrFail();
 
         $pdf = \PDF::loadView('certificates.registration', compact('student'));
 
@@ -166,11 +207,11 @@ class StudentController extends Controller
 
     public function preview($registrationNumber)
     {
-        $student = Student::with('majors')->where('registration_number', $registrationNumber)->firstOrFail();
+        $student = Student::with(['majors', 'documents.registrationDocument'])
+            ->where('registration_number', $registrationNumber)->firstOrFail();
 
         return Inertia::render('Student/Preview', ['student' => $student]);
     }
-
     public function edit($registrationNumber)
     {
         $student = Student::with('majors')->where('registration_number', $registrationNumber)->firstOrFail();
@@ -180,9 +221,35 @@ class StudentController extends Controller
             abort(403, 'Anda tidak memiliki akses ke data ini.');
         }
 
+        $registrationDocuments = RegistrationDocument::active()
+            ->orderBy('order')
+            ->get()
+            ->map(function ($doc) use ($student) {
+                $studentDoc = StudentDocument::where('student_id', $student->id)
+                    ->where('registration_document_id', $doc->id)
+                    ->first();
+                
+                return [
+                    'id'            => $doc->id,
+                    'name'          => $doc->name,
+                    'label'         => $doc->label,
+                    'description'   => $doc->description,
+                    'field_name'    => $doc->field_name,
+                    'accepted_types' => $doc->accepted_types,
+                    'max_size'      => $doc->max_size,
+                    'is_required'   => $doc->is_required,
+                    'order'         => $doc->order,
+                    'existing_file' => $studentDoc ? [
+                        'file_path' => $studentDoc->file_path,
+                        'file_name' => $studentDoc->file_name,
+                    ] : null,
+                ];
+            });
+
         return Inertia::render('Student/Edit', [
             'student' => $student,
             'majors'  => Major::all(),
+            'registrationDocuments' => $registrationDocuments,
         ]);
     }
 
@@ -193,6 +260,14 @@ class StudentController extends Controller
         $authStudent = Auth::guard('student')->user();
         if (!$authStudent || $authStudent->id !== $student->id) {
             abort(403, 'Anda tidak memiliki akses ke data ini.');
+        }
+
+        $documents = RegistrationDocument::active()->orderBy('order')->get();
+        $fileValidationRules = [];
+        foreach ($documents as $doc) {
+            $mimes = str_replace(',', ',', $doc->accepted_types);
+            $rule = 'nullable|file|mimes:' . $mimes . '|max:' . $doc->max_size;
+            $fileValidationRules[$doc->field_name] = $rule;
         }
 
         $validated = $request->validate([
@@ -214,14 +289,13 @@ class StudentController extends Controller
             'parent_name'    => 'required|string|max:255',
             'mother_name'    => 'required|string|max:255',
             'parent_phone'   => 'required|string|max:20',
+            'school_name'    => 'required|string|max:255',
+            'school_city'    => 'required|string|max:100',
+            'school_province' => 'required|string|max:100',
             'major_1'        => 'required|exists:majors,id',
             'major_2'        => 'required|exists:majors,id|different:major_1',
             'major_3'        => 'nullable|exists:majors,id|different:major_1,major_2',
-            'file_ijazah'    => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'file_kk'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'file_akta'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'file_pas_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:1024',
-        ]);
+        ] + $fileValidationRules);
 
         DB::beginTransaction();
 
@@ -290,21 +364,37 @@ class StudentController extends Controller
             'parent_name'    => $validated['parent_name'],
             'mother_name'    => $validated['mother_name'],
             'parent_phone'   => $validated['parent_phone'],
+            'school_name'    => $validated['school_name'],
+            'school_city'    => $validated['school_city'],
+            'school_province' => $validated['school_province'],
         ];
     }
 
     private function uploadFiles(Request $request, ?Student $student): array
     {
         $paths = [];
-        $map = [
-            'file_ijazah'    => 'documents/ijazah',
-            'file_kk'        => 'documents/kk',
-            'file_akta'      => 'documents/akta',
-            'file_pas_photo' => 'documents/photos',
-        ];
-        foreach ($map as $field => $dir) {
-            if ($request->hasFile($field)) {
-                $paths[$field] = $request->file($field)->store($dir, 'public');
+        $documents = RegistrationDocument::active()->orderBy('order')->get();
+        
+        foreach ($documents as $doc) {
+            $fieldName = $doc->field_name;
+            if ($request->hasFile($fieldName)) {
+                $file = $request->file($fieldName);
+                $filePath = $file->store('documents/' . $doc->name, 'public');
+                $paths[$fieldName] = $filePath;
+
+                if ($student && $student->id) {
+                    StudentDocument::updateOrCreate(
+                        [
+                            'student_id' => $student->id,
+                            'registration_document_id' => $doc->id,
+                        ],
+                        [
+                            'file_path' => $filePath,
+                            'file_name' => $file->getClientOriginalName(),
+                            'file_size' => $file->getSize(),
+                        ]
+                    );
+                }
             }
         }
         return $paths;
@@ -312,9 +402,19 @@ class StudentController extends Controller
 
     private function deleteOldFiles(Request $request, Student $student): void
     {
-        foreach (['file_ijazah', 'file_kk', 'file_akta', 'file_pas_photo'] as $field) {
-            if ($request->hasFile($field) && $student->$field) {
-                Storage::disk('public')->delete($student->$field);
+        $documents = RegistrationDocument::active()->orderBy('order')->get();
+        
+        foreach ($documents as $doc) {
+            $fieldName = $doc->field_name;
+            if ($request->hasFile($fieldName)) {
+                $studentDoc = StudentDocument::where('student_id', $student->id)
+                    ->where('registration_document_id', $doc->id)
+                    ->first();
+                
+                if ($studentDoc && $studentDoc->file_path) {
+                    Storage::disk('public')->delete($studentDoc->file_path);
+                    $studentDoc->delete();
+                }
             }
         }
     }

@@ -1,13 +1,14 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
-use App\Http\Controllers\DocumentTemplateController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminInboxController;
 use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\DocumentTemplateController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RegistrationDocumentController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StudentAuthController;
 use App\Http\Controllers\StudentController;
@@ -21,14 +22,14 @@ Route::get('/', [ScheduleController::class, 'index'])->name('home');
 
 // Student Authentication (Public)
 Route::middleware('guest.student')->group(function () {
-    Route::get('/siswa/login', [StudentAuthController::class, 'showLogin'])->name('student.login');
-    Route::post('/siswa/login', [StudentAuthController::class, 'login']);
-    Route::get('/siswa/register', [StudentAuthController::class, 'showRegister'])->name('student.register');
-    Route::post('/siswa/register', [StudentAuthController::class, 'register']);
-    Route::get('/siswa/lupa-password', [StudentAuthController::class, 'showForgotPassword'])->name('student.forgot-password');
-    Route::post('/siswa/lupa-password', [StudentAuthController::class, 'sendResetLink'])->name('student.forgot-password.send');
-    Route::get('/siswa/reset-password/{token}', [StudentAuthController::class, 'showResetPassword'])->name('student.reset-password');
-    Route::post('/siswa/reset-password', [StudentAuthController::class, 'resetPassword'])->name('student.reset-password.update');
+    Route::get('/login', [StudentAuthController::class, 'showLogin'])->name('student.login');
+    Route::post('/login', [StudentAuthController::class, 'login']);
+    Route::get('/daftar-akun', [StudentAuthController::class, 'showRegister'])->name('student.register');
+    Route::post('/daftar-akun', [StudentAuthController::class, 'register']);
+    Route::get('/lupa-password', [StudentAuthController::class, 'showForgotPassword'])->name('student.forgot-password');
+    Route::post('/lupa-password', [StudentAuthController::class, 'sendResetLink'])->name('student.forgot-password.send');
+    Route::get('/reset-password/{token}', [StudentAuthController::class, 'showResetPassword'])->name('student.reset-password');
+    Route::post('/reset-password', [StudentAuthController::class, 'resetPassword'])->name('student.reset-password.update');
 });
 
 // Student Registration & Management (students/pendaftaran prefix)
@@ -128,6 +129,14 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::post('/admin/documents/{document}', [DocumentTemplateController::class, 'update'])->name('admin.documents.update');
     Route::delete('/admin/documents/{document}', [DocumentTemplateController::class, 'destroy'])->name('admin.documents.destroy');
     Route::patch('/admin/documents/{document}/toggle', [DocumentTemplateController::class, 'toggleActive'])->name('admin.documents.toggle');
+
+    // Admin - Registration Documents (Upload Berkas Konfigurasi)
+    Route::get('/admin/registration-documents', [RegistrationDocumentController::class, 'index'])->name('admin.registration-documents');
+    Route::post('/admin/registration-documents', [RegistrationDocumentController::class, 'store'])->name('admin.registration-documents.store');
+    Route::put('/admin/registration-documents/{registrationDocument}', [RegistrationDocumentController::class, 'update'])->name('admin.registration-documents.update');
+    Route::delete('/admin/registration-documents/{registrationDocument}', [RegistrationDocumentController::class, 'destroy'])->name('admin.registration-documents.destroy');
+    Route::patch('/admin/registration-documents/{registrationDocument}/toggle', [RegistrationDocumentController::class, 'toggleActive'])->name('admin.registration-documents.toggle');
+    Route::post('/admin/registration-documents/reorder', [RegistrationDocumentController::class, 'reorder'])->name('admin.registration-documents.reorder');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

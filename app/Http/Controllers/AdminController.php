@@ -90,7 +90,7 @@ class AdminController extends Controller
 
     public function showStudent(Student $student)
     {
-        $student->load(['majors', 'acceptedMajor', 'user']);
+        $student->load(['majors', 'acceptedMajor', 'user', 'documents.registrationDocument']);
 
         return Inertia::render('Admin/Students/Show', [
             'student' => $student,

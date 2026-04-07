@@ -301,27 +301,16 @@ const formatDate = (dateString) => {
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">
                             Berkas Upload
                         </h3>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <!-- Ijazah -->
-                            <div class="border rounded-lg p-4">
+                        <div v-if="student.documents && student.documents.length > 0" class="grid md:grid-cols-2 gap-4">
+                            <div v-for="doc in student.documents" :key="doc.id" class="border rounded-lg p-4">
                                 <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-medium text-gray-700">Ijazah/SKL</h4>
-                                    <span
-                                        v-if="student.file_ijazah"
-                                        class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded"
-                                    >
-                                        ✓ Uploaded
-                                    </span>
-                                    <span
-                                        v-else
-                                        class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded"
-                                    >
-                                        -
-                                    </span>
+                                    <h4 class="font-medium text-gray-700">
+                                        {{ doc.registration_document?.label ?? doc.file_name }}
+                                    </h4>
+                                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">✓ Uploaded</span>
                                 </div>
                                 <button
-                                    v-if="student.file_ijazah"
-                                    @click="openPreview(student.file_ijazah, 'Ijazah/SKL')"
+                                    @click="openPreview(doc.file_path, doc.registration_document?.label ?? doc.file_name)"
                                     class="text-blue-600 hover:text-blue-800 text-sm flex items-center"
                                 >
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -330,102 +319,9 @@ const formatDate = (dateString) => {
                                     </svg>
                                     Preview
                                 </button>
-                                <p v-else class="text-sm text-gray-500">Belum upload</p>
-                            </div>
-
-                            <!-- KK -->
-                            <div class="border rounded-lg p-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-medium text-gray-700">Kartu Keluarga (KK)</h4>
-                                    <span
-                                        v-if="student.file_kk"
-                                        class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded"
-                                    >
-                                        ✓ Uploaded
-                                    </span>
-                                    <span
-                                        v-else
-                                        class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded"
-                                    >
-                                        -
-                                    </span>
-                                </div>
-                                <button
-                                    v-if="student.file_kk"
-                                    @click="openPreview(student.file_kk, 'Kartu Keluarga')"
-                                    class="text-blue-600 hover:text-blue-800 text-sm flex items-center"
-                                >
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    Preview
-                                </button>
-                                <p v-else class="text-sm text-gray-500">Belum upload</p>
-                            </div>
-
-                            <!-- Akta -->
-                            <div class="border rounded-lg p-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-medium text-gray-700">Akta Kelahiran</h4>
-                                    <span
-                                        v-if="student.file_akta"
-                                        class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded"
-                                    >
-                                        ✓ Uploaded
-                                    </span>
-                                    <span
-                                        v-else
-                                        class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded"
-                                    >
-                                        -
-                                    </span>
-                                </div>
-                                <button
-                                    v-if="student.file_akta"
-                                    @click="openPreview(student.file_akta, 'Akta Kelahiran')"
-                                    class="text-blue-600 hover:text-blue-800 text-sm flex items-center"
-                                >
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    Preview
-                                </button>
-                                <p v-else class="text-sm text-gray-500">Belum upload</p>
-                            </div>
-
-                            <!-- Pas Photo -->
-                            <div class="border rounded-lg p-4">
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-medium text-gray-700">Pas Foto</h4>
-                                    <span
-                                        v-if="student.file_pas_photo"
-                                        class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded"
-                                    >
-                                        ✓ Uploaded
-                                    </span>
-                                    <span
-                                        v-else
-                                        class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded"
-                                    >
-                                        -
-                                    </span>
-                                </div>
-                                <button
-                                    v-if="student.file_pas_photo"
-                                    @click="openPreview(student.file_pas_photo, 'Pas Foto')"
-                                    class="text-blue-600 hover:text-blue-800 text-sm flex items-center"
-                                >
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    Preview
-                                </button>
-                                <p v-else class="text-sm text-gray-500">Belum upload</p>
                             </div>
                         </div>
+                        <p v-else class="text-sm text-gray-500">Belum ada berkas yang diupload.</p>
                     </div>
                 </div>
             </div>
