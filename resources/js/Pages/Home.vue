@@ -7,6 +7,7 @@ defineProps({
     schedules: { type: Array, required: true },
     majors: { type: Array, required: true },
     auth: { type: Object, required: true },
+    registrations: { type: Array, default: () => [] },
     documents: { type: Array, default: () => [] },
 });
 
@@ -198,7 +199,7 @@ const stepColors = {
                                 <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                 </svg>
-                                <span class="text-slate-700 text-sm">{{ item }}</span>
+                                <span class="text-slate-700 text-lg">{{ item }}</span>
                             </li>
                         </ul>
                     </div>
@@ -213,11 +214,14 @@ const stepColors = {
                             <h3 class="text-lg font-bold text-slate-800">Berkas yang Diperlukan</h3>
                         </div>
                         <ul class="space-y-3">
-                            <li v-for="item in ['Scan Ijazah/SKL (PDF/JPG/PNG, max 2MB)','Scan Kartu Keluarga - KK (PDF/JPG/PNG, max 2MB)','Scan Akta Kelahiran (PDF/JPG/PNG, max 2MB)','Pas Foto 3x4 (JPG/PNG, background merah/biru, max 2MB)']" :key="item" class="flex items-start gap-3">
+                            <li v-for="item in registrations" :key="item.id" class="flex items-start gap-3">
                                 <svg class="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                 </svg>
-                                <span class="text-slate-700 text-sm">{{ item }}</span>
+                                <div class="flex flex-col">
+                                    <span class="text-slate-700 text-lg">{{ item.label }}</span>
+                                    <span class="text-slate-700 text-sm">{{ item.description }}</span>
+                                </div>
                             </li>
                         </ul>
                     </div>
@@ -277,8 +281,8 @@ const stepColors = {
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div v-for="major in majors" :key="major.id"
                         class="group bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-blue-200">
-                        <div class="w-16 h-16 bg-blue-50 group-hover:bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-5 transition">
-                            <div v-html="major.icon_svg" class="w-8 h-8 text-blue-600"></div>
+                        <div class="w-20 h-20 bg-blue-50 group-hover:bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-5 transition">
+                            <div v-html="major.icon_svg" class="text-blue-600"></div>
                         </div>
                         <span class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full mb-3">{{ major.code }}</span>
                         <h3 class="text-base font-bold text-slate-800 mb-2">{{ major.name }}</h3>

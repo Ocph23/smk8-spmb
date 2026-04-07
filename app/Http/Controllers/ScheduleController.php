@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DocumentTemplate;
 use App\Models\Major;
 use App\Models\Schedule;
+use App\Models\RegistrationDocument;
 use App\Services\AcademicYearService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,8 +29,10 @@ class ScheduleController extends Controller
         }
 
         return Inertia::render('Home', [
+
             'schedules' => $schedules,
             'majors'    => Major::all(),
+            'registrations' => RegistrationDocument::where('is_active', true)->orderBy('created_at', 'desc')->get(),
             'documents' => DocumentTemplate::where('is_active', true)->orderBy('created_at', 'desc')->get(),
         ]);
     }
