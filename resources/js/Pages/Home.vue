@@ -67,6 +67,7 @@ const stepColors = {
                 <div class="flex items-center gap-2">
                     <a href="#jadwal" class="hidden sm:block text-slate-600 hover:text-blue-600 px-3 py-2 text-sm font-medium transition">Jadwal</a>
                     <a href="#jurusan" class="hidden sm:block text-slate-600 hover:text-blue-600 px-3 py-2 text-sm font-medium transition">Jurusan</a>
+                    <Link :href="route('documents.index')" class="hidden sm:block text-slate-600 hover:text-blue-600 px-3 py-2 text-sm font-medium transition">Download</Link>
                     <Link :href="route('announcement.index')" class="hidden sm:block text-slate-600 hover:text-blue-600 px-3 py-2 text-sm font-medium transition">Cek Kelulusan</Link>
                     <Link v-if="!auth.user" :href="route('student.login')" class="text-slate-600 hover:text-blue-600 px-3 py-2 text-sm font-medium transition">Login</Link>
                     <Link v-if="auth.user?.registration_number" :href="route('student.dashboard')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Dashboard</Link>
