@@ -69,7 +69,7 @@ Route::middleware('auth:student')->group(function () {
 });
 
 // Public document template download
-Route::get('/dokumen', [DocumentTemplateController::class, 'publicIndex'])->name('documents.index');
+Route::get('/dokumen', [DocumentTemplateController::class, 'publicIndex'])->name('documents.indexx');
 Route::get('/dokumen/{document}/download', [DocumentTemplateController::class, 'download'])->name('documents.download');
 
 // Announcement
