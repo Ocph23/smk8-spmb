@@ -13,12 +13,24 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Administrator',
-            'email' => 'admin@spmb.smkn8tikjayapura.sch.id',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-            'email_verified_at' => now(),
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@spmb.smkn8tikjayapura.sch.id'],
+            [
+                'name' => 'Administrator',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+                'email_verified_at' => now(),
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'panitia@smkn8.sch.id'],
+            [
+                'name' => 'Panitia SPMB',
+                'password' => Hash::make('panitia123'),
+                'role' => 'panitia',
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }

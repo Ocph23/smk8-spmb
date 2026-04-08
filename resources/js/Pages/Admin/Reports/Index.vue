@@ -91,7 +91,7 @@ const getStatusBadgeClass = (status) => {
                         <p class="text-sm text-gray-500 mt-1">Statistik dan laporan pendaftar SPMB</p>
                     </div>
                     <div class="flex gap-2">
-                        <button @click="downloadCsv" :disabled="isDownloading"
+                        <button v-if="$page.props.auth.user.role === 'admin'" @click="downloadCsv" :disabled="isDownloading"
                             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2 disabled:opacity-50">
                             <svg v-if="isDownloading !== 'csv'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -100,7 +100,7 @@ const getStatusBadgeClass = (status) => {
                             <span v-if="isDownloading === 'csv'">Mengunduh...</span>
                             <span v-else>Export CSV{{ currentAcademicYear ? ` (${currentAcademicYear.name})` : '' }}</span>
                         </button>
-                        <button @click="downloadPdf" :disabled="isDownloading"
+                        <button v-if="$page.props.auth.user.role === 'admin'" @click="downloadPdf" :disabled="isDownloading"
                             class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium flex items-center gap-2 disabled:opacity-50">
                             <svg v-if="isDownloading !== 'pdf'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

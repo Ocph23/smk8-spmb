@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DocumentTemplateController;
 use App\Http\Controllers\MajorController;
+use App\Http\Controllers\PanitiaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationDocumentController;
 use App\Http\Controllers\ScheduleController;
@@ -75,11 +76,11 @@ Route::get('/dokumen/{document}/download', [DocumentTemplateController::class, '
 Route::get('/pengumuman', [AnnouncementController::class, 'index'])->name('announcement.index');
 Route::post('/pengumuman', [AnnouncementController::class, 'check'])->name('announcement.check');
 
-// Authenticated Routes (Admin)
-Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+// Authenticated Routes (Admin & Panitia) — dapat diakses oleh admin dan panitia
+Route::middleware(['auth', 'verified', 'panitia'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // Admin - Inbox Management
+    // Inbox Management
     Route::get('/admin/inbox', [AdminInboxController::class, 'index'])->name('admin.inbox');
     Route::get('/admin/inbox/compose', [AdminInboxController::class, 'create'])->name('admin.inbox.compose');
     Route::post('/admin/inbox/send', [AdminInboxController::class, 'send'])->name('admin.inbox.send');
@@ -87,20 +88,38 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::delete('/admin/inbox/{message}', [AdminInboxController::class, 'destroy'])->name('admin.inbox.destroy');
     Route::get('/admin/inbox/api/students', [AdminInboxController::class, 'getStudents'])->name('admin.inbox.api.students');
 
-    // Admin - Reports
+    // Reports (view-only)
     Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports');
-    Route::get('/admin/reports/pdf', [AdminReportController::class, 'generatePdf'])->name('admin.reports.pdf');
-    Route::get('/admin/reports/csv', [AdminReportController::class, 'exportCsv'])->name('admin.reports.csv');
     Route::get('/admin/reports/data', [AdminReportController::class, 'getData'])->name('admin.reports.data');
 
-    // Admin - Students Management
+    // Students Management
     Route::get('/admin/students', [AdminController::class, 'students'])->name('admin.students');
     Route::get('/admin/students/{student}', [AdminController::class, 'showStudent'])->name('admin.students.show');
     Route::post('/admin/students/{student}/verify', [AdminController::class, 'verifyStudent'])->name('admin.students.verify');
-    Route::post('/admin/students/{student}/allocate', [AdminController::class, 'allocateMajor'])->name('admin.students.allocate');
     Route::delete('/admin/students/{student}', [AdminController::class, 'destroyStudent'])->name('admin.students.destroy');
 
-    // Admin - Academic Years Management
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Authenticated Routes (Admin only) — eksklusif untuk admin
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+    // Students — admin-only actions
+    Route::post('/admin/students/{student}/allocate', [AdminController::class, 'allocateMajor'])->name('admin.students.allocate');
+
+    // Reports — export (admin-only)
+    Route::get('/admin/reports/pdf', [AdminReportController::class, 'generatePdf'])->name('admin.reports.pdf');
+    Route::get('/admin/reports/csv', [AdminReportController::class, 'exportCsv'])->name('admin.reports.csv');
+
+    // Panitia Management
+    Route::get('/admin/panitia', [PanitiaController::class, 'index'])->name('admin.panitia');
+    Route::post('/admin/panitia', [PanitiaController::class, 'store'])->name('admin.panitia.store');
+    Route::put('/admin/panitia/{user}', [PanitiaController::class, 'update'])->name('admin.panitia.update');
+    Route::delete('/admin/panitia/{user}', [PanitiaController::class, 'destroy'])->name('admin.panitia.destroy');
+
+    // Academic Years Management
     Route::get('/admin/academic-years', [AcademicYearController::class, 'index'])->name('admin.academic-years');
     Route::post('/admin/academic-years', [AcademicYearController::class, 'store'])->name('admin.academic-years.store');
     Route::post('/admin/academic-years/set-context', [AcademicYearController::class, 'setContext'])->name('admin.academic-years.set-context');
@@ -111,37 +130,32 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/academic-years/{academicYear}/majors', [AcademicYearController::class, 'majorConfig'])->name('admin.academic-years.major-config');
     Route::put('/admin/academic-years/{academicYear}/majors', [AcademicYearController::class, 'updateMajorConfig'])->name('admin.academic-years.update-major-config');
 
-    // Admin - Majors Management
+    // Majors Management
     Route::get('/admin/majors', [MajorController::class, 'index'])->name('admin.majors');
     Route::post('/admin/majors', [MajorController::class, 'store'])->name('admin.majors.store');
     Route::put('/admin/majors/{major}', [MajorController::class, 'update'])->name('admin.majors.update');
     Route::delete('/admin/majors/{major}', [MajorController::class, 'destroy'])->name('admin.majors.destroy');
 
-    // Admin - Schedules Management
+    // Schedules Management
     Route::get('/admin/schedules', [ScheduleController::class, 'adminIndex'])->name('admin.schedules');
     Route::post('/admin/schedules', [ScheduleController::class, 'store'])->name('admin.schedules.store');
     Route::put('/admin/schedules/{schedule}', [ScheduleController::class, 'update'])->name('admin.schedules.update');
     Route::delete('/admin/schedules/{schedule}', [ScheduleController::class, 'destroy'])->name('admin.schedules.destroy');
 
-    // Admin - Document Templates
+    // Document Templates
     Route::get('/admin/documents', [DocumentTemplateController::class, 'index'])->name('admin.documents');
     Route::post('/admin/documents', [DocumentTemplateController::class, 'store'])->name('admin.documents.store');
     Route::post('/admin/documents/{document}', [DocumentTemplateController::class, 'update'])->name('admin.documents.update');
     Route::delete('/admin/documents/{document}', [DocumentTemplateController::class, 'destroy'])->name('admin.documents.destroy');
     Route::patch('/admin/documents/{document}/toggle', [DocumentTemplateController::class, 'toggleActive'])->name('admin.documents.toggle');
 
-    // Admin - Registration Documents (Upload Berkas Konfigurasi)
+    // Registration Documents
     Route::get('/admin/registration-documents', [RegistrationDocumentController::class, 'index'])->name('admin.registration-documents');
     Route::post('/admin/registration-documents', [RegistrationDocumentController::class, 'store'])->name('admin.registration-documents.store');
     Route::put('/admin/registration-documents/{registrationDocument}', [RegistrationDocumentController::class, 'update'])->name('admin.registration-documents.update');
     Route::delete('/admin/registration-documents/{registrationDocument}', [RegistrationDocumentController::class, 'destroy'])->name('admin.registration-documents.destroy');
     Route::patch('/admin/registration-documents/{registrationDocument}/toggle', [RegistrationDocumentController::class, 'toggleActive'])->name('admin.registration-documents.toggle');
     Route::post('/admin/registration-documents/reorder', [RegistrationDocumentController::class, 'reorder'])->name('admin.registration-documents.reorder');
-
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';

@@ -26,10 +26,15 @@ class HistoricalDataMigrationSeeder extends Seeder
             ->orderBy('registration_number')
             ->first();
 
-        $year = now()->year;
-
-        $startYear = $year;
-        $endYear   = $year+1;
+        // Ekstrak tahun dari registration_number (format SPMB-{tahun}-xxxx)
+        // Tahun di registration_number adalah end_year (tahun lulus/daftar)
+        if ($firstStudent && preg_match('/SPMB-(\d{4})-/', $firstStudent->registration_number, $matches)) {
+            $endYear   = (int) $matches[1];
+            $startYear = $endYear - 1;
+        } else {
+            $startYear = now()->year;
+            $endYear   = $startYear + 1;
+        }
 
         // Buat tahun ajaran historis dengan status closed
         $academicYear = AcademicYear::create([

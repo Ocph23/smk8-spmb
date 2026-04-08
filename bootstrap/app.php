@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'guest.student' => \App\Http\Middleware\RedirectIfAuthenticatedStudent::class,
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'panitia' => \App\Http\Middleware\EnsureUserIsPanitia::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
