@@ -19,6 +19,7 @@ const form = useForm({
     description: '',
     quota: 30,
     icon_svg: '',
+    info_url: '',
 });
 
 const openCreate = () => {
@@ -29,6 +30,7 @@ const openCreate = () => {
     form.description = '';
     form.quota = 30;
     form.icon_svg = '';
+    form.info_url = '';
     showForm.value = true;
 };
 
@@ -39,6 +41,7 @@ const openEdit = (major) => {
     form.description = major.description || '';
     form.quota = major.quota;
     form.icon_svg = major.icon_svg || '';
+    form.info_url = major.info_url || '';
     showForm.value = true;
 };
 
@@ -240,6 +243,22 @@ const destroy = (major) => {
                         />
                         <p v-if="$page.props.errors.quota" class="text-red-500 text-sm mt-1">
                             {{ $page.props.errors.quota }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Link Info Jurusan (Opsional)
+                        </label>
+                        <input
+                            v-model="form.info_url"
+                            type="url"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="https://contoh.com/info-jurusan"
+                        />
+                        <p class="text-xs text-gray-500 mt-1">Siswa akan diarahkan ke link ini saat klik kartu jurusan.</p>
+                        <p v-if="$page.props.errors.info_url" class="text-red-500 text-sm mt-1">
+                            {{ $page.props.errors.info_url }}
                         </p>
                     </div>
 

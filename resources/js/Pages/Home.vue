@@ -279,15 +279,29 @@ const stepColors = {
                     <p class="text-slate-500 mt-3">Pilih jurusan yang sesuai dengan minat dan bakatmu</p>
                 </div>
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div v-for="major in majors" :key="major.id"
-                        class="group bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-blue-200">
+                    <component
+                        v-for="major in majors"
+                        :key="major.id"
+                        :is="major.info_url ? 'a' : 'div'"
+                        :href="major.info_url || undefined"
+                        :target="major.info_url ? '_blank' : undefined"
+                        :rel="major.info_url ? 'noopener noreferrer' : undefined"
+                        class="group bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-blue-200"
+                        :class="{ 'cursor-pointer': major.info_url }"
+                    >
                         <div class="w-20 h-20 bg-blue-50 group-hover:bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-5 transition">
                             <div v-html="major.icon_svg" class="text-blue-600"></div>
                         </div>
                         <span class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full mb-3">{{ major.code }}</span>
                         <h3 class="text-base font-bold text-slate-800 mb-2">{{ major.name }}</h3>
                         <p class="text-sm text-slate-500 leading-relaxed">{{ major.description }}</p>
-                    </div>
+                        <div v-if="major.info_url" class="mt-4 flex items-center justify-center gap-1 text-blue-600 text-xs font-semibold">
+                            <span>Selengkapnya</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </div>
+                    </component>
                 </div>
             </div>
         </section>

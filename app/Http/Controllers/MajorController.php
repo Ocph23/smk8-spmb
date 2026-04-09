@@ -48,6 +48,7 @@ class MajorController extends Controller
             'description' => 'nullable|string',
             'quota' => 'required|integer|min:1|max:100',
             'icon_svg' => 'nullable|string',
+            'info_url' => 'nullable|url|max:500',
         ]);
 
         Major::create($validated);
@@ -63,6 +64,7 @@ class MajorController extends Controller
             'description' => 'nullable|string',
             'quota' => 'required|integer|min:1|max:100',
             'icon_svg' => 'nullable|string',
+            'info_url' => 'nullable|url|max:500',
         ]);
 
         $major->update($validated);

@@ -17,6 +17,7 @@ class Major extends Model
         'description',
         'quota',
         'icon_svg',
+        'info_url',
     ];
 
     protected $casts = [
