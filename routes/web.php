@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\EnrollmentWaveController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminInboxController;
 use App\Http\Controllers\AdminReportController;
@@ -156,6 +157,19 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::delete('/admin/registration-documents/{registrationDocument}', [RegistrationDocumentController::class, 'destroy'])->name('admin.registration-documents.destroy');
     Route::patch('/admin/registration-documents/{registrationDocument}/toggle', [RegistrationDocumentController::class, 'toggleActive'])->name('admin.registration-documents.toggle');
     Route::post('/admin/registration-documents/reorder', [RegistrationDocumentController::class, 'reorder'])->name('admin.registration-documents.reorder');
+
+    // Enrollment Waves Management
+    Route::prefix('/admin/enrollment-waves')->group(function () {
+        Route::get('/', [EnrollmentWaveController::class, 'index'])->name('admin.enrollment-waves.index');
+        Route::post('/', [EnrollmentWaveController::class, 'store'])->name('admin.enrollment-waves.store');
+        Route::get('/{enrollmentWave}', [EnrollmentWaveController::class, 'show'])->name('admin.enrollment-waves.show');
+        Route::put('/{enrollmentWave}', [EnrollmentWaveController::class, 'update'])->name('admin.enrollment-waves.update');
+        Route::delete('/{enrollmentWave}', [EnrollmentWaveController::class, 'destroy'])->name('admin.enrollment-waves.destroy');
+        Route::post('/{enrollmentWave}/open', [EnrollmentWaveController::class, 'open'])->name('admin.enrollment-waves.open');
+        Route::post('/{enrollmentWave}/close', [EnrollmentWaveController::class, 'close'])->name('admin.enrollment-waves.close');
+        Route::post('/{enrollmentWave}/announce', [EnrollmentWaveController::class, 'announce'])->name('admin.enrollment-waves.announce');
+        Route::put('/{enrollmentWave}/quotas', [EnrollmentWaveController::class, 'updateQuotas'])->name('admin.enrollment-waves.update-quotas');
+    });
 });
 
 require __DIR__ . '/auth.php';

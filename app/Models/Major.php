@@ -43,6 +43,13 @@ class Major extends Model
             ->withTimestamps();
     }
 
+    public function enrollmentWaves(): BelongsToMany
+    {
+        return $this->belongsToMany(EnrollmentWave::class, 'enrollment_wave_major')
+            ->withPivot('quota')
+            ->withTimestamps();
+    }
+
     public function quotaForYear(int $academicYearId): int
     {
         $pivot = $this->academicYears()->wherePivot('academic_year_id', $academicYearId)->first();

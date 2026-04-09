@@ -6,6 +6,10 @@ defineProps({
         type: Object,
         required: true,
     },
+    enrollmentWave: {
+        type: Object,
+        default: null,
+    },
 });
 
 const formatDate = (dateString) => {
@@ -67,6 +71,10 @@ const formatDate = (dateString) => {
                         <div>
                             <p class="text-sm text-gray-500">Tanggal Daftar</p>
                             <p class="font-medium text-gray-800">{{ formatDate(student.created_at) }}</p>
+                        </div>
+                        <div v-if="enrollmentWave">
+                            <p class="text-sm text-gray-500">Gelombang</p>
+                            <p class="font-medium text-gray-800">{{ enrollmentWave.name }}</p>
                         </div>
                     </div>
                 </div>

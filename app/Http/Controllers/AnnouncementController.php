@@ -20,17 +20,22 @@ class AnnouncementController extends Controller
             'nik' => 'required|string',
         ]);
 
-        $student = Student::with(['majors', 'acceptedMajor'])
+        $student = Student::with(['majors', 'acceptedMajor', 'enrollmentWave'])
             ->where('registration_number', $validated['registration_number'])
             ->where('nik', $validated['nik'])
             ->first();
 
         if (!$student) {
-            return back()->withErrors(['error' => 'Data tidak ditemukan. Periksa kembali Nomor Pendaftaran dan NIK Anda.']);
+            return back()->withErrors(['error' => 'Nomor pendaftaran tidak ditemukan.']);
+        }
+
+        if ($student->enrollmentWave && ! $student->enrollmentWave->isAnnounced()) {
+            return back()->withErrors(['error' => 'Hasil seleksi untuk gelombang ini belum diumumkan.']);
         }
 
         return Inertia::render('Announcement/Result', [
-            'student' => $student,
+            'student'        => $student,
+            'enrollmentWave' => $student->enrollmentWave,
         ]);
     }
 }

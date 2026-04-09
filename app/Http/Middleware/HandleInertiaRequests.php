@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Services\AcademicYearService;
+use App\Services\EnrollmentWaveService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -16,8 +17,10 @@ class HandleInertiaRequests extends Middleware
      */
     protected $rootView = 'app';
 
-    public function __construct(protected AcademicYearService $service)
-    {
+    public function __construct(
+        protected AcademicYearService $service,
+        protected EnrollmentWaveService $enrollmentWaveService,
+    ) {
     }
 
     /**
@@ -51,6 +54,9 @@ class HandleInertiaRequests extends Middleware
                 'current' => fn () => $this->service->resolveContext($request),
                 'active'  => fn () => $this->service->getActive(),
                 'all'     => fn () => $this->service->getAll(),
+            ],
+            'enrollmentWave' => [
+                'open' => fn () => $this->enrollmentWaveService->getOpenWaveForActiveYear(),
             ],
         ];
     }

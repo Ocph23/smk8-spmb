@@ -8,6 +8,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    waveQuotas: {
+        type: Array,
+        default: null,
+    },
 });
 
 const showPreview = ref(false);
@@ -98,6 +102,22 @@ const formatDate = (dateString) => {
                             <div>
                                 <p class="text-sm text-gray-500">NIK</p>
                                 <p class="font-medium">{{ student.nik }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Gelombang</p>
+                                <p class="font-medium">
+                                    {{ student.enrollment_wave?.name ?? '-' }}
+                                    <span v-if="student.enrollment_wave"
+                                        class="ml-1 rounded-full px-2 py-0.5 text-xs"
+                                        :class="{
+                                            'bg-gray-100 text-gray-600': student.enrollment_wave.status === 'draft',
+                                            'bg-green-100 text-green-700': student.enrollment_wave.status === 'open',
+                                            'bg-yellow-100 text-yellow-700': student.enrollment_wave.status === 'closed',
+                                            'bg-blue-100 text-blue-700': student.enrollment_wave.status === 'announced',
+                                        }">
+                                        {{ student.enrollment_wave.status }}
+                                    </span>
+                                </p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">NISN</p>
@@ -224,6 +244,31 @@ const formatDate = (dateString) => {
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">
                             Alokasi Jurusan
                         </h3>
+
+                        <!-- Wave Quota Info -->
+                        <div v-if="waveQuotas" class="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                            <p class="mb-2 text-xs font-medium text-gray-600 uppercase">Kuota Gelombang</p>
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="text-gray-500">
+                                        <th class="pb-1 text-left font-medium">Jurusan</th>
+                                        <th class="pb-1 text-right font-medium">Kuota</th>
+                                        <th class="pb-1 text-right font-medium">Diterima</th>
+                                        <th class="pb-1 text-right font-medium">Sisa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="q in waveQuotas" :key="q.major_id" class="border-t border-gray-200">
+                                        <td class="py-1">{{ q.major_name }}</td>
+                                        <td class="py-1 text-right">{{ q.quota }}</td>
+                                        <td class="py-1 text-right">{{ q.accepted }}</td>
+                                        <td class="py-1 text-right" :class="q.remaining === 0 ? 'text-red-600 font-semibold' : 'text-green-700'">
+                                            {{ q.remaining }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                         <form @submit.prevent="submitAllocation" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">

@@ -17,6 +17,7 @@ class Student extends Authenticatable
 
     protected $fillable = [
         'academic_year_id',
+        'enrollment_wave_id',
         'user_id',
         'registration_number',
         'full_name',
@@ -67,6 +68,11 @@ class Student extends Authenticatable
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function enrollmentWave(): BelongsTo
+    {
+        return $this->belongsTo(EnrollmentWave::class);
     }
 
     public function majors(): BelongsToMany

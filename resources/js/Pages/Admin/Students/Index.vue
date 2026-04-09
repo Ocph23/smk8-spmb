@@ -12,6 +12,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    waves: {
+        type: Array,
+        default: () => [],
+    },
     filters: {
         type: Object,
         required: true,
@@ -26,6 +30,7 @@ const searchForm = ref({
     search: props.filters.search || '',
     status: props.filters.status || '',
     major: props.filters.major || '',
+    wave: props.filters.wave || '',
 });
 
 const search = () => {
@@ -39,6 +44,7 @@ const reset = () => {
         search: '',
         status: '',
         major: '',
+        wave: '',
     };
     router.get(route('admin.students'));
 };
@@ -142,6 +148,21 @@ const deleteStudent = (studentId) => {
                                 </select>
                             </div>
 
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Gelombang
+                                </label>
+                                <select
+                                    v-model="searchForm.wave"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                                    <option value="">Semua Gelombang</option>
+                                    <option v-for="wave in waves" :key="wave.id" :value="wave.id">
+                                        {{ wave.name }}
+                                    </option>
+                                </select>
+                            </div>
+
                             <div class="md:col-span-4 flex gap-2">
                                 <button
                                     type="submit"
@@ -178,6 +199,9 @@ const deleteStudent = (studentId) => {
                                             Jurusan (Pilihan)
                                         </th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Gelombang
+                                        </th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                             Status
                                         </th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -209,6 +233,9 @@ const deleteStudent = (studentId) => {
                                                 <span class="font-medium">{{ major.pivot.preference === 1 ? 'P1:' : major.pivot.preference === 2 ? 'P2:' : 'P3:' }}</span>
                                                 {{ major.name }}
                                             </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-xs text-gray-500">
+                                            {{ student.enrollment_wave?.name ?? '-' }}
                                         </td>
                                         <td class="px-4 py-4 text-sm">
                                             <span

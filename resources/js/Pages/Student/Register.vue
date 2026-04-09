@@ -19,6 +19,10 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    enrollmentWave: {
+        type: Object,
+        default: null,
+    },
 });
 
 const currentStep = ref(1);
@@ -225,7 +229,22 @@ const hasExistingFile = (fieldName) => {
                     Tahun Ajaran 2026/2027
                 </p>
 
-                <!-- Progress Steps -->
+                <!-- Enrollment Wave Banner -->
+                <div v-if="enrollmentWave"
+                    class="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
+                    <p class="font-semibold">{{ enrollmentWave.name }} sedang dibuka</p>
+                    <p class="text-sm mt-0.5">
+                        <span v-if="enrollmentWave.open_date">Buka: {{ enrollmentWave.open_date }}</span>
+                        <span v-if="enrollmentWave.open_date && enrollmentWave.close_date"> &mdash; </span>
+                        <span v-if="enrollmentWave.close_date">Tutup: {{ enrollmentWave.close_date }}</span>
+                    </p>
+                </div>
+                <div v-else-if="!hasExistingData"
+                    class="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-yellow-800">
+                    <p class="font-semibold">Pendaftaran Ditutup</p>
+                    <p class="text-sm mt-0.5">Tidak ada gelombang pendaftaran yang aktif saat ini.</p>
+                </div>
+
                 <div class="mb-8">
                     <div class="flex items-center justify-center">
                         <div :class="currentStep >= 1 ? 'bg-blue-600' : 'bg-gray-300'"

@@ -23,6 +23,11 @@ class AcademicYear extends Model
         return $this->hasMany(Student::class);
     }
 
+    public function enrollmentWaves(): HasMany
+    {
+        return $this->hasMany(EnrollmentWave::class)->orderBy('wave_number');
+    }
+
     public function schedules(): HasMany
     {
         return $this->hasMany(Schedule::class);

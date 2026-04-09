@@ -9,6 +9,7 @@ use App\Models\RegistrationDocument;
 use App\Models\Student;
 use App\Models\StudentDocument;
 use App\Services\AcademicYearService;
+use App\Services\EnrollmentWaveService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,10 @@ use Inertia\Inertia;
 
 class StudentController extends Controller
 {
-    public function __construct(protected AcademicYearService $academicYearService) {}
+    public function __construct(
+        protected AcademicYearService $academicYearService,
+        protected EnrollmentWaveService $enrollmentWaveService,
+    ) {}
 
     /**
      * Show registration form
@@ -64,6 +68,7 @@ class StudentController extends Controller
             'registrationClosed' => $activeYear === null,
             'activeYear'         => $activeYear,
             'registrationDocuments' => $registrationDocuments,
+            'enrollmentWave'     => $this->enrollmentWaveService->getOpenWaveForActiveYear(),
         ]);
     }
 
@@ -77,6 +82,14 @@ class StudentController extends Controller
         if (!$activeYear) {
             return response()->json([
                 'message' => 'Pendaftaran belum dibuka. Tidak ada tahun ajaran aktif saat ini.',
+            ], 422);
+        }
+
+        $openWave = $this->enrollmentWaveService->getOpenWaveForActiveYear();
+
+        if (!$openWave) {
+            return response()->json([
+                'message' => 'Pendaftaran belum dibuka. Tidak ada gelombang pendaftaran yang aktif saat ini.',
             ], 422);
         }
 
@@ -127,10 +140,11 @@ class StudentController extends Controller
             $filePaths = $this->uploadFiles($request, $student);
 
             if ($student && !$isUpdate) {
-                $registrationNumber = $this->generateRegistrationNumber($activeYear);
+                $registrationNumber = $this->enrollmentWaveService->generateRegistrationNumber($openWave);
 
                 $student->update(array_merge([
                     'academic_year_id'    => $activeYear->id,
+                    'enrollment_wave_id'  => $openWave->id,
                     'registration_number' => $registrationNumber,
                 ], $this->studentFields($validated), $filePaths));
 
@@ -148,11 +162,12 @@ class StudentController extends Controller
                     'is_system'  => true,
                 ]);
             } else {
-                $registrationNumber = $this->generateRegistrationNumber($activeYear);
+                $registrationNumber = $this->enrollmentWaveService->generateRegistrationNumber($openWave);
                 $randomPassword = $this->generatePassword();
 
                 $student = Student::create(array_merge([
                     'academic_year_id'    => $activeYear->id,
+                    'enrollment_wave_id'  => $openWave->id,
                     'registration_number' => $registrationNumber,
                     'password'            => Hash::make($randomPassword),
                 ], $this->studentFields($validated), $filePaths));
@@ -326,17 +341,6 @@ class StudentController extends Controller
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
-
-    private function generateRegistrationNumber(\App\Models\AcademicYear $activeYear): string
-    {
-        $year = $activeYear->end_year;
-        $last = Student::where('academic_year_id', $activeYear->id)
-            ->where('registration_number', 'LIKE', "SPMB-{$year}-%")
-            ->orderBy('id', 'desc')
-            ->first();
-        $number = $last ? intval(substr($last->registration_number, -4)) + 1 : 1;
-        return sprintf('SPMB-%d-%04d', $year, $number);
-    }
 
     private function generatePassword(): string
     {
