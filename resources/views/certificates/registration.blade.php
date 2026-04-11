@@ -284,7 +284,7 @@
         <div class="footer">
             <p><strong>SMK NEGERI 8 TIK KOTA JAYAPURA</strong></p>
             <p>JL. Gelanggan II RT 04 RW 01 Keluaran Waena, Distrik Heram, Kota Jayapura, Papua</p>
-            <p>Email: admin@smkn8tikjayapura.sch.id</p>
+            <p>Email: admin@spmb.smkn8tikjayapura.sch.id</p>
             <p style="margin-top: 15px; font-size: 10pt;">Dokumen ini dicetak pada {{ now()->format('d F Y, H:i') }}
                 WIT</p>
         </div>

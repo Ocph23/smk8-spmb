@@ -29,11 +29,12 @@ class StudentAuthController extends Controller
             'password' => 'required',
         ]);
 
-        $student = Student::where('email', $credentials['email'])->first();
+        $email   = strtolower(trim($credentials['email']));
+        $student = Student::where('email', $email)->first();
 
         if (!$student || !Hash::check($credentials['password'], $student->password)) {
             return back()->withErrors([
-                'email' => 'Email atau password salah',
+                'email' => 'Email atau password salah.',
             ])->onlyInput('email');
         }
 

@@ -75,6 +75,7 @@ const formatDate = (dateString) => {
 </script>
 
 <template>
+
     <Head :title="`Detail ${student.registration_number}`" />
 
     <AdminLayout>
@@ -87,10 +88,7 @@ const formatDate = (dateString) => {
                             <h3 class="text-lg font-semibold text-gray-800">
                                 Informasi Pribadi
                             </h3>
-                            <Link
-                                :href="route('admin.students')"
-                                class="text-blue-600 hover:text-blue-800"
-                            >
+                            <Link :href="route('admin.students')" class="text-blue-600 hover:text-blue-800">
                                 ← Kembali
                             </Link>
                         </div>
@@ -107,8 +105,7 @@ const formatDate = (dateString) => {
                                 <p class="text-sm text-gray-500">Gelombang</p>
                                 <p class="font-medium">
                                     {{ student.enrollment_wave?.name ?? '-' }}
-                                    <span v-if="student.enrollment_wave"
-                                        class="ml-1 rounded-full px-2 py-0.5 text-xs"
+                                    <span v-if="student.enrollment_wave" class="ml-1 rounded-full px-2 py-0.5 text-xs"
                                         :class="{
                                             'bg-gray-100 text-gray-600': student.enrollment_wave.status === 'draft',
                                             'bg-green-100 text-green-700': student.enrollment_wave.status === 'open',
@@ -129,7 +126,8 @@ const formatDate = (dateString) => {
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Tempat, Tanggal Lahir</p>
-                                <p class="font-medium">{{ student.place_of_birth }}, {{ formatDate(student.date_of_birth) }}</p>
+                                <p class="font-medium">{{ student.place_of_birth }}, {{
+                                    formatDate(student.date_of_birth) }}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Jenis Kelamin</p>
@@ -160,6 +158,25 @@ const formatDate = (dateString) => {
                                 <p class="font-medium">{{ student.address }}</p>
                             </div>
                         </div>
+
+                        <!-- Asal Sekolah -->
+                        <div class="mt-6 border-t pt-4">
+                            <h4 class="mb-3 text-sm font-semibold text-gray-700">Asal Sekolah</h4>
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                <div>
+                                    <p class="text-sm text-gray-500">Nama Sekolah</p>
+                                    <p class="font-medium">{{ student.school_name || '-' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Kota/Kabupaten</p>
+                                    <p class="font-medium">{{ student.school_city || '-' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Provinsi</p>
+                                    <p class="font-medium">{{ student.school_province || '-' }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -170,19 +187,14 @@ const formatDate = (dateString) => {
                             Pilihan Jurusan
                         </h3>
                         <div class="space-y-2">
-                            <div
-                                v-for="major in student.majors"
-                                :key="major.id"
-                                class="flex items-center justify-between bg-gray-50 rounded px-4 py-3"
-                            >
+                            <div v-for="major in student.majors" :key="major.id"
+                                class="flex items-center justify-between bg-gray-50 rounded px-4 py-3">
                                 <div class="flex items-center">
-                                    <span
-                                        :class="{
-                                            'bg-blue-100 text-blue-800': major.pivot.preference === 1,
-                                            'bg-gray-200 text-gray-800': major.pivot.preference !== 1,
-                                        }"
-                                        class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold mr-3"
-                                    >
+                                    <span :class="{
+                                        'bg-blue-100 text-blue-800': major.pivot.preference === 1,
+                                        'bg-gray-200 text-gray-800': major.pivot.preference !== 1,
+                                    }"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold mr-3">
                                         {{ major.pivot.preference }}
                                     </span>
                                     <div>
@@ -207,10 +219,8 @@ const formatDate = (dateString) => {
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
                                     Status Verifikasi
                                 </label>
-                                <select
-                                    v-model="verifyForm.status"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                >
+                                <select v-model="verifyForm.status" @change="(() => { verifyForm.note = '' })"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                     <option value="pending">Pending</option>
                                     <option value="verified">Verified</option>
                                     <option value="rejected">Rejected</option>
@@ -220,18 +230,12 @@ const formatDate = (dateString) => {
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
                                     Catatan
                                 </label>
-                                <textarea
-                                    v-model="verifyForm.note"
-                                    rows="3"
+                                <textarea v-model="verifyForm.note" rows="3"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Catatan verifikasi (opsional)"
-                                ></textarea>
+                                    placeholder="Catatan verifikasi (opsional)"></textarea>
                             </div>
-                            <button
-                                type="submit"
-                                :disabled="verifyForm.processing"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-                            >
+                            <button type="submit" :disabled="verifyForm.processing"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400">
                                 Simpan Verifikasi
                             </button>
                         </form>
@@ -262,7 +266,8 @@ const formatDate = (dateString) => {
                                         <td class="py-1">{{ q.major_name }}</td>
                                         <td class="py-1 text-right">{{ q.quota }}</td>
                                         <td class="py-1 text-right">{{ q.accepted }}</td>
-                                        <td class="py-1 text-right" :class="q.remaining === 0 ? 'text-red-600 font-semibold' : 'text-green-700'">
+                                        <td class="py-1 text-right"
+                                            :class="q.remaining === 0 ? 'text-red-600 font-semibold' : 'text-green-700'">
                                             {{ q.remaining }}
                                         </td>
                                     </tr>
@@ -276,21 +281,13 @@ const formatDate = (dateString) => {
                                 </label>
                                 <div class="flex items-center space-x-4">
                                     <label class="flex items-center">
-                                        <input
-                                            v-model="allocateForm.is_accepted"
-                                            type="radio"
-                                            :value="1"
-                                            class="text-green-600 focus:ring-green-500"
-                                        />
+                                        <input v-model="allocateForm.is_accepted" type="radio" :value="1"
+                                            class="text-green-600 focus:ring-green-500" />
                                         <span class="ml-2 text-gray-700">Diterima</span>
                                     </label>
                                     <label class="flex items-center">
-                                        <input
-                                            v-model="allocateForm.is_accepted"
-                                            type="radio"
-                                            :value="0"
-                                            class="text-red-600 focus:ring-red-500"
-                                        />
+                                        <input v-model="allocateForm.is_accepted" type="radio" :value="0"
+                                            class="text-red-600 focus:ring-red-500" />
                                         <span class="ml-2 text-gray-700">Tidak Diterima</span>
                                     </label>
                                 </div>
@@ -299,30 +296,22 @@ const formatDate = (dateString) => {
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
                                     Jurusan yang Diterima
                                 </label>
-                                <select
-                                    v-model="allocateForm.major_id"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                >
+                                <select v-model="allocateForm.major_id"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                                     <option value="">Pilih Jurusan</option>
-                                    <option
-                                        v-for="major in student.majors"
-                                        :key="major.id"
-                                        :value="major.id"
-                                    >
+                                    <option v-for="major in student.majors" :key="major.id" :value="major.id">
                                         {{ major.name }}
                                     </option>
                                 </select>
                             </div>
-                            <button
-                                type="submit"
-                                :disabled="allocateForm.processing"
-                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
-                            >
+                            <button type="submit" :disabled="allocateForm.processing"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400">
                                 Simpan Alokasi
                             </button>
                         </form>
 
-                        <div v-if="student.is_accepted && student.accepted_major" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div v-if="student.is_accepted && student.accepted_major"
+                            class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                             <p class="text-sm text-green-800">
                                 <strong>Diterima di:</strong> {{ student.accepted_major.name }}
                             </p>
@@ -332,10 +321,7 @@ const formatDate = (dateString) => {
 
                 <!-- Delete Button -->
                 <div class="flex justify-end">
-                    <button
-                        @click="deleteStudent"
-                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                    >
+                    <button @click="deleteStudent" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                         Hapus Pendaftar
                     </button>
                 </div>
@@ -352,15 +338,17 @@ const formatDate = (dateString) => {
                                     <h4 class="font-medium text-gray-700">
                                         {{ doc.registration_document?.label ?? doc.file_name }}
                                     </h4>
-                                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">✓ Uploaded</span>
+                                    <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">✓
+                                        Uploaded</span>
                                 </div>
                                 <button
                                     @click="openPreview(doc.file_path, doc.registration_document?.label ?? doc.file_name)"
-                                    class="text-blue-600 hover:text-blue-800 text-sm flex items-center"
-                                >
+                                    class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
                                     Preview
                                 </button>
@@ -373,62 +361,38 @@ const formatDate = (dateString) => {
         </div>
 
         <!-- Preview Modal -->
-        <div
-            v-if="showPreview"
-            class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-            @click="closePreview"
-        >
-            <div
-                class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto"
-                @click.stop
-            >
+        <div v-if="showPreview" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+            @click="closePreview">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto" @click.stop>
                 <div class="flex justify-between items-center p-4 border-b">
                     <h3 class="text-lg font-semibold text-gray-800">
                         Preview: {{ previewTitle }}
                     </h3>
-                    <button
-                        @click="closePreview"
-                        class="text-gray-500 hover:text-gray-700"
-                    >
+                    <button @click="closePreview" class="text-gray-500 hover:text-gray-700">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
                 <div class="p-4">
-                    <img
-                        v-if="previewType === 'image'"
-                        :src="previewFile"
-                        :alt="previewTitle"
-                        class="max-w-full h-auto mx-auto"
-                    />
-                    <iframe
-                        v-else-if="previewType === 'pdf'"
-                        :src="previewFile"
-                        class="w-full h-[70vh] border rounded"
-                    ></iframe>
-                    <div
-                        v-else
-                        class="text-center py-12 text-gray-500"
-                    >
+                    <img v-if="previewType === 'image'" :src="previewFile" :alt="previewTitle"
+                        class="max-w-full h-auto mx-auto" />
+                    <iframe v-else-if="previewType === 'pdf'" :src="previewFile"
+                        class="w-full h-[70vh] border rounded"></iframe>
+                    <div v-else class="text-center py-12 text-gray-500">
                         <p>Preview tidak tersedia untuk format ini.</p>
-                        <a
-                            :href="previewFile"
-                            download
-                            class="text-blue-600 hover:underline mt-2 inline-block"
-                        >
+                        <a :href="previewFile" download class="text-blue-600 hover:underline mt-2 inline-block">
                             Download file
                         </a>
                     </div>
                 </div>
                 <div class="p-4 border-t flex justify-end">
-                    <a
-                        :href="previewFile"
-                        download
-                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-flex items-center"
-                    >
+                    <a :href="previewFile" download
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         Download
                     </a>

@@ -21,18 +21,17 @@ class EnrollmentWaveController extends Controller
 
         $waves = $year
             ? EnrollmentWave::where('academic_year_id', $year->id)
-                ->withCount('students')
+                ->withCount([
+                    'students',
+                    'students as accepted_count' => fn ($q) => $q->where('is_accepted', true),
+                ])
                 ->with('majors')
                 ->orderBy('wave_number')
                 ->get()
-                ->map(function ($wave) {
-                    $wave->accepted_count = $wave->students()->where('is_accepted', true)->count();
-                    return $wave;
-                })
             : collect();
 
         return Inertia::render('Admin/EnrollmentWaves/Index', [
-            'waves'       => $waves,
+            'waves'        => $waves,
             'academicYear' => $year,
         ]);
     }
@@ -64,6 +63,34 @@ class EnrollmentWaveController extends Controller
     public function show(Request $request, EnrollmentWave $enrollmentWave)
     {
         $enrollmentWave->load(['academicYear', 'majors', 'students']);
+
+        // Ambil semua jurusan aktif dari tahun ajaran
+        $yearMajors = collect();
+        if ($enrollmentWave->academicYear) {
+            $yearMajors = $enrollmentWave->academicYear
+                ->majors()
+                ->withPivot(['quota', 'is_active'])
+                ->where('is_active', true)
+                ->get()
+                ->keyBy('id');
+        }
+
+        // Jurusan yang sudah ada di pivot gelombang
+        $waveMajorIds = $enrollmentWave->majors->pluck('id')->toArray();
+
+        // Attach jurusan yang belum ada di pivot (inisialisasi otomatis)
+        foreach ($yearMajors as $majorId => $major) {
+            if (!in_array($majorId, $waveMajorIds)) {
+                $enrollmentWave->majors()->attach($majorId, [
+                    'quota' => (int) $major->pivot->quota,
+                ]);
+            }
+        }
+
+        // Reload setelah kemungkinan attach
+        if ($yearMajors->isNotEmpty() && count($waveMajorIds) < $yearMajors->count()) {
+            $enrollmentWave->load('majors');
+        }
 
         $quotaStats = $enrollmentWave->majors->map(function ($major) use ($enrollmentWave) {
             $quota    = (int) $major->pivot->quota;

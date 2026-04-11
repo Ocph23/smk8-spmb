@@ -25,11 +25,11 @@ Route::get('/', [ScheduleController::class, 'index'])->name('home');
 // Student Authentication (Public)
 Route::middleware('guest.student')->group(function () {
     Route::get('/login', [StudentAuthController::class, 'showLogin'])->name('student.login');
-    Route::post('/login', [StudentAuthController::class, 'login']);
+    Route::post('/login', [StudentAuthController::class, 'login'])->middleware('throttle:5,1');
     Route::get('/daftar-akun', [StudentAuthController::class, 'showRegister'])->name('student.register');
-    Route::post('/daftar-akun', [StudentAuthController::class, 'register']);
+    Route::post('/daftar-akun', [StudentAuthController::class, 'register'])->middleware('throttle:10,1');
     Route::get('/lupa-password', [StudentAuthController::class, 'showForgotPassword'])->name('student.forgot-password');
-    Route::post('/lupa-password', [StudentAuthController::class, 'sendResetLink'])->name('student.forgot-password.send');
+    Route::post('/lupa-password', [StudentAuthController::class, 'sendResetLink'])->name('student.forgot-password.send')->middleware('throttle:5,1');
     Route::get('/reset-password/{token}', [StudentAuthController::class, 'showResetPassword'])->name('student.reset-password');
     Route::post('/reset-password', [StudentAuthController::class, 'resetPassword'])->name('student.reset-password.update');
 });

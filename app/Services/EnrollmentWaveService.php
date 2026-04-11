@@ -64,12 +64,20 @@ class EnrollmentWaveService
      */
     public function calculateInitialQuotas(AcademicYear $year): array
     {
-        $majors = $year->majors()->withPivot(['quota', 'is_active'])->get();
+        $majors = $year->majors()
+            ->withPivot(['quota', 'is_active'])
+            ->wherePivot('is_active', true)
+            ->get();
+
+        // Fallback: jika tidak ada yang is_active, ambil semua
+        if ($majors->isEmpty()) {
+            $majors = $year->majors()->withPivot(['quota', 'is_active'])->get();
+        }
 
         $quotas = [];
 
         foreach ($majors as $major) {
-            $totalQuota = (int) $major->pivot->quota;
+            $totalQuota = (int) ($major->pivot->quota ?? 0);
 
             $accepted = Student::where('academic_year_id', $year->id)
                 ->where('accepted_major_id', $major->id)
@@ -190,7 +198,7 @@ class EnrollmentWaveService
 
     /**
      * Generate nomor pendaftaran: SPMB-{end_year}-{Romawi}-{urutan 4 digit}.
-     * Urutan dihitung per gelombang.
+     * Urutan dihitung per gelombang secara atomic.
      */
     public function generateRegistrationNumber(EnrollmentWave $wave): string
     {
@@ -199,8 +207,12 @@ class EnrollmentWaveService
         $endYear = $wave->academicYear->end_year;
         $roman   = RomanNumeralHelper::toRoman($wave->wave_number);
 
-        $count = Student::where('enrollment_wave_id', $wave->id)->count();
-        $seq   = str_pad($count + 1, 4, '0', STR_PAD_LEFT);
+        // Atomic count using DB lock to prevent duplicate numbers
+        $count = Student::lockForUpdate()
+            ->where('enrollment_wave_id', $wave->id)
+            ->count();
+
+        $seq = str_pad($count + 1, 4, '0', STR_PAD_LEFT);
 
         return "SPMB-{$endYear}-{$roman}-{$seq}";
     }

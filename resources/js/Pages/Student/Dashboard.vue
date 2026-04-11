@@ -1,6 +1,11 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 
+const whatsappIcon =`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <path fill="#25D366" d="M16 .4C7.4.4.4 7.4.4 16c0 2.8.7 5.4 2 7.7L.3 31.7l8.2-2.1c2.2 1.2 4.8 1.8 7.5 1.8 8.6 0 15.6-7 15.6-15.6S24.6.4 16 .4z"/>
+  <path fill="#FFF" d="M24.3 19.7c-.4-.2-2.5-1.2-2.9-1.3-.4-.2-.7-.2-1 .2s-1.1 1.3-1.3 1.5c-.2.2-.5.3-.9.1-2.5-1.2-4.2-2.2-5.8-5-.4-.6.4-.6 1.2-2.1.1-.2.1-.5 0-.7s-1-2.5-1.4-3.4c-.4-.9-.8-.7-1.1-.7h-.9c-.3 0-.7.1-1 .5s-1.4 1.4-1.4 3.4 1.5 3.9 1.7 4.2c.2.3 3 4.7 7.3 6.6 2.7 1.2 3.7 1.3 5 1.1.8-.1 2.5-1 2.8-2 .3-1 .3-1.8.2-2-.1-.2-.3-.3-.7-.5z"/>
+</svg>`;
+
 const props = defineProps({
     student: {
         type: Object,
@@ -159,7 +164,7 @@ const getStatusBadge = (status) => {
                             </div>
 
                             <!-- Action Buttons -->
-                            <div class="flex flex-wrap gap-3 pt-4">
+                            <div class="flex flex-wrap gap-3 pt-4" v-if="!student.registration_number.includes('DRAFT')">
                                 <Link v-if="student.registration_number"
                                     :href="route('student.preview', student.registration_number)"
                                     class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
@@ -283,8 +288,12 @@ const getStatusBadge = (status) => {
                             Jika mengalami kendala, hubungi panitia SPMB:
                         </p>
                         <div class="space-y-2 text-sm text-yellow-800">
-                            <p>📞 +62 853-2004-3617</p>
-                            <p>📧 info@smkn8jayapura.sch.id</p>
+                            <p>📞 +62 813 5011 529</p>
+                            <p>📧 admin@spmb.smkn8tikjayapura.sch.id</p>
+                            <p> <a href="https://whatsapp.com/channel/0029VbCHmoc1noz588JH0j3r" class="flex gap-2">
+                                  <div class="w-4 h-4" v-html="whatsappIcon"></div> Gabung
+                                </a>   
+                            </p>
                         </div>
                     </div>
 
@@ -293,19 +302,21 @@ const getStatusBadge = (status) => {
                         <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                             <span>📂</span> Dokumen Template Persyaratan
                         </h3>
-                        <p class="text-xs text-gray-500 mb-3">Download dan isi dokumen berikut sebagai kelengkapan berkas pendaftaran.</p>
+                        <p class="text-xs text-gray-500 mb-3">Download dan isi dokumen berikut sebagai kelengkapan
+                            berkas pendaftaran.</p>
                         <div class="space-y-2">
-                            <a v-for="doc in documents" :key="doc.id"
-                                :href="route('documents.download', doc.id)"
+                            <a v-for="doc in documents" :key="doc.id" :href="route('documents.download', doc.id)"
                                 class="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition group">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <span class="text-lg flex-shrink-0">📄</span>
                                     <div class="min-w-0">
                                         <p class="text-sm font-medium text-gray-800 truncate">{{ doc.name }}</p>
-                                        <p v-if="doc.description" class="text-xs text-gray-400 truncate">{{ doc.description }}</p>
+                                        <p v-if="doc.description" class="text-xs text-gray-400 truncate">{{
+                                            doc.description }}</p>
                                     </div>
                                 </div>
-                                <span class="text-xs text-blue-600 group-hover:text-blue-700 flex-shrink-0 ml-2 font-medium">
+                                <span
+                                    class="text-xs text-blue-600 group-hover:text-blue-700 flex-shrink-0 ml-2 font-medium">
                                     ↓ {{ doc.file_size }}
                                 </span>
                             </a>

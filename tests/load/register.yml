@@ -1,0 +1,47 @@
+config:
+  target: "http://127.0.0.1:8000"
+  processor: "./register-helpers.js"
+  phases:
+    - name: "Warm-up"
+      duration: 10
+      arrivalRate: 2
+    - name: "Normal Load"
+      duration: 30
+      arrivalRate: 10
+    - name: "Peak Load"
+      duration: 20
+      arrivalRate: 20
+
+scenarios:
+  - name: "Pendaftaran Siswa Baru"
+    flow:
+      - function: "generateStudentData"
+      - post:
+          url: "/students/pendaftaran/daftar"
+          headers:
+            Accept: "application/json"
+            Content-Type: "application/json"
+            X-Requested-With: "XMLHttpRequest"
+          json:
+            full_name: "{{ full_name }}"
+            nik: "{{ nik }}"
+            nisn: "{{ nisn }}"
+            place_of_birth: "{{ place_of_birth }}"
+            date_of_birth: "{{ date_of_birth }}"
+            gender: "{{ gender }}"
+            religion: "{{ religion }}"
+            street: "{{ street }}"
+            rt: "{{ rt }}"
+            rw: "{{ rw }}"
+            district: "Abepura"
+            postal_code: "99111"
+            phone: "{{ phone }}"
+            email: "{{ email }}"
+            parent_name: "{{ parent_name }}"
+            mother_name: "{{ mother_name }}"
+            parent_phone: "{{ parent_phone }}"
+            school_name: "{{ school_name }}"
+            school_city: "Jayapura"
+            school_province: "Papua"
+            major_1: "{{ major_1 }}"
+            major_2: "{{ major_2 }}"

@@ -1,3 +1,26 @@
+test php
+
+php artisan test tests/Feature/ConcurrentRegistrationTest.php --verbose
+
+Untuk load test HTTP yang sesungguhnya (simulasi browser nyata), gunakan Artillery:
+
+npm install -g artillery
+artillery quick --count 50 --num 10 http://localhost:8000/students/pendaftaran/daftar
+
+//real test 
+cd tests/load
+artillery run register.yml --output results.json
+
+
+
+
+
+
+
+
+
+
+
 Kimia Industri
 <svg width="70" height="70" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <circle cx="100" cy="100" r="90" fill="#9333EA"/>

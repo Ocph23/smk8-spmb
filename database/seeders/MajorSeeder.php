@@ -23,13 +23,19 @@ class MajorSeeder extends Seeder
                 'name' => 'Teknik Komputer dan Jaringan',
                 'code' => 'TKJ',
                 'description' => 'Kompetensi keahlian yang mempelajari perakitan komputer, instalasi jaringan, administrasi server, dan troubleshooting.',
-                'quota' => 32,
+                'quota' => 72,
             ],
             [
                 'name' => 'Desain Komunikasi Visual',
                 'code' => 'DKV',
                 'description' => 'Kompetensi keahlian yang mempelajari desain grafis, fotografi, videografi, dan animasi untuk keperluan komunikasi visual.',
-                'quota' => 28,
+                'quota' => 36,
+            ],
+            [
+                'name' => 'Teknik Kimia Industri',
+                'code' => 'TKI',
+                'description' => 'Kompetensi keahlian yang mempelajari kimia untuk keperluan industri.',
+                'quota' => 36,
             ],
         ];
 

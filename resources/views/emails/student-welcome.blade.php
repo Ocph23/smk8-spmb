@@ -77,8 +77,8 @@
 
         <div style="background:#f0f4ff; border-left:4px solid #667eea; padding:15px; border-radius:5px;">
             <strong>📞 Kontak Panitia:</strong><br>
-            Email: info@smkn8jayapura.sch.id<br>
-            Telepon: 0851-8681-0279
+            Email: {{ env('SCHOOL_EMAIL') }}<br>
+            Telepon: {{ env('SCHOOL_PHONE') }}
         </div>
 
         <div class="footer">

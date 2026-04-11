@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 
 const props = defineProps({
     majors: {
@@ -27,8 +27,31 @@ const props = defineProps({
 
 const currentStep = ref(1);
 
+// --- Error Modal ---
+const showErrorModal = ref(false);
+const errorModalList = ref([]);
+
+const openErrorModal = (errors) => {
+    errorModalList.value = Object.values(errors).flat();
+    showErrorModal.value = true;
+};
+
+const closeErrorModal = () => {
+    showErrorModal.value = false;
+};
+
 const hasExistingData = computed(() => {
     return props.student && props.student.full_name;
+});
+
+const ageError = computed(() => {
+    if (!form.date_of_birth) return null;
+    const dob = new Date(form.date_of_birth);
+    const today = new Date();
+    const age = today.getFullYear() - dob.getFullYear() -
+        (today < new Date(today.getFullYear(), dob.getMonth(), dob.getDate()) ? 1 : 0);
+    if (age > 21) return 'Usia pendaftar maksimal 21 tahun.';
+    return null;
 });
 
 const getMajorPreference = (preference) => {
@@ -64,19 +87,29 @@ const createForm = () => {
         major_2: getMajorPreference(2),
         major_3: getMajorPreference(3),
     };
-    
+
     props.registrationDocuments.forEach(doc => {
         formData[doc.field_name] = null;
     });
-    
+
     return formData;
 };
 
 const form = useForm(createForm());
 
+// Watch for server-side errors after form submission
+watch(() => form.errors, (newErrors) => {
+    if (Object.keys(newErrors).length > 0) {
+        openErrorModal(newErrors);
+    }
+}, { deep: true });
+
 const submit = () => {
     form.post(route('student.register.store'), {
         forceFormData: true,
+        onError: (errors) => {
+            openErrorModal(errors);
+        },
     });
 };
 
@@ -109,6 +142,16 @@ const validateStep1 = () => {
     }
     if (form.parent_phone && !/^08[0-9]{8,}$/.test(form.parent_phone)) {
         return false;
+    }
+    // Validasi umur: maksimal 21 tahun
+    if (form.date_of_birth) {
+        const dob = new Date(form.date_of_birth);
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear() -
+            (today < new Date(today.getFullYear(), dob.getMonth(), dob.getDate()) ? 1 : 0);
+        if (age > 21) {
+            return false;
+        }
     }
     return true;
 };
@@ -340,8 +383,9 @@ const hasExistingFile = (fieldName) => {
                                 </label>
                                 <input v-model="form.date_of_birth" type="date"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    :class="{ 'border-red-500': $page.props.errors.date_of_birth }" />
-                                <p v-if="$page.props.errors.date_of_birth" class="text-red-500 text-sm mt-1">
+                                    :class="{ 'border-red-500': $page.props.errors.date_of_birth || ageError }" />
+                                <p v-if="ageError" class="text-red-500 text-sm mt-1">{{ ageError }}</p>
+                                <p v-else-if="$page.props.errors.date_of_birth" class="text-red-500 text-sm mt-1">
                                     {{ $page.props.errors.date_of_birth }}
                                 </p>
                             </div>
@@ -387,7 +431,7 @@ const hasExistingFile = (fieldName) => {
                         <!-- Address Section -->
                         <div class="border-t pt-4">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">Alamat Lengkap</h3>
-                            
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
                                     Jalan/Gang <span class="text-red-500">*</span>
@@ -408,8 +452,7 @@ const hasExistingFile = (fieldName) => {
                                     </label>
                                     <input v-model="form.rt" type="text"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        :class="{ 'border-red-500': $page.props.errors.rt }"
-                                        placeholder="001" />
+                                        :class="{ 'border-red-500': $page.props.errors.rt }" placeholder="001" />
                                     <p v-if="$page.props.errors.rt" class="text-red-500 text-sm mt-1">
                                         {{ $page.props.errors.rt }}
                                     </p>
@@ -421,8 +464,7 @@ const hasExistingFile = (fieldName) => {
                                     </label>
                                     <input v-model="form.rw" type="text"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        :class="{ 'border-red-500': $page.props.errors.rw }"
-                                        placeholder="002" />
+                                        :class="{ 'border-red-500': $page.props.errors.rw }" placeholder="002" />
                                     <p v-if="$page.props.errors.rw" class="text-red-500 text-sm mt-1">
                                         {{ $page.props.errors.rw }}
                                     </p>
@@ -489,7 +531,7 @@ const hasExistingFile = (fieldName) => {
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
                                     Email <span class="text-red-500">*</span>
                                 </label>
-                                <input v-model="form.email" type="email"
+                                <input v-model="form.email" type="email" disabled
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     :class="{ 'border-red-500': $page.props.errors.email }"
                                     placeholder="email@example.com" />
@@ -502,7 +544,7 @@ const hasExistingFile = (fieldName) => {
                         <!-- Parent Section -->
                         <div class="border-t pt-4">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">Data Orang Tua/Wali</h3>
-                            
+
                             <div class="grid md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -664,8 +706,7 @@ const hasExistingFile = (fieldName) => {
                                 {{ doc.label }} <span v-if="doc.is_required" class="text-red-500">*</span>
                             </label>
                             <p v-if="doc.description" class="text-xs text-gray-500 mb-1">{{ doc.description }}</p>
-                            <input type="file" 
-                                @change="handleFileChange(doc.field_name, doc.max_size, $event)"
+                            <input type="file" @change="handleFileChange(doc.field_name, doc.max_size, $event)"
                                 :accept="getAcceptTypes(doc.accepted_types)"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                             <p v-if="getFileName(doc.field_name)" class="text-green-600 text-sm mt-1">
@@ -707,4 +748,45 @@ const hasExistingFile = (fieldName) => {
             </div>
         </div>
     </div>
+
+    <!-- Error Modal -->
+    <Teleport to="body">
+        <div v-if="showErrorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+            @click.self="closeErrorModal">
+            <div class="w-full max-w-md rounded-xl bg-white shadow-2xl">
+                <div class="flex items-center justify-between border-b px-6 py-4">
+                    <div class="flex items-center gap-2 text-red-600">
+                        <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                        </svg>
+                        <span class="font-semibold">Data tidak valid</span>
+                    </div>
+                    <button @click="closeErrorModal"
+                        class="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="px-6 py-4">
+                    <p class="mb-3 text-sm text-gray-600">Mohon perbaiki kesalahan berikut sebelum melanjutkan:</p>
+                    <ul class="space-y-1.5">
+                        <li v-for="(error, i) in errorModalList" :key="i"
+                            class="flex items-start gap-2 text-sm text-red-700">
+                            <span class="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-red-500"></span>
+                            {{ error }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="border-t px-6 py-4">
+                    <button @click="closeErrorModal"
+                        class="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+                        Tutup & Perbaiki
+                    </button>
+                </div>
+            </div>
+        </div>
+    </Teleport>
 </template>

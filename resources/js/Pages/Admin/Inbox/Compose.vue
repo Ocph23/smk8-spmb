@@ -105,7 +105,7 @@ const goBack = () => {
                             <div class="border rounded-md max-h-60 overflow-y-auto">
                                 <div v-for="student in filteredStudents" :key="student.id"
                                     class="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
-                                    :class="{ 'bg-blue-50': form.student_id == student.id }"
+                                    :class="{ 'bg-green-200': form.student_id == student.id }"
                                     @click="form.student_id = student.id">
                                     <div class="font-medium text-gray-900">{{ student.full_name }}</div>
                                     <div class="text-sm text-gray-500">

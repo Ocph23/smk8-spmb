@@ -34,28 +34,30 @@ class StudentController extends Controller
         $student = Auth::guard('student')->user();
         $activeYear = $this->academicYearService->getActive();
 
+        // Eager load student documents to avoid N+1
+        $studentDocs = collect();
+        if ($student?->id) {
+            $studentDocs = StudentDocument::where('student_id', $student->id)
+                ->get()
+                ->keyBy('registration_document_id');
+        }
+
         $registrationDocuments = RegistrationDocument::active()
             ->orderBy('order')
             ->get()
-            ->map(function ($doc) use ($student) {
-                $studentDoc = null;
-                if ($student && $student->id) {
-                    $studentDoc = StudentDocument::where('student_id', $student->id)
-                        ->where('registration_document_id', $doc->id)
-                        ->first();
-                }
-                
+            ->map(function ($doc) use ($studentDocs) {
+                $studentDoc = $studentDocs->get($doc->id);
                 return [
-                    'id'            => $doc->id,
-                    'name'          => $doc->name,
-                    'label'         => $doc->label,
-                    'description'   => $doc->description,
-                    'field_name'    => $doc->field_name,
+                    'id'             => $doc->id,
+                    'name'           => $doc->name,
+                    'label'          => $doc->label,
+                    'description'    => $doc->description,
+                    'field_name'     => $doc->field_name,
                     'accepted_types' => $doc->accepted_types,
-                    'max_size'      => $doc->max_size,
-                    'is_required'   => $doc->is_required,
-                    'order'         => $doc->order,
-                    'existing_file' => $studentDoc ? [
+                    'max_size'       => $doc->max_size,
+                    'is_required'    => $doc->is_required,
+                    'order'          => $doc->order,
+                    'existing_file'  => $studentDoc ? [
                         'file_path' => $studentDoc->file_path,
                         'file_name' => $studentDoc->file_name,
                     ] : null,
@@ -63,12 +65,12 @@ class StudentController extends Controller
             });
 
         return Inertia::render('Student/Register', [
-            'majors'             => $majors,
-            'student'            => $student,
-            'registrationClosed' => $activeYear === null,
-            'activeYear'         => $activeYear,
+            'majors'                => $majors,
+            'student'               => $student,
+            'registrationClosed'    => $activeYear === null,
+            'activeYear'            => $activeYear,
             'registrationDocuments' => $registrationDocuments,
-            'enrollmentWave'     => $this->enrollmentWaveService->getOpenWaveForActiveYear(),
+            'enrollmentWave'        => $this->enrollmentWaveService->getOpenWaveForActiveYear(),
         ]);
     }
 
@@ -80,63 +82,64 @@ class StudentController extends Controller
         $activeYear = $this->academicYearService->getActive();
 
         if (!$activeYear) {
-            return response()->json([
-                'message' => 'Pendaftaran belum dibuka. Tidak ada tahun ajaran aktif saat ini.',
-            ], 422);
+            return back()->withErrors(['error' => 'Pendaftaran belum dibuka. Tidak ada tahun ajaran aktif saat ini.']);
         }
 
         $openWave = $this->enrollmentWaveService->getOpenWaveForActiveYear();
 
         if (!$openWave) {
-            return response()->json([
-                'message' => 'Pendaftaran belum dibuka. Tidak ada gelombang pendaftaran yang aktif saat ini.',
-            ], 422);
+            return back()->withErrors(['error' => 'Pendaftaran belum dibuka. Tidak ada gelombang pendaftaran yang aktif saat ini.']);
         }
 
         $student = Auth::guard('student')->user();
         $isUpdate = $student && $student->registration_number && !str_starts_with($student->registration_number, 'DRAFT-');
+
+        // Cegah edit data setelah diverifikasi
+        if ($isUpdate && $student->verification_status !== 'pending') {
+            return back()->withErrors(['error' => 'Data tidak dapat diubah setelah diverifikasi.']);
+        }
 
         $nikRule = 'required|string|size:16|unique:students,nik,' . ($student?->id ?? 'NULL') . ',id,academic_year_id,' . $activeYear->id;
 
         $documents = RegistrationDocument::active()->orderBy('order')->get();
         $fileValidationRules = [];
         foreach ($documents as $doc) {
-            $mimes = str_replace(',', ',', $doc->accepted_types);
-            $rule = $doc->is_required ? 'required' : 'nullable';
-            $rule .= '|file|mimes:' . $mimes . '|max:' . $doc->max_size;
+            $rule = ($doc->is_required && !$isUpdate) ? 'required' : 'nullable';
+            $rule .= '|file|mimes:' . $doc->accepted_types . '|max:' . $doc->max_size;
             $fileValidationRules[$doc->field_name] = $rule;
         }
 
         $validated = $request->validate([
-            'full_name'      => 'required|string|max:255',
-            'nik'            => $nikRule,
-            'nisn'           => 'nullable|string|max:10',
-            'place_of_birth' => 'required|string|max:100',
-            'date_of_birth'  => 'required|date',
-            'gender'         => 'required|in:male,female',
-            'religion'       => 'nullable|string|max:50',
-            'street'         => 'required|string|max:255',
-            'rt'             => 'nullable|string|max:10',
-            'rw'             => 'nullable|string|max:10',
-            'dusun'          => 'nullable|string|max:100',
-            'district'       => 'required|string|max:100',
-            'postal_code'    => 'nullable|string|max:10',
-            'phone'          => 'required|string|max:20',
-            'email'          => 'required|email|unique:students,email,' . ($student?->id ?? 'NULL'),
-            'parent_name'    => 'required|string|max:255',
-            'mother_name'    => 'required|string|max:255',
-            'parent_phone'   => 'required|string|max:20',
-            'school_name'    => 'required|string|max:255',
-            'school_city'    => 'required|string|max:100',
+            'full_name'       => 'required|string|max:255',
+            'nik'             => $nikRule,
+            'nisn'            => 'nullable|string|max:10',
+            'place_of_birth'  => 'required|string|max:100',
+            'date_of_birth'   => 'required|date|before:today|after_or_equal:' . now()->subYears(21)->format('Y-m-d'),
+            'gender'          => 'required|in:male,female',
+            'religion'        => 'nullable|string|max:50',
+            'street'          => 'required|string|max:255',
+            'rt'              => 'nullable|string|max:10',
+            'rw'              => 'nullable|string|max:10',
+            'dusun'           => 'nullable|string|max:100',
+            'district'        => 'required|string|max:100',
+            'postal_code'     => 'nullable|string|max:10',
+            'phone'           => ['required', 'string', 'max:20', 'regex:/^08[0-9]{8,}$/'],
+            'email'           => 'required|email|unique:students,email,' . ($student?->id ?? 'NULL'),
+            'parent_name'     => 'required|string|max:255',
+            'mother_name'     => 'required|string|max:255',
+            'parent_phone'    => ['required', 'string', 'max:20', 'regex:/^08[0-9]{8,}$/'],
+            'school_name'     => 'required|string|max:255',
+            'school_city'     => 'required|string|max:100',
             'school_province' => 'required|string|max:100',
-            'major_1'        => 'required|exists:majors,id',
-            'major_2'        => 'required|exists:majors,id|different:major_1',
-            'major_3'        => 'nullable|exists:majors,id|different:major_1,major_2',
+            'major_1'         => 'required|exists:majors,id',
+            'major_2'         => 'required|exists:majors,id|different:major_1',
+            'major_3'         => 'nullable|exists:majors,id|different:major_1,major_2',
         ] + $fileValidationRules);
 
         DB::beginTransaction();
 
         try {
+            // Upload files INSIDE transaction
             $filePaths = $this->uploadFiles($request, $student);
 
             if ($student && !$isUpdate) {
@@ -195,10 +198,12 @@ class StudentController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            foreach ($filePaths as $path) {
+            // Hapus file yang sudah terupload jika transaksi gagal
+            foreach ($filePaths ?? [] as $path) {
                 Storage::disk('public')->delete($path);
             }
-            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+            \Log::error('Student registration error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.']);
         }
     }
 
@@ -236,25 +241,31 @@ class StudentController extends Controller
             abort(403, 'Anda tidak memiliki akses ke data ini.');
         }
 
+        if ($student->verification_status !== 'pending') {
+            return redirect()->route('student.preview', $registrationNumber)
+                ->withErrors(['error' => 'Data tidak dapat diubah setelah diverifikasi.']);
+        }
+
+        $studentDocs = StudentDocument::where('student_id', $student->id)
+            ->get()
+            ->keyBy('registration_document_id');
+
         $registrationDocuments = RegistrationDocument::active()
             ->orderBy('order')
             ->get()
-            ->map(function ($doc) use ($student) {
-                $studentDoc = StudentDocument::where('student_id', $student->id)
-                    ->where('registration_document_id', $doc->id)
-                    ->first();
-                
+            ->map(function ($doc) use ($studentDocs) {
+                $studentDoc = $studentDocs->get($doc->id);
                 return [
-                    'id'            => $doc->id,
-                    'name'          => $doc->name,
-                    'label'         => $doc->label,
-                    'description'   => $doc->description,
-                    'field_name'    => $doc->field_name,
+                    'id'             => $doc->id,
+                    'name'           => $doc->name,
+                    'label'          => $doc->label,
+                    'description'    => $doc->description,
+                    'field_name'     => $doc->field_name,
                     'accepted_types' => $doc->accepted_types,
-                    'max_size'      => $doc->max_size,
-                    'is_required'   => $doc->is_required,
-                    'order'         => $doc->order,
-                    'existing_file' => $studentDoc ? [
+                    'max_size'       => $doc->max_size,
+                    'is_required'    => $doc->is_required,
+                    'order'          => $doc->order,
+                    'existing_file'  => $studentDoc ? [
                         'file_path' => $studentDoc->file_path,
                         'file_name' => $studentDoc->file_name,
                     ] : null,
@@ -262,8 +273,8 @@ class StudentController extends Controller
             });
 
         return Inertia::render('Student/Edit', [
-            'student' => $student,
-            'majors'  => Major::all(),
+            'student'               => $student,
+            'majors'                => Major::all(),
             'registrationDocuments' => $registrationDocuments,
         ]);
     }
@@ -277,39 +288,42 @@ class StudentController extends Controller
             abort(403, 'Anda tidak memiliki akses ke data ini.');
         }
 
+        if ($student->verification_status !== 'pending') {
+            return back()->withErrors(['error' => 'Data tidak dapat diubah setelah diverifikasi.']);
+        }
+
         $documents = RegistrationDocument::active()->orderBy('order')->get();
         $fileValidationRules = [];
         foreach ($documents as $doc) {
-            $mimes = str_replace(',', ',', $doc->accepted_types);
-            $rule = 'nullable|file|mimes:' . $mimes . '|max:' . $doc->max_size;
+            $rule = 'nullable|file|mimes:' . $doc->accepted_types . '|max:' . $doc->max_size;
             $fileValidationRules[$doc->field_name] = $rule;
         }
 
         $validated = $request->validate([
-            'full_name'      => 'required|string|max:255',
-            'nik'            => 'required|string|size:16|unique:students,nik,' . $student->id,
-            'nisn'           => 'nullable|string|max:10',
-            'place_of_birth' => 'required|string|max:100',
-            'date_of_birth'  => 'required|date',
-            'gender'         => 'required|in:male,female',
-            'religion'       => 'nullable|string|max:50',
-            'street'         => 'required|string|max:255',
-            'rt'             => 'nullable|string|max:10',
-            'rw'             => 'nullable|string|max:10',
-            'dusun'          => 'nullable|string|max:100',
-            'district'       => 'required|string|max:100',
-            'postal_code'    => 'nullable|string|max:10',
-            'phone'          => 'required|string|max:20',
-            'email'          => 'required|email|unique:students,email,' . $student->id,
-            'parent_name'    => 'required|string|max:255',
-            'mother_name'    => 'required|string|max:255',
-            'parent_phone'   => 'required|string|max:20',
-            'school_name'    => 'required|string|max:255',
-            'school_city'    => 'required|string|max:100',
+            'full_name'       => 'required|string|max:255',
+            'nik'             => 'required|string|size:16|unique:students,nik,' . $student->id,
+            'nisn'            => 'nullable|string|max:10',
+            'place_of_birth'  => 'required|string|max:100',
+            'date_of_birth'   => 'required|date|before:today|after_or_equal:' . now()->subYears(21)->format('Y-m-d'),
+            'gender'          => 'required|in:male,female',
+            'religion'        => 'nullable|string|max:50',
+            'street'          => 'required|string|max:255',
+            'rt'              => 'nullable|string|max:10',
+            'rw'              => 'nullable|string|max:10',
+            'dusun'           => 'nullable|string|max:100',
+            'district'        => 'required|string|max:100',
+            'postal_code'     => 'nullable|string|max:10',
+            'phone'           => ['required', 'string', 'max:20', 'regex:/^08[0-9]{8,}$/'],
+            'email'           => 'required|email|unique:students,email,' . $student->id,
+            'parent_name'     => 'required|string|max:255',
+            'mother_name'     => 'required|string|max:255',
+            'parent_phone'    => ['required', 'string', 'max:20', 'regex:/^08[0-9]{8,}$/'],
+            'school_name'     => 'required|string|max:255',
+            'school_city'     => 'required|string|max:100',
             'school_province' => 'required|string|max:100',
-            'major_1'        => 'required|exists:majors,id',
-            'major_2'        => 'required|exists:majors,id|different:major_1',
-            'major_3'        => 'nullable|exists:majors,id|different:major_1,major_2',
+            'major_1'         => 'required|exists:majors,id',
+            'major_2'         => 'required|exists:majors,id|different:major_1',
+            'major_3'         => 'nullable|exists:majors,id|different:major_1,major_2',
         ] + $fileValidationRules);
 
         DB::beginTransaction();
@@ -334,7 +348,8 @@ class StudentController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+            \Log::error('Student update error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.']);
         }
     }
 
@@ -344,7 +359,7 @@ class StudentController extends Controller
 
     private function generatePassword(): string
     {
-        return substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 8);
+        return \Illuminate\Support\Str::random(10);
     }
 
     private function studentFields(array $validated): array

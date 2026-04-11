@@ -16,10 +16,17 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // Exclude load test endpoint from CSRF (only when APP_ENV=local)
+        if (env('APP_ENV') === 'local') {
+            $middleware->validateCsrfTokens(except: [
+                'students/pendaftaran/daftar',
+            ]);
+        }
+
         $middleware->alias([
             'guest.student' => \App\Http\Middleware\RedirectIfAuthenticatedStudent::class,
-            'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
-            'panitia' => \App\Http\Middleware\EnsureUserIsPanitia::class,
+            'admin'         => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'panitia'       => \App\Http\Middleware\EnsureUserIsPanitia::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
