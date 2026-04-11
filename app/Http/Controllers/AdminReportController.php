@@ -181,7 +181,7 @@ class AdminReportController extends Controller
     {
         $context = $this->service->resolveContext($request);
 
-        $query = Student::with(['majors', 'acceptedMajor']);
+        $query = Student::with(['majors', 'acceptedMajor', 'enrollmentWave']);
 
         if ($context) {
             $query->where('academic_year_id', $context->id);
@@ -204,7 +204,19 @@ class AdminReportController extends Controller
 
         $students = $query->orderBy('registration_number')->get();
 
-        $csv = "No,No Pendaftaran,Nama Lengkap,NIK,NISN,Tempat Lahir,Tanggal Lahir,Jenis Kelamin,Agama,Alamat,Email,Telepon,Pilihan 1,Pilihan 2,Pilihan 3,Status Verifikasi,Diterima,Jurusan Diterima\n";
+        $headers = [
+            'No', 'No Pendaftaran', 'Gelombang',
+            'Nama Lengkap', 'NIK', 'NISN',
+            'Tempat Lahir', 'Tanggal Lahir', 'Jenis Kelamin', 'Agama',
+            'Alamat', 'Jalan', 'RT', 'RW', 'Dusun', 'Kecamatan', 'Kode Pos',
+            'Email', 'Telepon',
+            'Nama Ayah/Wali', 'Nama Ibu', 'Telepon Orang Tua',
+            'Asal Sekolah', 'Kota Sekolah', 'Provinsi Sekolah',
+            'Pilihan 1', 'Pilihan 2', 'Pilihan 3',
+            'Status Verifikasi', 'Catatan Verifikasi', 'Diterima', 'Jurusan Diterima',
+        ];
+
+        $csv = implode(',', $headers) . "\n";
 
         foreach ($students as $index => $student) {
             $majors = $student->majors->sortBy('pivot.preference');
@@ -212,27 +224,42 @@ class AdminReportController extends Controller
             $pilihan2 = $majors->firstWhere('pivot.preference', 2)?->name ?? '-';
             $pilihan3 = $majors->firstWhere('pivot.preference', 3)?->name ?? '-';
 
-            $csv .= sprintf(
-                "%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+            $row = [
                 $index + 1,
                 $student->registration_number,
+                $this->escapeCsv($student->enrollmentWave?->name ?? '-'),
                 $this->escapeCsv($student->full_name),
                 $student->nik,
                 $student->nisn ?? '-',
-                $student->place_of_birth,
+                $this->escapeCsv($student->place_of_birth ?? '-'),
                 $student->date_of_birth?->format('d-m-Y') ?? '-',
                 $student->gender === 'male' ? 'Laki-laki' : 'Perempuan',
-                $student->religion,
-                $this->escapeCsv($student->address),
+                $this->escapeCsv($student->religion ?? '-'),
+                $this->escapeCsv($student->address ?? '-'),
+                $this->escapeCsv($student->street ?? '-'),
+                $student->rt ?? '-',
+                $student->rw ?? '-',
+                $this->escapeCsv($student->dusun ?? '-'),
+                $this->escapeCsv($student->district ?? '-'),
+                $student->postal_code ?? '-',
                 $student->email,
-                $student->phone,
-                $pilihan1,
-                $pilihan2,
-                $pilihan3,
-                ucfirst($student->verification_status),
+                $student->phone ?? '-',
+                $this->escapeCsv($student->parent_name ?? '-'),
+                $this->escapeCsv($student->mother_name ?? '-'),
+                $student->parent_phone ?? '-',
+                $this->escapeCsv($student->school_name ?? '-'),
+                $this->escapeCsv($student->school_city ?? '-'),
+                $this->escapeCsv($student->school_province ?? '-'),
+                $this->escapeCsv($pilihan1),
+                $this->escapeCsv($pilihan2),
+                $this->escapeCsv($pilihan3),
+                ucfirst($student->verification_status ?? '-'),
+                $this->escapeCsv($student->verification_note ?? '-'),
                 $student->is_accepted ? 'Ya' : 'Belum',
-                $student->acceptedMajor?->name ?? '-'
-            );
+                $this->escapeCsv($student->acceptedMajor?->name ?? '-'),
+            ];
+
+            $csv .= implode(',', $row) . "\n";
         }
 
         $filename = 'laporan-' . ($context?->name ?? 'semua') . '-' . now()->format('Y-m-d') . '.csv';
