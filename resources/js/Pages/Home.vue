@@ -37,14 +37,16 @@ const steps = [
     { num: 1, color: 'yellow', title: 'Buat Akun', desc: 'Buat akun menggunakan email yang aktif' },
     { num: 2, color: 'blue', title: 'Isi Formulir', desc: 'Lengkapi biodata, pilih jurusan (3 pilihan), dan upload berkas persyaratan.' },
     { num: 3, color: 'emerald', title: 'Verifikasi Berkas', desc: 'Panitia memverifikasi berkas dalam 1–3 hari kerja.' },
-    { num: 4, color: 'violet', title: 'Cek Hasil Seleksi', desc: 'Cek hasil seleksi menggunakan nomor pendaftaran dan NIK.' },
-    { num: 5, color: 'rose', title: 'Daftar Ulang', desc: 'Bawa berkas asli dan lengkapi administrasi sesuai jadwal.' },
+    { num: 4, color: 'red', title: 'Test', desc: 'Mengikuti Test.' },
+    { num: 5, color: 'violet', title: 'Cek Hasil Seleksi', desc: 'Cek hasil seleksi menggunakan nomor pendaftaran dan NIK.' },
+    { num: 6, color: 'rose', title: 'Daftar Ulang', desc: 'Bawa berkas asli dan lengkapi administrasi sesuai jadwal.' },
 ];
 
 const stepColors = {
     yellow: { dot: 'bg-yellow-600', card: 'border-yellow-500', badge: 'bg-yellow-600' },
     blue: { dot: 'bg-blue-600', card: 'border-blue-500', badge: 'bg-blue-600' },
     emerald: { dot: 'bg-emerald-500', card: 'border-emerald-500', badge: 'bg-emerald-500' },
+    red: { dot: 'bg-red-500', card: 'border-red-500', badge: 'bg-red-500' },
     violet: { dot: 'bg-violet-600', card: 'border-violet-500', badge: 'bg-violet-600' },
     rose: { dot: 'bg-rose-500', card: 'border-rose-500', badge: 'bg-rose-500' },
 };
