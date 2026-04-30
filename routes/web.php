@@ -90,11 +90,6 @@ Route::middleware(['auth', 'verified', 'panitia'])->group(function () {
     Route::delete('/admin/inbox/{message}', [AdminInboxController::class, 'destroy'])->name('admin.inbox.destroy');
     Route::get('/admin/inbox/api/students', [AdminInboxController::class, 'getStudents'])->name('admin.inbox.api.students');
 
-    // Announcements
-    Route::get('/admin/pengumuman', [AdminAnnouncementController::class, 'index'])->name('admin.announcements');
-    Route::post('/admin/pengumuman', [AdminAnnouncementController::class, 'store'])->name('admin.announcements.store');
-    Route::put('/admin/pengumuman/{announcement}', [AdminAnnouncementController::class, 'update'])->name('admin.announcements.update');
-    Route::delete('/admin/pengumuman/{announcement}', [AdminAnnouncementController::class, 'destroy'])->name('admin.announcements.destroy');
 
     // Reports (view-only)
     Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports');
@@ -164,6 +159,12 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::delete('/admin/registration-documents/{registrationDocument}', [RegistrationDocumentController::class, 'destroy'])->name('admin.registration-documents.destroy');
     Route::patch('/admin/registration-documents/{registrationDocument}/toggle', [RegistrationDocumentController::class, 'toggleActive'])->name('admin.registration-documents.toggle');
     Route::post('/admin/registration-documents/reorder', [RegistrationDocumentController::class, 'reorder'])->name('admin.registration-documents.reorder');
+
+    // Announcements
+    Route::get('/admin/pengumuman', [AdminAnnouncementController::class, 'index'])->name('admin.announcements');
+    Route::post('/admin/pengumuman', [AdminAnnouncementController::class, 'store'])->name('admin.announcements.store');
+    Route::put('/admin/pengumuman/{announcement}', [AdminAnnouncementController::class, 'update'])->name('admin.announcements.update');
+    Route::delete('/admin/pengumuman/{announcement}', [AdminAnnouncementController::class, 'destroy'])->name('admin.announcements.destroy');
 
     // Enrollment Waves Management
     Route::prefix('/admin/enrollment-waves')->group(function () {
