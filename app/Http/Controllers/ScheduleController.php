@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DocumentTemplate;
+use App\Models\Announcement;
 use App\Models\Major;
 use App\Models\Schedule;
 use App\Models\RegistrationDocument;
@@ -32,6 +33,7 @@ class ScheduleController extends Controller
 
             'schedules' => $schedules,
             'majors'    => Major::all(),
+            'announcements' => Announcement::forSidebar()->limit(3)->get(),
             'registrations' => RegistrationDocument::where('is_active', true)->orderBy('created_at', 'desc')->get(),
             'documents' => DocumentTemplate::where('is_active', true)->orderBy('created_at', 'desc')->get(),
         ]);

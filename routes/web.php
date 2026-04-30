@@ -3,6 +3,7 @@
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\EnrollmentWaveController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminAnnouncementController;
 use App\Http\Controllers\AdminInboxController;
 use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\AnnouncementController;
@@ -88,6 +89,12 @@ Route::middleware(['auth', 'verified', 'panitia'])->group(function () {
     Route::get('/admin/inbox/{message}', [AdminInboxController::class, 'show'])->name('admin.inbox.show');
     Route::delete('/admin/inbox/{message}', [AdminInboxController::class, 'destroy'])->name('admin.inbox.destroy');
     Route::get('/admin/inbox/api/students', [AdminInboxController::class, 'getStudents'])->name('admin.inbox.api.students');
+
+    // Announcements
+    Route::get('/admin/pengumuman', [AdminAnnouncementController::class, 'index'])->name('admin.announcements');
+    Route::post('/admin/pengumuman', [AdminAnnouncementController::class, 'store'])->name('admin.announcements.store');
+    Route::put('/admin/pengumuman/{announcement}', [AdminAnnouncementController::class, 'update'])->name('admin.announcements.update');
+    Route::delete('/admin/pengumuman/{announcement}', [AdminAnnouncementController::class, 'destroy'])->name('admin.announcements.destroy');
 
     // Reports (view-only)
     Route::get('/admin/reports', [AdminReportController::class, 'index'])->name('admin.reports');
