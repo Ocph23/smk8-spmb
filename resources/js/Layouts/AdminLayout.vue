@@ -42,7 +42,7 @@ const menuItems = [
     },
     {
         name: 'Pengumuman',
-        href: '/admin/pengumuman',
+        href: 'admin.announcements',
         useUrl: true,
         icon: 'M4 4h16v10H7l-3 4V4z',
         adminOnly: true,
@@ -102,19 +102,14 @@ const isActive = (routeName) => {
 <template>
     <div class="flex h-screen bg-gray-100">
         <!-- Mobile sidebar overlay -->
-        <div
-            v-if="sidebarOpen"
-            class="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 sm:hidden"
-            @click="sidebarOpen = false"
-        ></div>
+        <div v-if="sidebarOpen" class="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 sm:hidden"
+            @click="sidebarOpen = false"></div>
 
         <!-- Sidebar -->
-        <aside
-            :class="[
-                'fixed inset-y-0 left-0 z-50 flex w-64 flex-col transform bg-gray-800 transition-transform duration-300 ease-in-out sm:static sm:translate-x-0',
-                sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-            ]"
-        >
+        <aside :class="[
+            'fixed inset-y-0 left-0 z-50 flex w-64 flex-col transform bg-gray-800 transition-transform duration-300 ease-in-out sm:static sm:translate-x-0',
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+        ]">
             <!-- Logo -->
             <div class="flex h-16 items-center justify-center border-b border-gray-700 bg-gray-900 px-4">
                 <Link :href="route('dashboard')">
@@ -130,32 +125,19 @@ const isActive = (routeName) => {
             <!-- Sidebar Menu -->
             <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
                 <template v-for="item in menuItems" :key="item.name">
-                    <Link
-                        v-if="!item.adminOnly || $page.props.auth.user.role === 'admin'"
+                    <Link v-if="!item.adminOnly || $page.props.auth.user.role === 'admin'"
                         :href="item.useUrl ? item.href : route(item.href)"
-                        :target="item.external ? '_blank' : undefined"
-                        :class="[
+                        :target="item.external ? '_blank' : undefined" :class="[
                             'group flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors',
                             isActive(item.href)
                                 ? 'bg-gray-700 text-white'
                                 : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                        ]"
-                    >
-                        <svg
-                            :class="[
-                                'mr-3 h-5 w-5 flex-shrink-0',
-                                isActive(item.href) ? 'text-white' : 'text-gray-400 group-hover:text-white',
-                            ]"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                :d="item.icon"
-                            />
+                        ]">
+                        <svg :class="[
+                            'mr-3 h-5 w-5 flex-shrink-0',
+                            isActive(item.href) ? 'text-white' : 'text-gray-400 group-hover:text-white',
+                        ]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
                         </svg>
                         {{ item.name }}
                     </Link>
@@ -166,39 +148,21 @@ const isActive = (routeName) => {
             <div class="border-t border-gray-700 p-4">
                 <Dropdown align="top" width="48">
                     <template #trigger>
-                        <button
-                            type="button"
-                            class="flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
-                        >
-                            <svg
-                                class="mr-3 h-5 w-5 flex-shrink-0 text-gray-400"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                />
+                        <button type="button"
+                            class="flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700 hover:text-white">
+                            <svg class="mr-3 h-5 w-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                             <div class="flex flex-1 flex-col text-left">
                                 <span class="text-sm font-medium">{{ $page.props.auth.user.name }}</span>
                                 <span class="text-xs capitalize text-gray-400">{{ $page.props.auth.user.role }}</span>
                             </div>
-                            <svg
-                                class="ml-2 h-4 w-4 text-gray-400"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M19 9l-7 7-7-7"
-                                />
+                            <svg class="ml-2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
                     </template>
@@ -219,17 +183,11 @@ const isActive = (routeName) => {
         <div class="flex flex-1 flex-col overflow-hidden">
             <!-- Top Header (Mobile) -->
             <header class="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:hidden">
-                <button
-                    @click="sidebarOpen = true"
-                    class="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none"
-                >
+                <button @click="sidebarOpen = true"
+                    class="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16"
-                        />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
                 <div class="text-sm font-medium text-gray-500">
