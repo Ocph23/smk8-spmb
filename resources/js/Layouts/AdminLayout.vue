@@ -43,7 +43,6 @@ const menuItems = [
     {
         name: 'Pengumuman',
         href: 'admin.announcements',
-        useUrl: true,
         icon: 'M4 4h16v10H7l-3 4V4z',
         adminOnly: true,
     },
