@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Announcement extends Model
+class   Announcement extends Model
 {
     use HasFactory;
 
@@ -46,7 +46,7 @@ class Announcement extends Model
     public function scopeForSidebar(Builder $query): Builder
     {
         return $query
-            ->where('is_active', true)
+            ->visible()
             ->orderByDesc('is_pinned')
             ->orderByDesc('publish_at')
             ->orderByDesc('created_at');

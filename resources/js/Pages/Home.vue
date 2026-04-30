@@ -463,7 +463,7 @@ const sidebarUpdatedAt = new Date().toLocaleDateString('id-ID', {
                                 <h2 class="mt-2 text-3xl font-bold text-slate-800 md:text-4xl">Kompetensi Keahlian</h2>
                                 <p class="mt-3 text-slate-500">Pilih jurusan yang sesuai dengan minat dan bakatmu</p>
                             </div>
-                            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <div class="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
                                 <component v-for="major in majors" :key="major.id" :is="major.info_url ? 'a' : 'div'"
                                     :href="major.info_url || undefined" :target="major.info_url ? '_blank' : undefined"
                                     :rel="major.info_url ? 'noopener noreferrer' : undefined"
@@ -475,7 +475,7 @@ const sidebarUpdatedAt = new Date().toLocaleDateString('id-ID', {
                                     </div>
                                     <span
                                         class="mb-3 inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">{{
-                                        major.code }}</span>
+                                            major.code }}</span>
                                     <h3 class="mb-2 text-base font-bold text-slate-800">{{ major.name }}</h3>
                                     <p class="text-sm leading-relaxed text-slate-500">{{ major.description }}</p>
                                     <div v-if="major.info_url"
