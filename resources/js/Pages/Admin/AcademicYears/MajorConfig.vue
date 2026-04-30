@@ -25,20 +25,19 @@ const submit = () => {
 </script>
 
 <template>
-    <Head :title="`Konfigurasi Jurusan — ${academicYear.name}`" />
 
+    <Head :title="`Konfigurasi Jurusan — ${academicYear.name}`" />
     <AdminLayout>
         <div class="mx-auto max-w-4xl space-y-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-xl font-semibold text-gray-800">Konfigurasi Jurusan</h1>
-                    <p class="mt-0.5 text-sm text-gray-500">Tahun Ajaran: <span class="font-medium text-gray-700">{{ academicYear.name }}</span></p>
+                    <p class="mt-0.5 text-sm text-gray-500">Tahun Ajaran: <span class="font-medium text-gray-700">{{
+                            academicYear.name }}</span></p>
                 </div>
-                <Link
-                    :href="route('admin.academic-years')"
-                    class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
-                >
+                <Link :href="route('admin.academic-years')"
+                    class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50">
                     ← Kembali
                 </Link>
             </div>
@@ -55,11 +54,16 @@ const submit = () => {
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Jurusan</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Kode</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Kuota Default</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Kuota Tahun Ini</th>
-                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Aktif</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Jurusan
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Kode
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Kuota
+                                        Default</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Kuota
+                                        Tahun Ini</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">Aktif
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
@@ -74,19 +78,12 @@ const submit = () => {
                                         {{ majors[index].quota }}
                                     </td>
                                     <td class="px-4 py-3">
-                                        <input
-                                            v-model.number="row.quota"
-                                            type="number"
-                                            min="1"
-                                            class="w-24 rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        />
+                                        <input v-model.number="row.quota" type="number" min="1"
+                                            class="w-24 rounded-md border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        <input
-                                            v-model="row.is_active"
-                                            type="checkbox"
-                                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        />
+                                        <input v-model="row.is_active" type="checkbox"
+                                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                                     </td>
                                 </tr>
                                 <tr v-if="majors.length === 0">
@@ -99,11 +96,8 @@ const submit = () => {
                     </div>
 
                     <div class="border-t border-gray-200 px-4 py-4">
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-                        >
+                        <button type="submit" :disabled="form.processing"
+                            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
                             Simpan Semua
                         </button>
                     </div>
