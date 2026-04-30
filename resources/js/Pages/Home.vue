@@ -16,8 +16,6 @@ const props = defineProps({
 
 const activeAcademicYear = computed(() => props.academicYear?.active ?? null);
 const announcementsData = computed(() => Array.isArray(props.announcements) ? props.announcements : []);
-const schedulesData = computed(() => Array.isArray(props.schedules) ? props.schedules : []);
-const openEnrollmentWave = computed(() => props.enrollmentWave?.open ?? null);
 
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -83,103 +81,25 @@ const toneClasses = {
 };
 
 const announcementItems = computed(() => {
-    const items = [];
-    const announcements = announcementsData.value;
-    const wave = openEnrollmentWave.value;
-    const schedules = schedulesData.value;
+    return announcementsData.value.slice(0, 3).map((announcement) => {
+        const categoryMeta = {
+            important: { label: 'Penting', tone: 'rose' },
+            info: { label: 'Info', tone: 'blue' },
+            schedule: { label: 'Jadwal', tone: 'amber' },
+            result: { label: 'Hasil', tone: 'emerald' },
+        }[announcement.category] ?? { label: 'Info', tone: 'blue' };
 
-    if (announcements.length > 0) {
-        announcements.forEach((announcement) => {
-            const categoryMeta = {
-                important: { label: 'Penting', tone: 'rose' },
-                info: { label: 'Info', tone: 'blue' },
-                schedule: { label: 'Jadwal', tone: 'amber' },
-                result: { label: 'Hasil', tone: 'emerald' },
-            }[announcement.category] ?? { label: 'Info', tone: 'blue' };
-
-            items.push({
-                tone: categoryMeta.tone,
-                label: categoryMeta.label,
-                title: announcement.title,
-                description: announcement.content,
-                meta: announcement.publish_at ? formatDateTime(announcement.publish_at) : 'Baru',
-                link_text: announcement.link_text || 'Lihat Detail',
-                link_url: announcement.link_url || '',
-            });
-        });
-
-        return items.slice(0, 3);
-    }
-
-    if (wave) {
-        const waveStatusLabel = {
-            draft: 'Dipersiapkan',
-            open: 'Sedang Dibuka',
-            closed: 'Sudah Ditutup',
-            announced: 'Sudah Diumumkan',
-        }[wave.status] ?? wave.status;
-
-        items.push({
-            tone: wave.status === 'open' ? 'rose' : 'blue',
-            label: 'Gelombang',
-            title: `${wave.name} ${waveStatusLabel.toLowerCase()}`,
-            description: wave.description?.trim() || 'Ikuti perkembangan gelombang pendaftaran melalui halaman utama.',
-            meta: wave.open_date ? `Mulai ${formatDate(wave.open_date)}` : 'Update gelombang terbaru',
-        });
-    }
-
-    const activeSchedule = schedules.find((schedule) => schedule.status === 'active');
-    if (activeSchedule) {
-        items.push({
-            tone: 'emerald',
-            label: 'Berlangsung',
-            title: activeSchedule.title,
-            description: activeSchedule.description?.trim() || 'Tahapan ini sedang berjalan dan perlu dipantau.',
-            meta: activeSchedule.start_date
-                ? `${formatDate(activeSchedule.start_date)}${activeSchedule.end_date ? ` s/d ${formatDate(activeSchedule.end_date)}` : ''}`
-                : 'Jadwal aktif',
-        });
-    }
-
-    const nextSchedule = schedules.find((schedule) => schedule.status === 'inactive');
-    if (nextSchedule) {
-        items.push({
-            tone: 'amber',
-            label: 'Berikutnya',
-            title: nextSchedule.title,
-            description: nextSchedule.description?.trim() || 'Agenda berikutnya akan segera dimulai.',
-            meta: nextSchedule.start_date ? `Dimulai ${formatDate(nextSchedule.start_date)}` : 'Segera dimulai',
-        });
-    }
-
-    if (items.length < 3 && activeAcademicYear.value) {
-        items.push({
-            tone: 'blue',
-            label: 'Tahun Ajaran',
-            title: activeAcademicYear.value.name,
-            description: activeAcademicYear.value.description?.trim() || 'Tahun ajaran aktif yang menjadi acuan seluruh proses pendaftaran.',
-            meta: `${activeAcademicYear.value.start_year} - ${activeAcademicYear.value.end_year}`,
-        });
-    }
-
-    if (!items.length) {
-        items.push({
-            tone: 'blue',
-            label: 'Info',
-            title: 'Pantau halaman pengumuman',
-            description: 'Informasi terbaru akan muncul di sini setelah panitia memperbarui data.',
-            meta: 'Belum ada update',
-        });
-    }
-
-    return items.slice(0, 3);
+        return {
+            tone: categoryMeta.tone,
+            label: categoryMeta.label,
+            title: announcement.title,
+            description: announcement.content,
+            meta: announcement.publish_at ? formatDateTime(announcement.publish_at) : 'Baru',
+            link_text: announcement.link_text || 'Lihat Detail',
+            link_url: announcement.link_url || '',
+        };
+    });
 });
-
-const statusChipClass = computed(() => (
-    activeAcademicYear.value
-        ? 'bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-200'
-        : 'bg-amber-500/15 text-amber-700 ring-1 ring-amber-200'
-));
 
 const sidebarUpdatedAt = new Date().toLocaleDateString('id-ID', {
     day: 'numeric',
@@ -302,32 +222,42 @@ const sidebarUpdatedAt = new Date().toLocaleDateString('id-ID', {
                         </div>
 
                         <div class="space-y-3 p-4 sm:p-5">
-                            <article v-for="item in announcementItems" :key="item.title"
-                                class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md">
-                                <div class="flex items-start justify-between gap-3">
-                                    <span
-                                        class="inline-flex shrink-0 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide"
-                                        :class="toneClasses[item.tone]">
-                                        {{ item.label }}
-                                    </span>
-                                    <span class="text-[11px] font-medium text-slate-400">{{ item.meta }}</span>
-                                </div>
+                            <template v-if="announcementItems.length > 0">
+                                <article v-for="item in announcementItems" :key="item.title"
+                                    class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-md">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <span
+                                            class="inline-flex shrink-0 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide"
+                                            :class="toneClasses[item.tone]">
+                                            {{ item.label }}
+                                        </span>
+                                        <span class="text-[11px] font-medium text-slate-400">{{ item.meta }}</span>
+                                    </div>
 
-                                <h3 class="mt-3 text-sm font-bold leading-snug text-slate-800">
-                                    {{ item.title }}
-                                </h3>
-                                <p class="mt-2 text-sm leading-relaxed text-slate-500">
-                                    {{ item.description }}
+                                    <h3 class="mt-3 text-sm font-bold leading-snug text-slate-800">
+                                        {{ item.title }}
+                                    </h3>
+                                    <p class="mt-2 text-sm leading-relaxed text-slate-500">
+                                        {{ item.description }}
+                                    </p>
+                                    <a v-if="item.link_url" :href="item.link_url" target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700">
+                                        {{ item.link_text }}
+                                        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </a>
+                                </article>
+                            </template>
+                            <div v-else
+                                class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center">
+                                <p class="text-sm font-semibold text-slate-700">Belum ada pengumuman</p>
+                                <p class="mt-1 text-sm text-slate-500">
+                                    Semua isi papan ini hanya diambil dari tabel <code>announcements</code>.
                                 </p>
-                                <a v-if="item.link_url" :href="item.link_url" target="_blank" rel="noopener noreferrer"
-                                    class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700">
-                                    {{ item.link_text }}
-                                    <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </a>
-                            </article>
+                            </div>
 
                             <div class="rounded-2xl border border-slate-200 bg-white p-4">
                                 <div class="flex items-center gap-3">
@@ -345,13 +275,9 @@ const sidebarUpdatedAt = new Date().toLocaleDateString('id-ID', {
                                 </div>
 
                                 <div class="mt-3 flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                                        :class="statusChipClass">
-                                        {{ activeAcademicYear ? 'Tahun ajaran aktif' : 'Pendaftaran belum dibuka' }}
-                                    </span>
                                     <span
                                         class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                                        {{ announcementItems.length }} pengumuman terbaru
+                                        {{ announcementsData.length }} pengumuman dari database
                                     </span>
                                 </div>
                             </div>
