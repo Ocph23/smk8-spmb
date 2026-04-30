@@ -34,7 +34,7 @@ const submit = () => {
                 <div>
                     <h1 class="text-xl font-semibold text-gray-800">Konfigurasi Jurusan</h1>
                     <p class="mt-0.5 text-sm text-gray-500">Tahun Ajaran: <span class="font-medium text-gray-700">{{
-                            academicYear.name }}</span></p>
+                        academicYear.name }}</span></p>
                 </div>
                 <Link :href="route('admin.academic-years')"
                     class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50">
