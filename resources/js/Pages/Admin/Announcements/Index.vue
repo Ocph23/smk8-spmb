@@ -77,7 +77,7 @@ const openEdit = (announcement) => {
 
 const submit = () => {
     if (editingAnnouncement.value) {
-        form.put(route('admin.announcements.update', editingAnnouncement.value.id), {
+        form.put(`/admin/pengumuman/${editingAnnouncement.value.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 showForm.value = false;
@@ -86,7 +86,7 @@ const submit = () => {
         return;
     }
 
-    form.post(route('admin.announcements.store'), {
+    form.post('/admin/pengumuman', {
         preserveScroll: true,
         onSuccess: () => {
             showForm.value = false;
@@ -99,7 +99,7 @@ const destroy = (announcement) => {
         return;
     }
 
-    router.delete(route('admin.announcements.destroy', announcement.id), {
+    router.delete(`/admin/pengumuman/${announcement.id}`, {
         preserveScroll: true,
     });
 };

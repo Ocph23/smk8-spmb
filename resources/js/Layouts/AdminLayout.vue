@@ -42,7 +42,8 @@ const menuItems = [
     },
     {
         name: 'Pengumuman',
-        href: 'admin.announcements',
+        href: '/admin/pengumuman',
+        useUrl: true,
         icon: 'M4 4h16v10H7l-3 4V4z',
         adminOnly: true,
     },
@@ -90,6 +91,10 @@ const menuItems = [
 ];
 
 const isActive = (routeName) => {
+    if (routeName.startsWith('/')) {
+        return window.location.pathname === routeName;
+    }
+
     return route().current(routeName) || route().current(`${routeName}.*`);
 };
 </script>
@@ -127,7 +132,7 @@ const isActive = (routeName) => {
                 <template v-for="item in menuItems" :key="item.name">
                     <Link
                         v-if="!item.adminOnly || $page.props.auth.user.role === 'admin'"
-                        :href="route(item.href)"
+                        :href="item.useUrl ? item.href : route(item.href)"
                         :target="item.external ? '_blank' : undefined"
                         :class="[
                             'group flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors',
