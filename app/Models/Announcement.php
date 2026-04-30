@@ -46,7 +46,7 @@ class Announcement extends Model
     public function scopeForSidebar(Builder $query): Builder
     {
         return $query
-            ->visible()
+            ->where('is_active', true)
             ->orderByDesc('is_pinned')
             ->orderByDesc('publish_at')
             ->orderByDesc('created_at');
