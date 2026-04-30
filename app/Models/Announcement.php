@@ -32,15 +32,7 @@ class   Announcement extends Model
     public function scopeVisible(Builder $query): Builder
     {
         return $query
-            ->where('is_active', true)
-            ->where(function (Builder $query) {
-                $query->whereNull('publish_at')
-                    ->orWhere('publish_at', '<=', now());
-            })
-            ->where(function (Builder $query) {
-                $query->whereNull('expires_at')
-                    ->orWhere('expires_at', '>=', now());
-            });
+            ->where('is_active', true);
     }
 
     public function scopeForSidebar(Builder $query): Builder

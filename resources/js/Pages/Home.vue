@@ -305,7 +305,7 @@ const sidebarUpdatedAt = new Date().toLocaleDateString('id-ID', {
                                 <h2 class="mt-2 text-3xl font-bold text-slate-800 md:text-4xl">Jadwal SPMB</h2>
                                 <p class="mt-3 text-slate-500">Pantau setiap tahapan penerimaan peserta didik baru</p>
                             </div>
-                            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <div class="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
                                 <div v-for="schedule in schedules" :key="schedule.id"
                                     class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
                                     <span :class="getStatusColor(schedule.status)"
