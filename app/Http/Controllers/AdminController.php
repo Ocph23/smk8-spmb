@@ -54,16 +54,22 @@ class AdminController extends Controller
         $query = Student::with(['majors', 'acceptedMajor', 'user', 'enrollmentWave']);
 
         if ($context) {
-            $query->where('academic_year_id', $context->id);
+            $query->where(function ($q) use ($context) {
+                $q->where('academic_year_id', $context->id)
+                    ->orWhere(function ($draftQuery) {
+                        $draftQuery->whereNull('academic_year_id')
+                            ->where('registration_number', 'like', 'DRAFT-%');
+                    });
+            });
         }
 
         // Filters
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = mb_strtolower(trim($request->search));
             $query->where(function ($q) use ($search) {
-                $q->where('full_name', 'like', "%{$search}%")
-                    ->orWhere('registration_number', 'like', "%{$search}%")
-                    ->orWhere('nik', 'like', "%{$search}%");
+                $q->whereRaw('LOWER(full_name) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(registration_number) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(nik) LIKE ?', ["%{$search}%"]);
             });
         }
 
@@ -78,7 +84,13 @@ class AdminController extends Controller
         }
 
         if ($request->filled('wave')) {
-            $query->where('enrollment_wave_id', $request->wave);
+            $query->where(function ($q) use ($request) {
+                $q->where('enrollment_wave_id', $request->wave)
+                    ->orWhere(function ($draftQuery) {
+                        $draftQuery->whereNull('enrollment_wave_id')
+                            ->where('registration_number', 'like', 'DRAFT-%');
+                    });
+            });
         }
 
         $students = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();

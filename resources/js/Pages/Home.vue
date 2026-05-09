@@ -304,7 +304,7 @@ const sidebarUpdatedAt = new Date().toLocaleDateString('id-ID', {
                                         </p>
                                         <p v-if="schedule.start_date !== schedule.end_date">s/d {{
                                             formatDate(schedule.end_date)
-                                            }}</p>
+                                        }}</p>
                                     </div>
                                 </div>
                             </div>

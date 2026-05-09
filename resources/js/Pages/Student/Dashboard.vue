@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const whatsappIcon =`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <path fill="#25D366" d="M16 .4C7.4.4.4 7.4.4 16c0 2.8.7 5.4 2 7.7L.3 31.7l8.2-2.1c2.2 1.2 4.8 1.8 7.5 1.8 8.6 0 15.6-7 15.6-15.6S24.6.4 16 .4z"/>
@@ -41,6 +42,11 @@ const getStatusBadge = (status) => {
     };
     return badges[status] || badges.pending;
 };
+
+const isDraftRegistration = computed(() => {
+    return typeof props.student?.registration_number === 'string'
+        && props.student.registration_number.includes('DRAFT');
+});
 </script>
 
 <template>
@@ -135,7 +141,7 @@ const getStatusBadge = (status) => {
                                 <p class="text-2xl font-bold text-blue-600">{{ student.registration_number }}</p>
                             </div>
 
-                            <div class="flex items-center justify-between">
+                            <div v-if="!isDraftRegistration" class="flex items-center justify-between">
                                 <p class="text-gray-600">Status Verifikasi</p>
                                 <span :class="getStatusBadge(student.verification_status).class"
                                     class="px-4 py-2 rounded-full text-sm font-semibold">
@@ -164,7 +170,7 @@ const getStatusBadge = (status) => {
                             </div>
 
                             <!-- Action Buttons -->
-                            <div class="flex flex-wrap gap-3 pt-4" v-if="!student.registration_number.includes('DRAFT')">
+                            <div class="flex flex-wrap gap-3 pt-4" v-if="!isDraftRegistration">
                                 <Link v-if="student.registration_number"
                                     :href="route('student.preview', student.registration_number)"
                                     class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">

@@ -69,6 +69,11 @@ const deleteStudent = (studentId) => {
     }
     router.delete(route('admin.students.destroy', studentId));
 };
+
+const isDraftRegistration = (student) => {
+    return typeof student.registration_number === 'string'
+        && student.registration_number.startsWith('DRAFT-');
+};
 </script>
 
 <template>
@@ -239,6 +244,13 @@ const deleteStudent = (studentId) => {
                                         </td>
                                         <td class="px-4 py-4 text-sm">
                                             <span
+                                                v-if="isDraftRegistration(student)"
+                                                class="px-2 py-1 text-xs font-semibold rounded-full bg-slate-100 text-slate-700"
+                                            >
+                                                Draft
+                                            </span>
+                                            <span
+                                                v-else
                                                 :class="{
                                                     'bg-yellow-100 text-yellow-800': student.verification_status === 'pending',
                                                     'bg-green-100 text-green-800': student.verification_status === 'verified',
@@ -261,7 +273,7 @@ const deleteStudent = (studentId) => {
                                                     Detail
                                                 </Link>
                                                 <button
-                                                    v-if="student.verification_status !== 'verified'"
+                                                    v-if="!isDraftRegistration(student) && student.verification_status !== 'verified'"
                                                     @click="verifyStudent(student.id, 'verified')"
                                                     :disabled="currentAcademicYear?.status === 'closed'"
                                                     title="Verifikasi"
@@ -270,7 +282,7 @@ const deleteStudent = (studentId) => {
                                                     ✓
                                                 </button>
                                                 <button
-                                                    v-if="student.verification_status !== 'rejected'"
+                                                    v-if="!isDraftRegistration(student) && student.verification_status !== 'rejected'"
                                                     @click="verifyStudent(student.id, 'rejected')"
                                                     :disabled="currentAcademicYear?.status === 'closed'"
                                                     title="Tolak"
