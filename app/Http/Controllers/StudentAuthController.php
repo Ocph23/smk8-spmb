@@ -53,6 +53,7 @@ class StudentAuthController extends Controller
     {
         $validated = $request->validate([
             'email'    => 'required|email|unique:students,email',
+            'phone'    => ['required', 'string', 'max:20', 'regex:/^08[0-9]{8,}$/'],
             'password' => 'required|min:6|confirmed',
         ]);
 
@@ -61,6 +62,7 @@ class StudentAuthController extends Controller
         $student = Student::create([
             'registration_number' => 'DRAFT-' . strtoupper(uniqid()),
             'email'               => $validated['email'],
+            'phone'               => $validated['phone'],
             'password'            => Hash::make($plainPassword),
             'verification_status' => 'pending',
         ]);

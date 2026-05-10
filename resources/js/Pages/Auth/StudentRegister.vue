@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const form = useForm({
     email: '',
+    phone: '',
     password: '',
     password_confirmation: '',
 });
@@ -54,6 +55,27 @@ const submit = () => {
                         />
                         <p v-if="$page.props.errors.email" class="text-red-500 text-sm mt-1">
                             {{ $page.props.errors.email }}
+                        </p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                            Nomor Telepon
+                        </label>
+                        <input
+                            id="phone"
+                            v-model="form.phone"
+                            type="tel"
+                            inputmode="tel"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="08xxxxxxxxxx"
+                        />
+                        <p class="mt-1 text-xs text-gray-500">
+                            Gunakan nomor aktif yang bisa dihubungi panitia.
+                        </p>
+                        <p v-if="$page.props.errors.phone" class="text-red-500 text-sm mt-1">
+                            {{ $page.props.errors.phone }}
                         </p>
                     </div>
 
