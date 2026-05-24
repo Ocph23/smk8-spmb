@@ -26,13 +26,13 @@
         <p>Klik tombol di bawah untuk membuat password baru. Link ini berlaku selama <strong>60 menit</strong>.</p>
 
         <div style="text-align:center;">
-            <a href="{{ url('/siswa/reset-password/' . $token . '?email=' . urlencode($email)) }}" class="btn">
+            <a href="{{ url('/reset-password/' . $token . '?email=' . urlencode($email)) }}" class="btn">
                 Reset Password Sekarang
             </a>
         </div>
 
         <p style="font-size:14px; color:#666;">Atau salin link berikut ke browser Anda:</p>
-        <div class="url-box">{{ url('/siswa/reset-password/' . $token . '?email=' . urlencode($email)) }}</div>
+        <div class="url-box">{{ url('/reset-password/' . $token . '?email=' . urlencode($email)) }}</div>
 
         <div class="warning-box">
             <strong>⚠️ Perhatian:</strong>
