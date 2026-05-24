@@ -1,6 +1,7 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { useStudentFormValidation } from '@/Composables/useStudentFormValidation';
 
 const props = defineProps({
     student: {
@@ -60,8 +61,23 @@ const createForm = () => {
 };
 
 const form = useForm(createForm());
+const {
+    clientErrors,
+    clearError,
+    fieldError,
+    isStep1Valid,
+    isStep2Valid,
+    validateAll,
+    validateField,
+    validateStep1,
+    validateStep2,
+} = useStudentFormValidation(form);
 
 const submit = () => {
+    if (!validateAll()) {
+        return;
+    }
+
     form.transform((data) => ({
         ...data,
         _method: 'PUT',
@@ -85,41 +101,6 @@ const prevStep = () => {
     if (currentStep.value > 1) {
         currentStep.value--;
     }
-};
-
-const validateStep1 = () => {
-    const required = ['full_name', 'nik', 'place_of_birth', 'date_of_birth', 'gender', 'street', 'district', 'phone', 'email', 'parent_name', 'parent_phone', 'school_name', 'school_city', 'school_province'];
-    for (const field of required) {
-        if (!form[field]) {
-            return false;
-        }
-    }
-    // NIK must be 16 digits
-    if (form.nik && form.nik.length !== 16) {
-        return false;
-    }
-    // Phone validation
-    if (form.phone && !/^08[0-9]{8,}$/.test(form.phone)) {
-        return false;
-    }
-    if (form.parent_phone && !/^08[0-9]{8,}$/.test(form.parent_phone)) {
-        return false;
-    }
-    return true;
-};
-
-const validateStep2 = () => {
-    const required = ['major_1', 'major_2'];
-    for (const field of required) {
-        if (!form[field]) {
-            return false;
-        }
-    }
-    // Ensure major_1 and major_2 are different
-    if (form.major_1 && form.major_2 && form.major_1 === form.major_2) {
-        return false;
-    }
-    return true;
 };
 
 const handleFileChange = (fieldName, maxSize, event) => {
@@ -250,11 +231,13 @@ const hasExistingFile = (fieldName) => {
                                 Nama Lengkap <span class="text-red-500">*</span>
                             </label>
                             <input v-model="form.full_name" type="text"
+                                @input="clearError('full_name')"
+                                @blur="validateField('full_name')"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                :class="{ 'border-red-500': $page.props.errors.full_name }"
+                                :class="{ 'border-red-500': fieldError('full_name', $page.props.errors) }"
                                 placeholder="Masukkan nama lengkap" />
-                            <p v-if="$page.props.errors.full_name" class="text-red-500 text-sm mt-1">
-                                {{ $page.props.errors.full_name }}
+                            <p v-if="fieldError('full_name', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                {{ fieldError('full_name', $page.props.errors) }}
                             </p>
                         </div>
 
@@ -264,10 +247,12 @@ const hasExistingFile = (fieldName) => {
                                     NIK <span class="text-red-500">*</span>
                                 </label>
                                 <input v-model="form.nik" type="text" maxlength="16"
+                                    @input="clearError('nik')"
+                                    @blur="validateField('nik')"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    :class="{ 'border-red-500': $page.props.errors.nik }" placeholder="16 digit NIK" />
-                                <p v-if="$page.props.errors.nik" class="text-red-500 text-sm mt-1">
-                                    {{ $page.props.errors.nik }}
+                                    :class="{ 'border-red-500': fieldError('nik', $page.props.errors) }" placeholder="16 digit NIK" />
+                                <p v-if="fieldError('nik', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                    {{ fieldError('nik', $page.props.errors) }}
                                 </p>
                             </div>
 
@@ -291,11 +276,13 @@ const hasExistingFile = (fieldName) => {
                                     Tempat Lahir <span class="text-red-500">*</span>
                                 </label>
                                 <input v-model="form.place_of_birth" type="text"
+                                    @input="clearError('place_of_birth')"
+                                    @blur="validateField('place_of_birth')"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    :class="{ 'border-red-500': $page.props.errors.place_of_birth }"
+                                    :class="{ 'border-red-500': fieldError('place_of_birth', $page.props.errors) }"
                                     placeholder="Kota/Kabupaten" />
-                                <p v-if="$page.props.errors.place_of_birth" class="text-red-500 text-sm mt-1">
-                                    {{ $page.props.errors.place_of_birth }}
+                                <p v-if="fieldError('place_of_birth', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                    {{ fieldError('place_of_birth', $page.props.errors) }}
                                 </p>
                             </div>
 
@@ -304,10 +291,12 @@ const hasExistingFile = (fieldName) => {
                                     Tanggal Lahir <span class="text-red-500">*</span>
                                 </label>
                                 <input v-model="form.date_of_birth" type="date"
+                                    @input="clearError('date_of_birth')"
+                                    @blur="validateField('date_of_birth')"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    :class="{ 'border-red-500': $page.props.errors.date_of_birth }" />
-                                <p v-if="$page.props.errors.date_of_birth" class="text-red-500 text-sm mt-1">
-                                    {{ $page.props.errors.date_of_birth }}
+                                    :class="{ 'border-red-500': fieldError('date_of_birth', $page.props.errors) }" />
+                                <p v-if="fieldError('date_of_birth', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                    {{ fieldError('date_of_birth', $page.props.errors) }}
                                 </p>
                             </div>
                         </div>
@@ -319,17 +308,19 @@ const hasExistingFile = (fieldName) => {
                             <div class="flex space-x-4">
                                 <label class="flex items-center">
                                     <input v-model="form.gender" type="radio" value="male"
+                                        @change="validateField('gender')"
                                         class="text-blue-600 focus:ring-blue-500" />
                                     <span class="ml-2 text-gray-700">Laki-laki</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input v-model="form.gender" type="radio" value="female"
+                                        @change="validateField('gender')"
                                         class="text-blue-600 focus:ring-blue-500" />
                                     <span class="ml-2 text-gray-700">Perempuan</span>
                                 </label>
                             </div>
-                            <p v-if="$page.props.errors.gender" class="text-red-500 text-sm mt-1">
-                                {{ $page.props.errors.gender }}
+                            <p v-if="fieldError('gender', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                {{ fieldError('gender', $page.props.errors) }}
                             </p>
                         </div>
 
@@ -338,6 +329,7 @@ const hasExistingFile = (fieldName) => {
                                 Agama
                             </label>
                             <select v-model="form.religion"
+                                @change="clearError('religion')"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="">Pilih Agama</option>
                                 <option value="Islam">Islam</option>
@@ -358,11 +350,13 @@ const hasExistingFile = (fieldName) => {
                                     Jalan/Gang <span class="text-red-500">*</span>
                                 </label>
                                 <input v-model="form.street" type="text"
+                                    @input="clearError('street')"
+                                    @blur="validateField('street')"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    :class="{ 'border-red-500': $page.props.errors.street }"
+                                    :class="{ 'border-red-500': fieldError('street', $page.props.errors) }"
                                     placeholder="Nama jalan/gang" />
-                                <p v-if="$page.props.errors.street" class="text-red-500 text-sm mt-1">
-                                    {{ $page.props.errors.street }}
+                                <p v-if="fieldError('street', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                    {{ fieldError('street', $page.props.errors) }}
                                 </p>
                             </div>
 
@@ -413,11 +407,13 @@ const hasExistingFile = (fieldName) => {
                                         Kecamatan/Distrik <span class="text-red-500">*</span>
                                     </label>
                                     <input v-model="form.district" type="text"
+                                        @input="clearError('district')"
+                                        @blur="validateField('district')"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        :class="{ 'border-red-500': $page.props.errors.district }"
+                                        :class="{ 'border-red-500': fieldError('district', $page.props.errors) }"
                                         placeholder="Nama kecamatan/distrik" />
-                                    <p v-if="$page.props.errors.district" class="text-red-500 text-sm mt-1">
-                                        {{ $page.props.errors.district }}
+                                    <p v-if="fieldError('district', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                        {{ fieldError('district', $page.props.errors) }}
                                     </p>
                                 </div>
 
@@ -426,11 +422,13 @@ const hasExistingFile = (fieldName) => {
                                         Kode Pos
                                     </label>
                                     <input v-model="form.postal_code" type="text" maxlength="10"
+                                        @input="clearError('postal_code')"
+                                        @blur="validateField('postal_code')"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        :class="{ 'border-red-500': $page.props.errors.postal_code }"
+                                        :class="{ 'border-red-500': fieldError('postal_code', $page.props.errors) }"
                                         placeholder="99xxx" />
-                                    <p v-if="$page.props.errors.postal_code" class="text-red-500 text-sm mt-1">
-                                        {{ $page.props.errors.postal_code }}
+                                    <p v-if="fieldError('postal_code', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                        {{ fieldError('postal_code', $page.props.errors) }}
                                     </p>
                                 </div>
                             </div>
@@ -442,11 +440,13 @@ const hasExistingFile = (fieldName) => {
                                     No. Telepon/HP <span class="text-red-500">*</span>
                                 </label>
                                 <input v-model="form.phone" type="text"
+                                    @input="clearError('phone')"
+                                    @blur="validateField('phone')"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    :class="{ 'border-red-500': $page.props.errors.phone }"
+                                    :class="{ 'border-red-500': fieldError('phone', $page.props.errors) }"
                                     placeholder="08xxxxxxxxxx" />
-                                <p v-if="$page.props.errors.phone" class="text-red-500 text-sm mt-1">
-                                    {{ $page.props.errors.phone }}
+                                <p v-if="fieldError('phone', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                    {{ fieldError('phone', $page.props.errors) }}
                                 </p>
                             </div>
 
@@ -455,11 +455,13 @@ const hasExistingFile = (fieldName) => {
                                     Email <span class="text-red-500">*</span>
                                 </label>
                                 <input v-model="form.email" type="email"
+                                    @input="clearError('email')"
+                                    @blur="validateField('email')"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    :class="{ 'border-red-500': $page.props.errors.email }"
+                                    :class="{ 'border-red-500': fieldError('email', $page.props.errors) }"
                                     placeholder="email@example.com" />
-                                <p v-if="$page.props.errors.email" class="text-red-500 text-sm mt-1">
-                                    {{ $page.props.errors.email }}
+                                <p v-if="fieldError('email', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                    {{ fieldError('email', $page.props.errors) }}
                                 </p>
                             </div>
                         </div>
@@ -474,11 +476,13 @@ const hasExistingFile = (fieldName) => {
                                         Nama Ayah/Wali <span class="text-red-500">*</span>
                                     </label>
                                     <input v-model="form.parent_name" type="text"
+                                        @input="clearError('parent_name')"
+                                        @blur="validateField('parent_name')"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        :class="{ 'border-red-500': $page.props.errors.parent_name }"
+                                        :class="{ 'border-red-500': fieldError('parent_name', $page.props.errors) }"
                                         placeholder="Nama lengkap ayah/wali" />
-                                    <p v-if="$page.props.errors.parent_name" class="text-red-500 text-sm mt-1">
-                                        {{ $page.props.errors.parent_name }}
+                                    <p v-if="fieldError('parent_name', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                        {{ fieldError('parent_name', $page.props.errors) }}
                                     </p>
                                 </div>
 
@@ -487,11 +491,13 @@ const hasExistingFile = (fieldName) => {
                                         Nama Ibu <span class="text-red-500">*</span>
                                     </label>
                                     <input v-model="form.mother_name" type="text"
+                                        @input="clearError('mother_name')"
+                                        @blur="validateField('mother_name')"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        :class="{ 'border-red-500': $page.props.errors.mother_name }"
+                                        :class="{ 'border-red-500': fieldError('mother_name', $page.props.errors) }"
                                         placeholder="Nama lengkap ibu" />
-                                    <p v-if="$page.props.errors.mother_name" class="text-red-500 text-sm mt-1">
-                                        {{ $page.props.errors.mother_name }}
+                                    <p v-if="fieldError('mother_name', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                        {{ fieldError('mother_name', $page.props.errors) }}
                                     </p>
                                 </div>
                             </div>
@@ -501,11 +507,13 @@ const hasExistingFile = (fieldName) => {
                                     No. Telepon Orang Tua/Wali <span class="text-red-500">*</span>
                                 </label>
                                 <input v-model="form.parent_phone" type="text"
+                                    @input="clearError('parent_phone')"
+                                    @blur="validateField('parent_phone')"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    :class="{ 'border-red-500': $page.props.errors.parent_phone }"
+                                    :class="{ 'border-red-500': fieldError('parent_phone', $page.props.errors) }"
                                     placeholder="08xxxxxxxxxx" />
-                                <p v-if="$page.props.errors.parent_phone" class="text-red-500 text-sm mt-1">
-                                    {{ $page.props.errors.parent_phone }}
+                                <p v-if="fieldError('parent_phone', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                    {{ fieldError('parent_phone', $page.props.errors) }}
                                 </p>
                             </div>
                         </div>
@@ -519,11 +527,13 @@ const hasExistingFile = (fieldName) => {
                                     Nama Sekolah <span class="text-red-500">*</span>
                                 </label>
                                 <input v-model="form.school_name" type="text"
+                                    @input="clearError('school_name')"
+                                    @blur="validateField('school_name')"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    :class="{ 'border-red-500': $page.props.errors.school_name }"
+                                    :class="{ 'border-red-500': fieldError('school_name', $page.props.errors) }"
                                     placeholder="Contoh: SMP Negeri 1 Jayapura" />
-                                <p v-if="$page.props.errors.school_name" class="text-red-500 text-sm mt-1">
-                                    {{ $page.props.errors.school_name }}
+                                <p v-if="fieldError('school_name', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                    {{ fieldError('school_name', $page.props.errors) }}
                                 </p>
                             </div>
 
@@ -533,11 +543,13 @@ const hasExistingFile = (fieldName) => {
                                         Kota/Kabupaten <span class="text-red-500">*</span>
                                     </label>
                                     <input v-model="form.school_city" type="text"
+                                        @input="clearError('school_city')"
+                                        @blur="validateField('school_city')"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        :class="{ 'border-red-500': $page.props.errors.school_city }"
+                                        :class="{ 'border-red-500': fieldError('school_city', $page.props.errors) }"
                                         placeholder="Contoh: Kota Jayapura" />
-                                    <p v-if="$page.props.errors.school_city" class="text-red-500 text-sm mt-1">
-                                        {{ $page.props.errors.school_city }}
+                                    <p v-if="fieldError('school_city', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                        {{ fieldError('school_city', $page.props.errors) }}
                                     </p>
                                 </div>
                                 <div>
@@ -545,11 +557,13 @@ const hasExistingFile = (fieldName) => {
                                         Provinsi <span class="text-red-500">*</span>
                                     </label>
                                     <input v-model="form.school_province" type="text"
+                                        @input="clearError('school_province')"
+                                        @blur="validateField('school_province')"
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        :class="{ 'border-red-500': $page.props.errors.school_province }"
+                                        :class="{ 'border-red-500': fieldError('school_province', $page.props.errors) }"
                                         placeholder="Contoh: Papua" />
-                                    <p v-if="$page.props.errors.school_province" class="text-red-500 text-sm mt-1">
-                                        {{ $page.props.errors.school_province }}
+                                    <p v-if="fieldError('school_province', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                        {{ fieldError('school_province', $page.props.errors) }}
                                     </p>
                                 </div>
                             </div>
@@ -568,15 +582,16 @@ const hasExistingFile = (fieldName) => {
                                 Pilihan 1 <span class="text-red-500">*</span>
                             </label>
                             <select v-model="form.major_1"
+                                @change="validateField('major_1'); validateField('major_2'); validateField('major_3')"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                :class="{ 'border-red-500': $page.props.errors.major_1 }">
+                                :class="{ 'border-red-500': fieldError('major_1', $page.props.errors) }">
                                 <option value="">Pilih Jurusan</option>
                                 <option v-for="major in majors" :key="major.id" :value="major.id">
                                     {{ major.name }} ({{ major.code }}) - Kuota: {{ major.quota }}
                                 </option>
                             </select>
-                            <p v-if="$page.props.errors.major_1" class="text-red-500 text-sm mt-1">
-                                {{ $page.props.errors.major_1 }}
+                            <p v-if="fieldError('major_1', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                {{ fieldError('major_1', $page.props.errors) }}
                             </p>
                         </div>
 
@@ -585,16 +600,17 @@ const hasExistingFile = (fieldName) => {
                                 Pilihan 2 <span class="text-red-500">*</span>
                             </label>
                             <select v-model="form.major_2"
+                                @change="validateField('major_2'); validateField('major_3')"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                :class="{ 'border-red-500': $page.props.errors.major_2 }">
+                                :class="{ 'border-red-500': fieldError('major_2', $page.props.errors) }">
                                 <option value="">Pilih Jurusan</option>
                                 <option v-for="major in majors" :key="major.id" :value="major.id"
                                     :disabled="major.id == form.major_1">
                                     {{ major.name }} ({{ major.code }}) - Kuota: {{ major.quota }}
                                 </option>
                             </select>
-                            <p v-if="$page.props.errors.major_2" class="text-red-500 text-sm mt-1">
-                                {{ $page.props.errors.major_2 }}
+                            <p v-if="fieldError('major_2', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                {{ fieldError('major_2', $page.props.errors) }}
                             </p>
                         </div>
 
@@ -603,16 +619,17 @@ const hasExistingFile = (fieldName) => {
                                 Pilihan 3
                             </label>
                             <select v-model="form.major_3"
+                                @change="validateField('major_3')"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                :class="{ 'border-red-500': $page.props.errors.major_3 }">
+                                :class="{ 'border-red-500': fieldError('major_3', $page.props.errors) }">
                                 <option value="">Pilih Jurusan (Opsional)</option>
                                 <option v-for="major in majors" :key="major.id" :value="major.id"
                                     :disabled="major.id == form.major_1 || major.id == form.major_2">
                                     {{ major.name }} ({{ major.code }}) - Kuota: {{ major.quota }}
                                 </option>
                             </select>
-                            <p v-if="$page.props.errors.major_3" class="text-red-500 text-sm mt-1">
-                                {{ $page.props.errors.major_3 }}
+                            <p v-if="fieldError('major_3', $page.props.errors)" class="text-red-500 text-sm mt-1">
+                                {{ fieldError('major_3', $page.props.errors) }}
                             </p>
                         </div>
                     </div>
@@ -664,11 +681,11 @@ const hasExistingFile = (fieldName) => {
                                 Kembali
                             </button>
 
-                            <button v-if="currentStep < 3" type="button" @click="nextStep"
-                                :disabled="!validateStep1() || (currentStep === 2 && !validateStep2())"
-                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                                Lanjut
-                            </button>
+                        <button v-if="currentStep < 3" type="button" @click="nextStep"
+                            :disabled="!isStep1Valid() || (currentStep === 2 && !isStep2Valid())"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            Lanjut
+                        </button>
 
                             <button v-if="currentStep === 3" type="submit" :disabled="form.processing"
                                 class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
