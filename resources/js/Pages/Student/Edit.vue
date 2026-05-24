@@ -62,7 +62,10 @@ const createForm = () => {
 const form = useForm(createForm());
 
 const submit = () => {
-    form.put(route('student.update', props.student.registration_number), {
+    form.transform((data) => ({
+        ...data,
+        _method: 'PUT',
+    })).post(route('student.update', props.student.registration_number), {
         forceFormData: true,
         onSuccess: () => {
             // Stay on edit page or redirect to preview

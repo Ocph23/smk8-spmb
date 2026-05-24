@@ -153,7 +153,6 @@ class StudentController extends Controller
 
                 $this->sendCredentialsInbox($student, $registrationNumber, $validated['email'], null);
                 $this->sendCredentialsMail($student, null);
-
             } elseif ($student && $isUpdate) {
                 $this->deleteOldFiles($request, $student);
                 $student->update(array_merge($this->studentFields($validated), $filePaths));
@@ -195,7 +194,6 @@ class StudentController extends Controller
 
             return redirect()->route('student.certificate', $student->registration_number)
                 ->with('success', 'Pendaftaran berhasil!');
-
         } catch (\Exception $e) {
             DB::rollBack();
             // Hapus file yang sudah terupload jika transaksi gagal
@@ -345,7 +343,6 @@ class StudentController extends Controller
 
             return redirect()->route('student.preview', $student->registration_number)
                 ->with('success', 'Data pendaftaran berhasil diperbarui!');
-
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Student update error: ' . $e->getMessage());
@@ -393,7 +390,7 @@ class StudentController extends Controller
     {
         $paths = [];
         $documents = RegistrationDocument::active()->orderBy('order')->get();
-        
+
         foreach ($documents as $doc) {
             $fieldName = $doc->field_name;
             if ($request->hasFile($fieldName)) {
@@ -422,14 +419,14 @@ class StudentController extends Controller
     private function deleteOldFiles(Request $request, Student $student): void
     {
         $documents = RegistrationDocument::active()->orderBy('order')->get();
-        
+
         foreach ($documents as $doc) {
             $fieldName = $doc->field_name;
             if ($request->hasFile($fieldName)) {
                 $studentDoc = StudentDocument::where('student_id', $student->id)
                     ->where('registration_document_id', $doc->id)
                     ->first();
-                
+
                 if ($studentDoc && $studentDoc->file_path) {
                     Storage::disk('public')->delete($studentDoc->file_path);
                     $studentDoc->delete();
