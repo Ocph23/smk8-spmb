@@ -312,7 +312,7 @@ const majorSelectDisabled = (value, currentField) => {
 
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700">
-                                Nomor Telepon Orang Tua <span class="text-red-500">*</span>
+                                Nomor Telepon Orang Tua <span class="text-gray-400">(opsional)</span>
                             </label>
                             <input
                                 v-model="form.parent_phone"
@@ -321,7 +321,7 @@ const majorSelectDisabled = (value, currentField) => {
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 placeholder="08xxxxxxxxxx"
                             />
-                            <p class="mt-1 text-xs text-gray-500">Wajib diawali 08 dan minimal 10 digit.</p>
+                            <p class="mt-1 text-xs text-gray-500">Jika diisi, harus diawali 08 dan minimal 10 digit.</p>
                             <p v-if="form.errors.parent_phone" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.parent_phone }}
                             </p>
