@@ -24,7 +24,14 @@ const form = useForm({
     nisn: '',
     place_of_birth: '',
     date_of_birth: '',
+    gender: '',
     religion: '',
+    street: '',
+    rt: '',
+    rw: '',
+    dusun: '',
+    district: '',
+    postal_code: '',
     school_name: '',
     school_city: '',
     school_province: '',
@@ -59,6 +66,7 @@ const majorSelectDisabled = (value, currentField) => {
 </script>
 
 <template>
+
     <Head title="Tambah Pendaftar - Admin" />
 
     <AdminLayout>
@@ -70,10 +78,8 @@ const majorSelectDisabled = (value, currentField) => {
                         Buat akun pendaftar langsung dari panel admin.
                     </p>
                 </div>
-                <Link
-                    :href="route('admin.students')"
-                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
+                <Link :href="route('admin.students')"
+                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                     Kembali
                 </Link>
             </div>
@@ -121,12 +127,9 @@ const majorSelectDisabled = (value, currentField) => {
                         <label class="mb-1 block text-sm font-medium text-gray-700">
                             Nama Lengkap <span class="text-red-500">*</span>
                         </label>
-                        <input
-                            v-model="form.full_name"
-                            type="text"
+                        <input v-model="form.full_name" type="text"
                             class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            placeholder="Nama lengkap siswa"
-                        />
+                            placeholder="Nama lengkap siswa" />
                         <p v-if="form.errors.full_name" class="mt-1 text-xs text-red-600">
                             {{ form.errors.full_name }}
                         </p>
@@ -137,14 +140,9 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 NIK <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                v-model="form.nik"
-                                type="text"
-                                inputmode="numeric"
-                                maxlength="16"
+                            <input v-model="form.nik" type="text" inputmode="numeric" maxlength="16"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="16 digit NIK"
-                            />
+                                placeholder="16 digit NIK" />
                             <p class="mt-1 text-xs text-gray-500">Wajib 16 digit.</p>
                             <p v-if="form.errors.nik" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.nik }}
@@ -155,14 +153,9 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 NISN <span class="text-gray-400">(opsional)</span>
                             </label>
-                            <input
-                                v-model="form.nisn"
-                                type="text"
-                                inputmode="numeric"
-                                maxlength="10"
+                            <input v-model="form.nisn" type="text" inputmode="numeric" maxlength="10"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="10 digit NISN"
-                            />
+                                placeholder="10 digit NISN" />
                             <p class="mt-1 text-xs text-gray-500">Boleh dikosongkan.</p>
                             <p v-if="form.errors.nisn" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.nisn }}
@@ -175,12 +168,9 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Tempat Lahir <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                v-model="form.place_of_birth"
-                                type="text"
+                            <input v-model="form.place_of_birth" type="text"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Kota / Kabupaten"
-                            />
+                                placeholder="Kota / Kabupaten" />
                             <p v-if="form.errors.place_of_birth" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.place_of_birth }}
                             </p>
@@ -190,11 +180,8 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Tanggal Lahir <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                v-model="form.date_of_birth"
-                                type="date"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
+                            <input v-model="form.date_of_birth" type="date"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" />
                             <p class="mt-1 text-xs text-gray-500">Usia minimal 14 tahun dan maksimal 21 tahun.</p>
                             <p v-if="form.errors.date_of_birth" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.date_of_birth }}
@@ -202,15 +189,36 @@ const majorSelectDisabled = (value, currentField) => {
                         </div>
                     </div>
 
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">
+                            Jenis Kelamin <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex flex-wrap gap-4">
+                            <label
+                                class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700">
+                                <input v-model="form.gender" type="radio" value="male"
+                                    class="text-blue-600 focus:ring-blue-500" />
+                                Laki-laki
+                            </label>
+                            <label
+                                class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700">
+                                <input v-model="form.gender" type="radio" value="female"
+                                    class="text-blue-600 focus:ring-blue-500" />
+                                Perempuan
+                            </label>
+                        </div>
+                        <p v-if="form.errors.gender" class="mt-1 text-xs text-red-600">
+                            {{ form.errors.gender }}
+                        </p>
+                    </div>
+
                     <div class="grid gap-4 md:grid-cols-2">
                         <div>
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Agama <span class="text-gray-400">(opsional)</span>
                             </label>
-                            <select
-                                v-model="form.religion"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            >
+                            <select v-model="form.religion"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                                 <option value="">Pilih Agama</option>
                                 <option value="Islam">Islam</option>
                                 <option value="Kristen">Kristen</option>
@@ -225,58 +233,81 @@ const majorSelectDisabled = (value, currentField) => {
                         </div>
                     </div>
 
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900">Asal Sekolah</h2>
-                        <p class="mt-1 text-sm text-gray-500">Data sekolah asal calon siswa.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900">Alamat Lengkap</h2>
+                            <p class="mt-1 text-sm text-gray-500">Isi alamat dengan format yang sama seperti formulir
+                                siswa.</p>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                Jalan/Gang <span class="text-red-500">*</span>
+                            </label>
+                            <input v-model="form.street" type="text"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Nama jalan/gang" />
+                            <p v-if="form.errors.street" class="mt-1 text-xs text-red-600">
+                                {{ form.errors.street }}
+                            </p>
+                        </div>
+
+                        <div class="grid gap-4 md:grid-cols-3">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">RT</label>
+                                <input v-model="form.rt" type="text"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="001" />
+                                <p v-if="form.errors.rt" class="mt-1 text-xs text-red-600">
+                                    {{ form.errors.rt }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">RW</label>
+                                <input v-model="form.rw" type="text"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="002" />
+                                <p v-if="form.errors.rw" class="mt-1 text-xs text-red-600">
+                                    {{ form.errors.rw }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">Kode Pos</label>
+                                <input v-model="form.postal_code" type="text" maxlength="10"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="991xx" />
+                                <p v-if="form.errors.postal_code" class="mt-1 text-xs text-red-600">
+                                    {{ form.errors.postal_code }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">Dusun/Kampung</label>
+                                <input v-model="form.dusun" type="text"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Nama dusun / kampung" />
+                                <p v-if="form.errors.dusun" class="mt-1 text-xs text-red-600">
+                                    {{ form.errors.dusun }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">
+                                    Distrik/Kecamatan <span class="text-red-500">*</span>
+                                </label>
+                                <input v-model="form.district" type="text"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Nama distrik / kecamatan" />
+                                <p v-if="form.errors.district" class="mt-1 text-xs text-red-600">
+                                    {{ form.errors.district }}
+                                </p>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">
-                                Asal Sekolah <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                v-model="form.school_name"
-                                type="text"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Nama sekolah asal"
-                            />
-                            <p v-if="form.errors.school_name" class="mt-1 text-xs text-red-600">
-                                {{ form.errors.school_name }}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">
-                                Kabupaten/Kota Sekolah <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                v-model="form.school_city"
-                                type="text"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Kabupaten / Kota"
-                            />
-                            <p v-if="form.errors.school_city" class="mt-1 text-xs text-red-600">
-                                {{ form.errors.school_city }}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-gray-700">
-                                Provinsi Sekolah <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                v-model="form.school_province"
-                                type="text"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Provinsi"
-                            />
-                            <p v-if="form.errors.school_province" class="mt-1 text-xs text-red-600">
-                                {{ form.errors.school_province }}
-                            </p>
-                        </div>
-                    </div>
-
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900">Data Orang Tua</h2>
                         <p class="mt-1 text-sm text-gray-500">Isi identitas wali/pengurus utama siswa.</p>
@@ -287,12 +318,9 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Nama Orang Tua / Wali <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                v-model="form.parent_name"
-                                type="text"
+                            <input v-model="form.parent_name" type="text"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Nama ayah / wali"
-                            />
+                                placeholder="Nama ayah / wali" />
                             <p v-if="form.errors.parent_name" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.parent_name }}
                             </p>
@@ -302,12 +330,9 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Nama Ibu <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                v-model="form.mother_name"
-                                type="text"
+                            <input v-model="form.mother_name" type="text"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Nama ibu kandung"
-                            />
+                                placeholder="Nama ibu kandung" />
                             <p v-if="form.errors.mother_name" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.mother_name }}
                             </p>
@@ -317,19 +342,60 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Nomor Telepon Orang Tua <span class="text-gray-400">(opsional)</span>
                             </label>
-                            <input
-                                v-model="form.parent_phone"
-                                type="tel"
-                                inputmode="numeric"
+                            <input v-model="form.parent_phone" type="tel" inputmode="numeric"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="08xxxxxxxxxx"
-                            />
+                                placeholder="08xxxxxxxxxx" />
                             <p class="mt-1 text-xs text-gray-500">Jika diisi, harus diawali 08 dan minimal 10 digit.</p>
                             <p v-if="form.errors.parent_phone" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.parent_phone }}
                             </p>
                         </div>
                     </div>
+
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">Asal Sekolah</h2>
+                        <p class="mt-1 text-sm text-gray-500">Data sekolah asal calon siswa.</p>
+                    </div>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                Asal Sekolah <span class="text-red-500">*</span>
+                            </label>
+                            <input v-model="form.school_name" type="text"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Nama sekolah asal" />
+                            <p v-if="form.errors.school_name" class="mt-1 text-xs text-red-600">
+                                {{ form.errors.school_name }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                Kabupaten/Kota Sekolah <span class="text-red-500">*</span>
+                            </label>
+                            <input v-model="form.school_city" type="text"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Kabupaten / Kota" />
+                            <p v-if="form.errors.school_city" class="mt-1 text-xs text-red-600">
+                                {{ form.errors.school_city }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">
+                                Provinsi Sekolah <span class="text-red-500">*</span>
+                            </label>
+                            <input v-model="form.school_province" type="text"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Provinsi" />
+                            <p v-if="form.errors.school_province" class="mt-1 text-xs text-red-600">
+                                {{ form.errors.school_province }}
+                            </p>
+                        </div>
+                    </div>
+
+
 
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900">Pilihan Jurusan</h2>
@@ -341,10 +407,8 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Pilihan 1 <span class="text-red-500">*</span>
                             </label>
-                            <select
-                                v-model="form.major_1"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            >
+                            <select v-model="form.major_1"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                                 <option value="">Pilih Jurusan</option>
                                 <option v-for="major in majors" :key="major.id" :value="major.id">
                                     {{ major.name }}
@@ -359,17 +423,11 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Pilihan 2 <span class="text-red-500">*</span>
                             </label>
-                            <select
-                                v-model="form.major_2"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            >
+                            <select v-model="form.major_2"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                                 <option value="">Pilih Jurusan</option>
-                                <option
-                                    v-for="major in majors"
-                                    :key="major.id"
-                                    :value="major.id"
-                                    :disabled="majorSelectDisabled(String(major.id), 'major_2')"
-                                >
+                                <option v-for="major in majors" :key="major.id" :value="major.id"
+                                    :disabled="majorSelectDisabled(String(major.id), 'major_2')">
                                     {{ major.name }}
                                 </option>
                             </select>
@@ -382,17 +440,11 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Pilihan 3 <span class="text-gray-400">(opsional)</span>
                             </label>
-                            <select
-                                v-model="form.major_3"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            >
+                            <select v-model="form.major_3"
+                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                                 <option value="">Pilih Jurusan</option>
-                                <option
-                                    v-for="major in majors"
-                                    :key="major.id"
-                                    :value="major.id"
-                                    :disabled="majorSelectDisabled(String(major.id), 'major_3')"
-                                >
+                                <option v-for="major in majors" :key="major.id" :value="major.id"
+                                    :disabled="majorSelectDisabled(String(major.id), 'major_3')">
                                     {{ major.name }}
                                 </option>
                             </select>
@@ -412,12 +464,9 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Email <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                v-model="form.email"
-                                type="email"
+                            <input v-model="form.email" type="email"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="nama@email.com"
-                            />
+                                placeholder="nama@email.com" />
                             <p v-if="form.errors.email" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.email }}
                             </p>
@@ -427,13 +476,9 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Nomor Telepon <span class="text-gray-400">(opsional)</span>
                             </label>
-                            <input
-                                v-model="form.phone"
-                                type="tel"
-                                inputmode="numeric"
+                            <input v-model="form.phone" type="tel" inputmode="numeric"
                                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="08xxxxxxxxxx"
-                            />
+                                placeholder="08xxxxxxxxxx" />
                             <p class="mt-1 text-xs text-gray-500">Jika diisi, harus diawali 08 dan minimal 10 digit.</p>
                             <p v-if="form.errors.phone" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.phone }}
@@ -447,19 +492,15 @@ const majorSelectDisabled = (value, currentField) => {
                                 Password <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <input
-                                    v-model="form.password"
-                                    :type="showPassword ? 'text' : 'password'"
+                                <input v-model="form.password" :type="showPassword ? 'text' : 'password'"
                                     class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-12 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                    placeholder="Minimal 6 karakter"
-                                />
-                                <button
-                                    type="button"
+                                    placeholder="Minimal 6 karakter" />
+                                <button type="button"
                                     class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
                                     @click="showPassword = !showPassword"
-                                    :aria-label="showPassword ? 'Sembunyikan password' : 'Tampilkan password'"
-                                >
-                                    <svg v-if="showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    :aria-label="showPassword ? 'Sembunyikan password' : 'Tampilkan password'">
+                                    <svg v-if="showPassword" class="h-5 w-5" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.966 9.966 0 012.482-4.387m3.445-2.314A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.23 10.23 0 01-4.043 5.024M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 9L3 3" />
                                     </svg>
@@ -481,19 +522,16 @@ const majorSelectDisabled = (value, currentField) => {
                                 Konfirmasi Password <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <input
-                                    v-model="form.password_confirmation"
+                                <input v-model="form.password_confirmation"
                                     :type="showPasswordConfirmation ? 'text' : 'password'"
                                     class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-12 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                    placeholder="Ulangi password"
-                                />
-                                <button
-                                    type="button"
+                                    placeholder="Ulangi password" />
+                                <button type="button"
                                     class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
                                     @click="showPasswordConfirmation = !showPasswordConfirmation"
-                                    :aria-label="showPasswordConfirmation ? 'Sembunyikan konfirmasi password' : 'Tampilkan konfirmasi password'"
-                                >
-                                    <svg v-if="showPasswordConfirmation" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    :aria-label="showPasswordConfirmation ? 'Sembunyikan konfirmasi password' : 'Tampilkan konfirmasi password'">
+                                    <svg v-if="showPasswordConfirmation" class="h-5 w-5" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.966 9.966 0 012.482-4.387m3.445-2.314A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.23 10.23 0 01-4.043 5.024M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 9L3 3" />
                                     </svg>
@@ -509,17 +547,12 @@ const majorSelectDisabled = (value, currentField) => {
                     </div>
 
                     <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
-                        <Link
-                            :href="route('admin.students')"
-                            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                        >
+                        <Link :href="route('admin.students')"
+                            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                             Batal
                         </Link>
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
+                        <button type="submit" :disabled="form.processing"
+                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
                             {{ form.processing ? 'Menyimpan...' : 'Simpan Pendaftar' }}
                         </button>
                     </div>

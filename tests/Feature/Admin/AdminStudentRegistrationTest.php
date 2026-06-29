@@ -46,7 +46,14 @@ class AdminStudentRegistrationTest extends TestCase
                 'nisn' => '1234567890',
                 'place_of_birth' => 'Jayapura',
                 'date_of_birth' => '2008-01-01',
+                'gender' => 'male',
                 'religion' => 'Islam',
+                'street' => 'Jl. Contoh No. 1',
+                'rt' => '001',
+                'rw' => '002',
+                'dusun' => 'Kampung Contoh',
+                'district' => 'Abepura',
+                'postal_code' => '99351',
                 'school_name' => 'SMP Negeri 1 Jayapura',
                 'school_city' => 'Jayapura',
                 'school_province' => 'Papua',
@@ -68,6 +75,13 @@ class AdminStudentRegistrationTest extends TestCase
 
         $this->assertSame($year->id, $student->academic_year_id);
         $this->assertSame($wave->id, $student->enrollment_wave_id);
+        $this->assertSame('male', $student->gender);
+        $this->assertSame('Jl. Contoh No. 1', $student->street);
+        $this->assertSame('001', $student->rt);
+        $this->assertSame('002', $student->rw);
+        $this->assertSame('Kampung Contoh', $student->dusun);
+        $this->assertSame('Abepura', $student->district);
+        $this->assertSame('99351', $student->postal_code);
         $this->assertStringStartsWith('SPMB-2026-I-', $student->registration_number);
         $this->assertStringNotContainsString('DRAFT-', $student->registration_number);
     }
