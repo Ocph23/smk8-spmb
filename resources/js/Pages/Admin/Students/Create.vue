@@ -1,6 +1,7 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 defineProps({
     currentAcademicYear: {
@@ -39,6 +40,9 @@ const form = useForm({
     password_confirmation: '',
 });
 
+const showPassword = ref(false);
+const showPasswordConfirmation = ref(false);
+
 const submit = () => {
     form.post(route('admin.students.store'));
 };
@@ -63,7 +67,7 @@ const majorSelectDisabled = (value, currentField) => {
                 <div>
                     <h1 class="text-2xl font-bold text-gray-800">Tambah Pendaftar Baru</h1>
                     <p class="mt-1 text-sm text-gray-500">
-                        Buat akun pendaftar draft dari panel admin.
+                        Buat akun pendaftar langsung dari panel admin.
                     </p>
                 </div>
                 <Link
@@ -75,8 +79,7 @@ const majorSelectDisabled = (value, currentField) => {
             </div>
 
             <div class="rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
-                Data yang dibuat dari halaman ini akan disimpan sebagai <strong>Draft</strong>, sehingga bisa dilengkapi
-                lagi dari menu pendaftar.
+                Nomor pendaftaran akan dibuat otomatis saat data disimpan, tanpa status draft.
             </div>
 
             <div class="grid gap-4 md:grid-cols-2">
@@ -443,12 +446,31 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Password <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                v-model="form.password"
-                                type="password"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Minimal 6 karakter"
-                            />
+                            <div class="relative">
+                                <input
+                                    v-model="form.password"
+                                    :type="showPassword ? 'text' : 'password'"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-12 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Minimal 6 karakter"
+                                />
+                                <button
+                                    type="button"
+                                    class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                                    @click="showPassword = !showPassword"
+                                    :aria-label="showPassword ? 'Sembunyikan password' : 'Tampilkan password'"
+                                >
+                                    <svg v-if="showPassword" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.966 9.966 0 012.482-4.387m3.445-2.314A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.23 10.23 0 01-4.043 5.024M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 9L3 3" />
+                                    </svg>
+                                    <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                            </div>
                             <p v-if="form.errors.password" class="mt-1 text-xs text-red-600">
                                 {{ form.errors.password }}
                             </p>
@@ -458,12 +480,31 @@ const majorSelectDisabled = (value, currentField) => {
                             <label class="mb-1 block text-sm font-medium text-gray-700">
                                 Konfirmasi Password <span class="text-red-500">*</span>
                             </label>
-                            <input
-                                v-model="form.password_confirmation"
-                                type="password"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Ulangi password"
-                            />
+                            <div class="relative">
+                                <input
+                                    v-model="form.password_confirmation"
+                                    :type="showPasswordConfirmation ? 'text' : 'password'"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-12 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Ulangi password"
+                                />
+                                <button
+                                    type="button"
+                                    class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                                    @click="showPasswordConfirmation = !showPasswordConfirmation"
+                                    :aria-label="showPasswordConfirmation ? 'Sembunyikan konfirmasi password' : 'Tampilkan konfirmasi password'"
+                                >
+                                    <svg v-if="showPasswordConfirmation" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.966 9.966 0 012.482-4.387m3.445-2.314A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.23 10.23 0 01-4.043 5.024M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 9L3 3" />
+                                    </svg>
+                                    <svg v-else class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 

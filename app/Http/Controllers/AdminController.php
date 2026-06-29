@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EnrollmentWave;
+use App\Models\AcademicYear;
 use App\Models\Inbox;
 use App\Models\Major;
 use App\Models\Student;
@@ -181,13 +182,14 @@ class AdminController extends Controller
                 ->first()
             : null;
 
+        $registrationNumber = $this->generateAdminRegistrationNumber($context, $openWave);
         $plainPassword = $validated['password'];
 
-        $student = DB::transaction(function () use ($validated, $context, $openWave, $plainPassword) {
+        $student = DB::transaction(function () use ($validated, $context, $openWave, $plainPassword, $registrationNumber) {
             $student = Student::create([
                 'academic_year_id' => $context?->id,
                 'enrollment_wave_id' => $openWave?->id,
-                'registration_number' => 'DRAFT-' . strtoupper(Str::random(10)),
+                'registration_number' => $registrationNumber,
                 'full_name' => trim($validated['full_name']),
                 'nik' => trim($validated['nik']),
                 'nisn' => !empty($validated['nisn']) ? trim($validated['nisn']) : null,
@@ -369,5 +371,22 @@ class AdminController extends Controller
         $student->delete();
 
         return back()->with('success', 'Data siswa berhasil dihapus.');
+    }
+
+    private function generateAdminRegistrationNumber(?AcademicYear $context, ?EnrollmentWave $openWave): string
+    {
+        if ($openWave) {
+            return $this->enrollmentWaveService->generateRegistrationNumber($openWave);
+        }
+
+        $year = $context ?? AcademicYear::where('status', 'active')->first();
+
+        if (! $year) {
+            return 'SPMB-' . now()->format('Y') . '-ADM-' . strtoupper(Str::random(6));
+        }
+
+        $seq = Student::where('academic_year_id', $year->id)->count() + 1;
+
+        return sprintf('SPMB-%s-ADM-%04d', $year->end_year, $seq);
     }
 }
