@@ -7,7 +7,6 @@ use App\Models\AcademicYear;
 use App\Models\EnrollmentWave;
 use App\Models\Student;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class EnrollmentWaveService
 {
@@ -203,40 +202,72 @@ class EnrollmentWaveService
      */
     public function generateRegistrationNumber(EnrollmentWave $wave): string
     {
-        if (! Schema::hasColumn('enrollment_waves', 'registration_sequence')) {
-            return $this->generateLegacyRegistrationNumber($wave);
-        }
-
         return DB::transaction(function () use ($wave) {
-            $lockedWave = EnrollmentWave::whereKey($wave->id)
-                ->lockForUpdate()
-                ->firstOrFail();
+            $wave->loadMissing('academicYear');
 
-            $lockedWave->increment('registration_sequence');
-            $lockedWave->refresh();
-            $lockedWave->loadMissing('academicYear');
+            $lockName = sprintf('spmb_registration_wave_%d', $wave->id);
+            if (! $this->acquireMySqlLock($lockName, 10)) {
+                throw new \RuntimeException('Tidak dapat mengamankan nomor pendaftaran. Silakan coba lagi.');
+            }
 
-            $endYear = $lockedWave->academicYear->end_year;
-            $roman   = RomanNumeralHelper::toRoman($lockedWave->wave_number);
-            $seq     = str_pad((string) $lockedWave->registration_sequence, 4, '0', STR_PAD_LEFT);
+            try {
+                $lockedWave = EnrollmentWave::whereKey($wave->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-            return "SPMB-{$endYear}-{$roman}-{$seq}";
+                $endYear = $lockedWave->academicYear->end_year;
+                $roman   = RomanNumeralHelper::toRoman($lockedWave->wave_number);
+                $prefix  = "SPMB-{$endYear}-{$roman}-";
+
+                $existingMax = Student::where('enrollment_wave_id', $lockedWave->id)
+                    ->where('registration_number', 'like', $prefix . '%')
+                    ->pluck('registration_number')
+                    ->map(function (string $registrationNumber) use ($prefix) {
+                        $sequence = substr($registrationNumber, strlen($prefix));
+
+                        return ctype_digit($sequence) ? (int) $sequence : 0;
+                    })
+                    ->max() ?? 0;
+
+                $sequence = $existingMax + 1;
+
+                if (is_array($lockedWave->getAttributes()) && array_key_exists('registration_sequence', $lockedWave->getAttributes())) {
+                    if ((int) $lockedWave->registration_sequence < $sequence) {
+                        $lockedWave->forceFill(['registration_sequence' => $sequence])->save();
+                    } else {
+                        $lockedWave->increment('registration_sequence');
+                        $lockedWave->refresh();
+                        $sequence = (int) $lockedWave->registration_sequence;
+                    }
+                }
+
+                $seq = str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+
+                return $prefix . $seq;
+            } finally {
+                $this->releaseMySqlLock($lockName);
+            }
         });
     }
 
-    private function generateLegacyRegistrationNumber(EnrollmentWave $wave): string
+    private function acquireMySqlLock(string $lockName, int $timeoutSeconds): bool
     {
-        $wave->loadMissing('academicYear');
+        $driver = DB::getDriverName();
+        if ($driver !== 'mysql') {
+            return true;
+        }
 
-        $endYear = $wave->academicYear->end_year;
-        $roman   = RomanNumeralHelper::toRoman($wave->wave_number);
+        $result = DB::selectOne('SELECT GET_LOCK(?, ?) AS lock_result', [$lockName, $timeoutSeconds]);
 
-        $count = Student::lockForUpdate()
-            ->where('enrollment_wave_id', $wave->id)
-            ->count();
+        return (int) ($result->lock_result ?? 0) === 1;
+    }
 
-        $seq = str_pad($count + 1, 4, '0', STR_PAD_LEFT);
+    private function releaseMySqlLock(string $lockName): void
+    {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
 
-        return "SPMB-{$endYear}-{$roman}-{$seq}";
+        DB::selectOne('SELECT RELEASE_LOCK(?) AS lock_result', [$lockName]);
     }
 }

@@ -33,10 +33,22 @@ class AdminStudentRegistrationTest extends TestCase
             'name'             => 'Gelombang I',
             'wave_number'      => 1,
             'status'           => 'open',
+            'registration_sequence' => 5,
         ]);
 
         $wave->majors()->attach($major1->id, ['quota' => 30]);
         $wave->majors()->attach($major2->id, ['quota' => 30]);
+
+        Student::create([
+            'academic_year_id'    => $year->id,
+            'enrollment_wave_id'  => $wave->id,
+            'registration_number' => 'SPMB-2026-I-0005',
+            'full_name'           => 'Existing',
+            'nik'                 => '1234567890123457',
+            'email'               => 'existing@example.com',
+            'password'            => bcrypt('password'),
+            'verification_status' => 'pending',
+        ]);
 
         $response = $this
             ->actingAs($admin)
@@ -84,6 +96,7 @@ class AdminStudentRegistrationTest extends TestCase
         $this->assertSame('99351', $student->postal_code);
         $this->assertStringStartsWith('SPMB-2026-I-', $student->registration_number);
         $this->assertStringNotContainsString('DRAFT-', $student->registration_number);
+        $this->assertSame('SPMB-2026-I-0006', $student->registration_number);
     }
 
     public function test_registration_number_sequence_increments_per_wave(): void
