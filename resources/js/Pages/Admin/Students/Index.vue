@@ -94,12 +94,20 @@ const isDraftRegistration = (student) => {
                 </div>
 
                 <!-- Page header -->
-                <div class="mb-6 flex items-center gap-3">
-                    <h2 class="text-2xl font-bold text-gray-800">Kelola Pendaftar</h2>
-                    <span v-if="currentAcademicYear"
-                        class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-                        {{ currentAcademicYear.name }}
-                    </span>
+                <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-2xl font-bold text-gray-800">Kelola Pendaftar</h2>
+                        <span v-if="currentAcademicYear"
+                            class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                            {{ currentAcademicYear.name }}
+                        </span>
+                    </div>
+                    <Link
+                        :href="route('admin.students.create')"
+                        class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    >
+                        + Tambah Pendaftar
+                    </Link>
                 </div>
 
                 <!-- Filters -->

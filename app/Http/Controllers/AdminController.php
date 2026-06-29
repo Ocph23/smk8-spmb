@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EnrollmentWave;
+use App\Models\Inbox;
 use App\Models\Major;
 use App\Models\Student;
 use App\Services\AcademicYearService;
 use App\Services\EnrollmentWaveService;
-use App\Models\Inbox;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class AdminController extends Controller
@@ -114,6 +118,116 @@ class AdminController extends Controller
             ],
             'currentAcademicYear' => $context,
         ]);
+    }
+
+    public function createStudent(Request $request)
+    {
+        $context = $this->service->resolveContext($request);
+        $openWave = $context
+            ? EnrollmentWave::where('academic_year_id', $context->id)
+                ->where('status', 'open')
+                ->first()
+            : null;
+
+        return Inertia::render('Admin/Students/Create', [
+            'currentAcademicYear' => $context,
+            'openWave' => $openWave,
+            'majors' => Major::orderBy('code')->get(),
+        ]);
+    }
+
+    public function storeStudent(Request $request)
+    {
+        $context = $this->service->resolveContext($request);
+        $nikRule = ['required', 'string', 'size:16'];
+        if ($context?->id) {
+            $nikRule[] = Rule::unique('students', 'nik')->where(fn ($query) => $query->where('academic_year_id', $context->id));
+        } else {
+            $nikRule[] = Rule::unique('students', 'nik');
+        }
+
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'nik' => $nikRule,
+            'nisn' => 'nullable|string|max:10',
+            'place_of_birth' => 'required|string|max:100',
+            'date_of_birth' => 'required|date|before_or_equal:' . now()->subYears(14)->format('Y-m-d') . '|after_or_equal:' . now()->subYears(21)->format('Y-m-d'),
+            'religion' => 'nullable|string|max:50',
+            'school_name' => 'required|string|max:255',
+            'school_city' => 'required|string|max:100',
+            'school_province' => 'required|string|max:100',
+            'parent_name' => 'required|string|max:255',
+            'mother_name' => 'required|string|max:255',
+            'parent_phone' => ['required', 'string', 'max:20', 'regex:/^08[0-9]{8,}$/'],
+            'email' => 'required|email|unique:students,email',
+            'phone' => ['nullable', 'string', 'max:20', 'regex:/^08[0-9]{8,}$/'],
+            'major_1' => 'required|exists:majors,id',
+            'major_2' => 'required|exists:majors,id|different:major_1',
+            'major_3' => 'nullable|exists:majors,id|different:major_1,major_2',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'nik.size' => 'NIK harus terdiri dari 16 digit.',
+            'nik.unique' => 'NIK sudah digunakan pada tahun ajaran ini.',
+            'date_of_birth.before_or_equal' => 'Usia pendaftar minimal 14 tahun.',
+            'date_of_birth.after_or_equal' => 'Usia pendaftar maksimal 21 tahun.',
+            'phone.regex' => 'Nomor telepon harus diawali 08 dan minimal 10 digit.',
+            'parent_phone.regex' => 'Nomor telepon orang tua harus diawali 08 dan minimal 10 digit.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+        ]);
+
+        $openWave = $context
+            ? EnrollmentWave::where('academic_year_id', $context->id)
+                ->where('status', 'open')
+                ->first()
+            : null;
+
+        $plainPassword = $validated['password'];
+
+        $student = DB::transaction(function () use ($validated, $context, $openWave, $plainPassword) {
+            $student = Student::create([
+                'academic_year_id' => $context?->id,
+                'enrollment_wave_id' => $openWave?->id,
+                'registration_number' => 'DRAFT-' . strtoupper(Str::random(10)),
+                'full_name' => trim($validated['full_name']),
+                'nik' => trim($validated['nik']),
+                'nisn' => !empty($validated['nisn']) ? trim($validated['nisn']) : null,
+                'place_of_birth' => trim($validated['place_of_birth']),
+                'date_of_birth' => $validated['date_of_birth'],
+                'religion' => $validated['religion'] ?? null,
+                'school_name' => trim($validated['school_name']),
+                'school_city' => trim($validated['school_city']),
+                'school_province' => trim($validated['school_province']),
+                'parent_name' => trim($validated['parent_name']),
+                'mother_name' => trim($validated['mother_name']),
+                'parent_phone' => trim($validated['parent_phone']),
+                'email' => strtolower(trim($validated['email'])),
+                'phone' => !empty($validated['phone']) ? trim($validated['phone']) : null,
+                'password' => Hash::make($plainPassword),
+                'verification_status' => 'pending',
+            ]);
+
+            $student->majors()->detach();
+            $student->majors()->attach($validated['major_1'], ['preference' => 1]);
+            $student->majors()->attach($validated['major_2'], ['preference' => 2]);
+            if (!empty($validated['major_3'])) {
+                $student->majors()->attach($validated['major_3'], ['preference' => 3]);
+            }
+
+            Inbox::create([
+                'student_id' => $student->id,
+                'subject' => 'Akun Pendaftaran Dibuat',
+                'message' => "Akun pendaftaran Anda telah dibuat oleh admin.\n\n"
+                    . "Email Login: {$student->email}\n"
+                    . "Password: {$plainPassword}\n"
+                    . "Silakan login dan lengkapi data pendaftaran Anda.",
+                'is_system' => true,
+            ]);
+
+            return $student;
+        });
+
+        return redirect()->route('admin.students.show', $student->id)
+            ->with('success', 'Pendaftar baru berhasil dibuat.');
     }
 
     public function showStudent(Student $student)

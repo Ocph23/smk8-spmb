@@ -41,6 +41,7 @@ class Student extends Authenticatable
         'mother_name',
         'parent_phone',
         'school_name',
+        'school_address',
         'school_city',
         'school_province',
         'verification_status',

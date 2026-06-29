@@ -97,6 +97,8 @@ Route::middleware(['auth', 'verified', 'panitia'])->group(function () {
 
     // Students Management
     Route::get('/admin/students', [AdminController::class, 'students'])->name('admin.students');
+    Route::get('/admin/students/create', [AdminController::class, 'createStudent'])->name('admin.students.create');
+    Route::post('/admin/students', [AdminController::class, 'storeStudent'])->name('admin.students.store');
     Route::get('/admin/students/{student}', [AdminController::class, 'showStudent'])->name('admin.students.show');
     Route::post('/admin/students/{student}/verify', [AdminController::class, 'verifyStudent'])->name('admin.students.verify');
     Route::delete('/admin/students/{student}', [AdminController::class, 'destroyStudent'])->name('admin.students.destroy');
