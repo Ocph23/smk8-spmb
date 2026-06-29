@@ -16,6 +16,7 @@ class EnrollmentWave extends Model
         'academic_year_id',
         'name',
         'wave_number',
+        'registration_sequence',
         'status',
         'open_date',
         'close_date',
@@ -24,6 +25,7 @@ class EnrollmentWave extends Model
 
     protected $casts = [
         'wave_number' => 'integer',
+        'registration_sequence' => 'integer',
         'open_date'   => 'date',
         'close_date'  => 'date',
     ];

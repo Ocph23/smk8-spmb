@@ -7,6 +7,7 @@ use App\Models\AcademicYear;
 use App\Models\EnrollmentWave;
 use App\Models\Student;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class EnrollmentWaveService
 {
@@ -202,12 +203,34 @@ class EnrollmentWaveService
      */
     public function generateRegistrationNumber(EnrollmentWave $wave): string
     {
+        if (! Schema::hasColumn('enrollment_waves', 'registration_sequence')) {
+            return $this->generateLegacyRegistrationNumber($wave);
+        }
+
+        return DB::transaction(function () use ($wave) {
+            $lockedWave = EnrollmentWave::whereKey($wave->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $lockedWave->increment('registration_sequence');
+            $lockedWave->refresh();
+            $lockedWave->loadMissing('academicYear');
+
+            $endYear = $lockedWave->academicYear->end_year;
+            $roman   = RomanNumeralHelper::toRoman($lockedWave->wave_number);
+            $seq     = str_pad((string) $lockedWave->registration_sequence, 4, '0', STR_PAD_LEFT);
+
+            return "SPMB-{$endYear}-{$roman}-{$seq}";
+        });
+    }
+
+    private function generateLegacyRegistrationNumber(EnrollmentWave $wave): string
+    {
         $wave->loadMissing('academicYear');
 
         $endYear = $wave->academicYear->end_year;
         $roman   = RomanNumeralHelper::toRoman($wave->wave_number);
 
-        // Atomic count using DB lock to prevent duplicate numbers
         $count = Student::lockForUpdate()
             ->where('enrollment_wave_id', $wave->id)
             ->count();

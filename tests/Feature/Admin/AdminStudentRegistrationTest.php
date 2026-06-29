@@ -85,4 +85,31 @@ class AdminStudentRegistrationTest extends TestCase
         $this->assertStringStartsWith('SPMB-2026-I-', $student->registration_number);
         $this->assertStringNotContainsString('DRAFT-', $student->registration_number);
     }
+
+    public function test_registration_number_sequence_increments_per_wave(): void
+    {
+        $year = AcademicYear::factory()->active()->create([
+            'start_year' => 2025,
+            'end_year'   => 2026,
+        ]);
+
+        $wave = EnrollmentWave::create([
+            'academic_year_id' => $year->id,
+            'name'             => 'Gelombang I',
+            'wave_number'      => 1,
+            'status'           => 'open',
+        ]);
+
+        $service = app(\App\Services\EnrollmentWaveService::class);
+
+        $first = $service->generateRegistrationNumber($wave);
+        $second = $service->generateRegistrationNumber($wave);
+
+        $this->assertSame('SPMB-2026-I-0001', $first);
+        $this->assertSame('SPMB-2026-I-0002', $second);
+        $this->assertDatabaseHas('enrollment_waves', [
+            'id' => $wave->id,
+            'registration_sequence' => 2,
+        ]);
+    }
 }

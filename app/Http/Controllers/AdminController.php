@@ -189,10 +189,11 @@ class AdminController extends Controller
                 ->first()
             : null;
 
-        $registrationNumber = $this->generateAdminRegistrationNumber($context, $openWave);
         $plainPassword = $validated['password'];
 
-        $student = DB::transaction(function () use ($validated, $context, $openWave, $plainPassword, $registrationNumber) {
+        $student = DB::transaction(function () use ($validated, $context, $openWave, $plainPassword) {
+            $registrationNumber = $this->generateAdminRegistrationNumber($context, $openWave);
+
             $student = Student::create([
                 'academic_year_id' => $context?->id,
                 'enrollment_wave_id' => $openWave?->id,
